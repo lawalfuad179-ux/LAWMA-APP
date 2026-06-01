@@ -16,11 +16,96 @@
   gap: 32px;
 }
 
-.header {
+/* Step indicator */
+.steps {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.stepDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--color-outline-variant);
+  transition: background 0.3s, transform 0.3s;
+}
+
+.stepActive {
+  background: var(--color-primary);
+  transform: scale(1.2);
+}
+
+.stepDone {
+  background: var(--color-primary);
+  opacity: 0.5;
+}
+
+.stepLine {
+  width: 32px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--color-outline-variant);
+  transition: background 0.3s;
+}
+
+.stepLineActive {
+  background: var(--color-primary);
+}
+
+/* Header area with transitions */
+.stage {
   text-align: center;
+  min-height: 80px;
+  display: flex;
+  justify-content: center;
+}
+
+.enter {
+  animation: fadeSlideIn 0.25s ease forwards;
+}
+
+.leave {
+  animation: fadeSlideOut 0.2s ease forwards;
+}
+
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeSlideOut {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(-10px); }
+}
+
+.header {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 8px;
+  position: relative;
+}
+
+.backBtn {
+  position: absolute;
+  left: -8px;
+  top: -4px;
+  background: none;
+  border: none;
+  color: var(--color-on-surface-variant);
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+
+.backBtn:hover {
+  background: var(--color-surface-container-high);
 }
 
 .title {
@@ -36,18 +121,13 @@
   line-height: var(--body-large-line-height);
 }
 
+.phoneDisplay {
+  font-weight: 600;
+  color: var(--color-on-surface);
+}
+
 .form {
   display: flex;
   flex-direction: column;
   gap: 16px;
-}
-
-.backButton {
-  background: none;
-  border: none;
-  color: var(--color-primary);
-  font-size: var(--body-medium-font-size);
-  cursor: pointer;
-  text-align: center;
-  padding: 8px;
 }

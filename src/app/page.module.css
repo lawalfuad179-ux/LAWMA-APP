@@ -6,6 +6,18 @@
   min-height: 100dvh;
   padding: 32px 24px;
   background: var(--color-background);
+  position: relative;
+  overflow: hidden;
+}
+
+.bgPattern {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% -20%, hsla(24, 98%, 50%, 0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 80% 40%, hsla(24, 98%, 50%, 0.04) 0%, transparent 50%),
+    radial-gradient(ellipse 50% 40% at 20% 80%, hsla(24, 98%, 50%, 0.03) 0%, transparent 50%);
+  pointer-events: none;
 }
 
 .container {
@@ -14,56 +26,117 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 32px;
+  gap: 40px;
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+.visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .hero {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
   text-align: center;
 }
 
+.insignia {
+  margin-bottom: 4px;
+  filter: drop-shadow(0 4px 12px hsla(24, 98%, 50%, 0.25));
+  animation: float 4s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
 .badge {
-  font-size: var(--label-small-font-size);
+  font-size: 11px;
   font-weight: 600;
   color: var(--color-on-surface-variant);
   text-transform: uppercase;
-  letter-spacing: 1.5px;
+  letter-spacing: 2px;
 }
 
 .title {
-  font-size: 56px;
+  font-size: 60px;
   font-weight: 800;
   color: var(--color-primary);
-  line-height: 1.1;
-  letter-spacing: -2.5px;
+  line-height: 1;
+  letter-spacing: -3px;
+  margin: -4px 0;
 }
 
 .subtitle {
   font-size: var(--body-large-font-size);
   color: var(--color-on-surface-variant);
   line-height: var(--body-large-line-height);
-  max-width: 300px;
+  max-width: 280px;
 }
 
 .features {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+  flex-direction: column;
+  gap: 10px;
   width: 100%;
-  justify-content: center;
 }
 
 .feature {
-  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
   background: var(--color-surface);
   border: 1px solid var(--color-outline-variant);
-  border-radius: 20px;
+  border-radius: 14px;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.feature:hover {
+  box-shadow: 0 4px 12px hsla(0, 0%, 0%, 0.04);
+  transform: translateX(4px);
+}
+
+.featureIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: var(--color-primary-container);
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.featureText {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.featureLabel {
   font-size: var(--body-medium-font-size);
+  font-weight: 600;
+  color: var(--color-on-surface);
+}
+
+.featureDesc {
+  font-size: var(--body-small-font-size);
   color: var(--color-on-surface-variant);
-  font-weight: 500;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
 }
 
 .ctaButton {
@@ -73,42 +146,49 @@
   width: 100%;
   min-height: 52px;
   padding: 16px 32px;
-  background: var(--color-primary);
+  background: linear-gradient(135deg, var(--color-primary), hsl(24, 98%, 42%));
   color: var(--color-on-primary);
   border: none;
-  border-radius: 12px;
+  border-radius: 14px;
   font-size: var(--title-small-font-size);
   font-weight: 600;
   cursor: pointer;
-  transition: opacity 0.15s, transform 0.15s;
+  transition: transform 0.15s, box-shadow 0.2s;
+  box-shadow: 0 4px 16px hsla(24, 98%, 50%, 0.3);
+  -webkit-tap-highlight-color: transparent;
 }
 
 .ctaButton:hover {
-  opacity: 0.9;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px hsla(24, 98%, 50%, 0.4);
 }
 
 .ctaButton:active {
-  transform: scale(0.98);
+  transform: translateY(0) scale(0.98);
+  box-shadow: 0 2px 8px hsla(24, 98%, 50%, 0.25);
 }
 
 .loginButton {
   background: none;
   border: none;
-  color: var(--color-primary);
+  color: var(--color-on-surface-variant);
   font-size: var(--body-medium-font-size);
   cursor: pointer;
-  padding: 8px;
+  padding: 12px;
   min-height: 44px;
-  transition: opacity 0.15s;
+  transition: color 0.15s;
+  border-radius: 10px;
 }
 
 .loginButton:hover {
-  opacity: 0.8;
+  color: var(--color-primary);
+  background: var(--color-surface-container-high);
 }
 
 .disclaimer {
-  font-size: var(--body-small-font-size);
+  font-size: 11px;
   color: var(--color-outline);
   text-align: center;
-  line-height: var(--body-small-line-height);
+  line-height: 1.5;
+  max-width: 300px;
 }

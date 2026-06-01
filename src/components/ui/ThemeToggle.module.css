@@ -8,15 +8,18 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--color-surface-container-high);
+  background: var(--color-surface);
   border: 1px solid var(--color-outline-variant);
   border-radius: 50%;
   cursor: pointer;
-  transition: background 0.3s, transform 0.3s;
+  transition: box-shadow 0.2s, transform 0.2s;
+  color: var(--color-on-surface-variant);
+  -webkit-tap-highlight-color: transparent;
 }
 
 .toggle:hover {
-  transform: scale(1.1);
+  box-shadow: 0 4px 12px hsla(0, 0%, 0%, 0.08);
+  transform: scale(1.08);
 }
 
 .toggle:active {
@@ -24,15 +27,5 @@
 }
 
 .icon {
-  font-size: 18px;
-  line-height: 1;
-  transition: transform 0.4s ease;
-}
-
-.sun {
-  transform: rotate(0deg);
-}
-
-.moon {
-  transform: rotate(-30deg);
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }

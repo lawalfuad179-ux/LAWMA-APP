@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { Button } from '@/components/ui/Button';
@@ -17,7 +17,12 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [cooldown, setCooldown] = useState(0);
+  const [transition, setTransition] = useState<'enter' | 'leave'>('enter');
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    setTransition('enter');
+  }, []);
 
   const startCooldown = useCallback((seconds: number) => {
     setCooldown(seconds);
@@ -31,6 +36,16 @@ export default function LoginPage() {
       });
     }, 1000);
   }, []);
+
+  function switchStep(to: Step) {
+    setTransition('leave');
+    setTimeout(() => {
+      if (to === 'phone') setCode('');
+      setStep(to);
+      setError('');
+      setTransition('enter');
+    }, 200);
+  }
 
   async function sendOtp() {
     setError('');
@@ -58,7 +73,7 @@ export default function LoginPage() {
         return;
       }
 
-      setStep('otp');
+      switchStep('otp');
       startCooldown(60);
     } catch {
       setError('Network error. Please check your connection.');
@@ -69,7 +84,6 @@ export default function LoginPage() {
 
   async function verifyOtp() {
     setError('');
-
     if (code.length !== 6) {
       setError('Enter the 6-digit code sent to your phone.');
       return;
@@ -132,22 +146,40 @@ export default function LoginPage() {
   return (
     <div className={styles.page}>
       <div className={styles.container}>
-        <div className={styles.header}>
-          <h1 className={styles.title}>
-            {step === 'phone' ? 'Welcome' : 'Verify Code'}
-          </h1>
-          <p className={styles.subtitle}>
-            {step === 'phone'
-              ? 'Enter your phone number to get started'
-              : `Enter the code sent to ${phone}`}
-          </p>
+        <div className={styles.steps}>
+          <span className={`${styles.stepDot} ${step === 'phone' || step === 'otp' ? styles.stepDone : ''}`} />
+          <span className={`${styles.stepLine} ${step === 'otp' ? styles.stepLineActive : ''}`} />
+          <span className={`${styles.stepDot} ${step === 'otp' ? styles.stepActive : ''}`} />
+        </div>
+
+        <div className={`${styles.stage} ${transition === 'enter' ? styles.enter : styles.leave}`}>
+          {step === 'phone' ? (
+            <div className={styles.header}>
+              <h1 className={styles.title}>Sign in</h1>
+              <p className={styles.subtitle}>Enter your phone number to get started.</p>
+            </div>
+          ) : (
+            <div className={styles.header}>
+              <button
+                type="button"
+                className={styles.backBtn}
+                onClick={() => switchStep('phone')}
+                aria-label="Back"
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="15 18 9 12 15 6" />
+                </svg>
+              </button>
+              <h1 className={styles.title}>Verify code</h1>
+              <p className={styles.subtitle}>
+                Enter the code sent to <span className={styles.phoneDisplay}>{phone}</span>
+              </p>
+            </div>
+          )}
         </div>
 
         <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            step === 'phone' ? sendOtp() : verifyOtp();
-          }}
+          onSubmit={(e) => { e.preventDefault(); step === 'phone' ? sendOtp() : verifyOtp(); }}
           className={styles.form}
         >
           {step === 'phone' ? (
@@ -183,7 +215,7 @@ export default function LoginPage() {
                 onClick={resendOtp}
                 disabled={cooldown > 0}
               >
-                {cooldown > 0 ? `Resend in ${cooldown}s` : 'Resend Code'}
+                {cooldown > 0 ? `Resend in ${cooldown}s` : 'Resend code'}
               </Button>
             </>
           )}
@@ -191,20 +223,6 @@ export default function LoginPage() {
           <Button type="submit" size="lg" isLoading={loading}>
             {step === 'phone' ? 'Send Code' : 'Verify'}
           </Button>
-
-          {step === 'otp' && (
-            <button
-              type="button"
-              className={styles.backButton}
-              onClick={() => {
-                setStep('phone');
-                setError('');
-                setCode('');
-              }}
-            >
-              ← Change phone number
-            </button>
-          )}
         </form>
       </div>
     </div>

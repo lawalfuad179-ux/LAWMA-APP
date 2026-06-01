@@ -4,57 +4,77 @@
   justify-content: center;
   gap: 8px;
   border: none;
-  border-radius: 8px;
+  border-radius: 12px;
   font-family: var(--body-large-font-family);
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.15s ease, opacity 0.15s ease;
+  transition: transform 0.15s, box-shadow 0.15s, background 0.15s, opacity 0.15s;
   min-height: 44px;
   width: 100%;
   position: relative;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .root:disabled {
-  opacity: 0.5;
+  opacity: 0.45;
   cursor: not-allowed;
+  transform: none !important;
+}
+
+.root:active:not(:disabled) {
+  transform: scale(0.97);
 }
 
 /* Variants */
 .primary {
-  background-color: var(--color-primary);
+  background: linear-gradient(135deg, var(--color-primary), hsl(24, 98%, 42%));
   color: var(--color-on-primary);
+  box-shadow: 0 2px 8px hsla(24, 98%, 50%, 0.3);
 }
 
 .primary:hover:not(:disabled) {
-  opacity: 0.9;
+  box-shadow: 0 4px 14px hsla(24, 98%, 50%, 0.4);
+  transform: translateY(-1px);
+}
+
+.primary:active:not(:disabled) {
+  transform: translateY(0) scale(0.97);
+  box-shadow: 0 1px 4px hsla(24, 98%, 50%, 0.3);
 }
 
 .secondary {
-  background-color: var(--color-secondary-container);
+  background: var(--color-secondary-container);
   color: var(--color-on-secondary-container);
 }
 
 .secondary:hover:not(:disabled) {
-  opacity: 0.9;
+  background: var(--color-secondary-container);
+  filter: brightness(0.95);
 }
 
 .ghost {
-  background-color: transparent;
+  background: transparent;
   color: var(--color-on-surface);
   border: 1px solid var(--color-outline-variant);
 }
 
 .ghost:hover:not(:disabled) {
-  background-color: var(--color-surface-container);
+  background: var(--color-surface-container);
 }
 
 .danger {
-  background-color: var(--color-error);
+  background: linear-gradient(135deg, var(--color-error), hsl(0, 54%, 35%));
   color: var(--color-on-error);
+  box-shadow: 0 2px 8px hsla(0, 54%, 41%, 0.3);
 }
 
 .danger:hover:not(:disabled) {
-  opacity: 0.9;
+  box-shadow: 0 4px 14px hsla(0, 54%, 41%, 0.4);
+  transform: translateY(-1px);
+}
+
+.danger:active:not(:disabled) {
+  transform: translateY(0) scale(0.97);
 }
 
 /* Sizes */
@@ -82,12 +102,12 @@
 }
 
 .spinner {
-  width: 18px;
-  height: 18px;
-  border: 2px solid currentColor;
+  width: 20px;
+  height: 20px;
+  border: 2.5px solid currentColor;
   border-top-color: transparent;
   border-radius: 50%;
-  animation: spin 0.6s linear infinite;
+  animation: spin 0.65s cubic-bezier(0.4, 0, 0.2, 1) infinite;
   position: absolute;
 }
 
@@ -96,7 +116,5 @@
 }
 
 @keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
+  to { transform: rotate(360deg); }
 }
