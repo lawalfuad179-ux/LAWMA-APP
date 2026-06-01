@@ -24,6 +24,7 @@
   background: var(--color-surface);
   transition: border-color 0.2s, box-shadow 0.2s;
   -webkit-appearance: none;
+  appearance: none;
 }
 
 .input::placeholder {
