@@ -1,0 +1,58 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.label {
+  font-size: var(--label-large-font-size);
+  font-weight: 500;
+  color: var(--color-on-surface);
+  line-height: var(--label-large-line-height);
+}
+
+.selectWrapper {
+  position: relative;
+}
+
+.select {
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 40px 12px 16px;
+  border: 1px solid var(--color-outline-variant);
+  border-radius: 8px;
+  font-size: var(--body-large-font-size);
+  font-family: var(--body-large-font-family);
+  line-height: var(--body-large-line-height);
+  color: var(--color-on-surface);
+  background-color: var(--color-surface);
+  appearance: none;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+.select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px hsla(24, 98%, 50%, 0.15);
+}
+
+.selectError {
+  border-color: var(--color-error);
+}
+
+.chevron {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  font-size: var(--body-large-font-size);
+  color: var(--color-outline);
+}
+
+.error {
+  font-size: var(--body-small-font-size);
+  color: var(--color-error);
+  line-height: var(--body-small-line-height);
+}

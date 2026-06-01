@@ -1,0 +1,99 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 24px;
+}
+
+.title {
+  font-size: var(--headline-small-font-size);
+  font-weight: 600;
+  color: var(--color-on-surface);
+}
+
+.balanceCard {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 24px;
+  text-align: center;
+  background: var(--color-primary-container);
+  border-color: var(--color-primary);
+}
+
+.balanceLabel {
+  font-size: var(--body-medium-font-size);
+  color: var(--color-on-primary-container);
+}
+
+.balanceAmount {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--color-on-primary-container);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.billCard {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.billRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.billPeriod {
+  font-size: var(--body-medium-font-size);
+  font-weight: 500;
+  color: var(--color-on-surface);
+}
+
+.billAmount {
+  font-size: var(--title-medium-font-size);
+  font-weight: 600;
+  color: var(--color-on-surface);
+}
+
+.billRight {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.status {
+  font-size: var(--label-small-font-size);
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.pending {
+  background: hsl(39, 100%, 90%);
+  color: hsl(28, 80%, 26%);
+}
+
+.paid {
+  background: var(--color-secondary-container);
+  color: var(--color-on-secondary-container);
+}
+
+.overdue {
+  background: var(--color-error-container);
+  color: var(--color-on-error-container);
+}
+
+.empty {
+  text-align: center;
+  font-size: var(--body-medium-font-size);
+  color: var(--color-outline);
+  padding: 24px;
+}

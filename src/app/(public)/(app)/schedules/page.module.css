@@ -1,0 +1,58 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 24px;
+}
+
+.title {
+  font-size: var(--headline-small-font-size);
+  font-weight: 600;
+  color: var(--color-on-surface);
+}
+
+.sectionTitle {
+  font-size: var(--title-medium-font-size);
+  font-weight: 600;
+  color: var(--color-on-surface);
+  margin-bottom: 12px;
+}
+
+.scheduleCard {
+  margin-bottom: 8px;
+}
+
+.scheduleHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.day {
+  font-weight: 600;
+  color: var(--color-on-surface);
+}
+
+.time {
+  font-size: var(--body-medium-font-size);
+  color: var(--color-on-surface-variant);
+}
+
+.operator {
+  font-size: var(--body-medium-font-size);
+  color: var(--color-on-surface);
+  font-weight: 500;
+}
+
+.area {
+  font-size: var(--body-small-font-size);
+  color: var(--color-on-surface-variant);
+}
+
+.empty {
+  font-size: var(--body-medium-font-size);
+  color: var(--color-outline);
+  text-align: center;
+  padding: 24px;
+}

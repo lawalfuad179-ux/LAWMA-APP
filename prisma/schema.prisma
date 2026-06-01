@@ -1,0 +1,175 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum ComplaintStatus {
+  SUBMITTED
+  IN_REVIEW
+  ASSIGNED
+  RESOLVED
+}
+
+enum BillStatus {
+  PENDING
+  PAID
+  OVERDUE
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESSFUL
+  FAILED
+}
+
+model Resident {
+  id           String        @id @default(uuid())
+  phoneNumber  String        @unique @map("phone_number")
+  name         String?       @map("name")
+  address      String?       @map("address")
+  lga          String?       @map("lga")
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
+
+  sessions     Session[]
+  complaints   Complaint[]
+  bills        Bill[]
+  payments     Payment[]
+  notifications Notification[]
+
+  @@map("residents")
+}
+
+model Session {
+  id         String   @id @default(uuid())
+  residentId String   @map("resident_id")
+  resident   Resident @relation(fields: [residentId], references: [id], onDelete: Cascade)
+  token      String   @unique @map("token")
+  expiresAt  DateTime @map("expires_at")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@map("sessions")
+}
+
+model OtpCode {
+  id          String   @id @default(uuid())
+  phoneNumber String   @map("phone_number")
+  code        String   @map("code")
+  expiresAt   DateTime @map("expires_at")
+  isUsed      Boolean  @default(false) @map("is_used")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([phoneNumber])
+  @@map("otp_codes")
+}
+
+model PspOperator {
+  id           String               @id @default(uuid())
+  name         String               @map("name")
+  contactPhone String?              @map("contact_phone")
+  email        String?              @map("email")
+  zone         String               @map("zone")
+  lga          String               @map("lga")
+  createdAt    DateTime             @default(now()) @map("created_at")
+  schedules    CollectionSchedule[]
+
+  @@map("psp_operators")
+}
+
+model CollectionSchedule {
+  id            String      @id @default(uuid())
+  lga           String      @map("lga")
+  dayOfWeek     Int         @map("day_of_week") // 0 = Sunday, 6 = Saturday
+  windowStart   String      @map("window_start") // e.g. "08:00"
+  windowEnd     String      @map("window_end") // e.g. "12:00"
+  pspOperatorId String      @map("psp_operator_id")
+  pspOperator   PspOperator @relation(fields: [pspOperatorId], references: [id], onDelete: Restrict)
+  createdAt     DateTime    @default(now()) @map("created_at")
+
+  @@index([lga])
+  @@map("collection_schedules")
+}
+
+model Complaint {
+  id          String          @id @default(uuid())
+  residentId  String          @map("resident_id")
+  resident    Resident        @relation(fields: [residentId], references: [id], onDelete: Restrict)
+  issueType   String          @map("issue_type") // e.g. "MISSED_PICKUP", "ILLEGAL_DUMPING"
+  lga         String          @map("lga")
+  area        String          @map("area")
+  address     String          @map("address")
+  description String?         @map("description")
+  status      ComplaintStatus @default(SUBMITTED) @map("status")
+  latitude    Float?          @map("latitude")
+  longitude   Float?          @map("longitude")
+  createdAt   DateTime        @default(now()) @map("created_at")
+  updatedAt   DateTime        @updatedAt @map("updated_at")
+  images      ComplaintImage[]
+
+  @@index([residentId])
+  @@index([lga, status])
+  @@index([createdAt])
+  @@map("complaints")
+}
+
+model ComplaintImage {
+  id          String    @id @default(uuid())
+  complaintId String    @map("complaint_id")
+  complaint   Complaint @relation(fields: [complaintId], references: [id], onDelete: Cascade)
+  url         String    @map("url")
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  @@map("complaint_images")
+}
+
+model Bill {
+  id           String     @id @default(uuid())
+  residentId   String     @map("resident_id")
+  resident     Resident   @relation(fields: [residentId], references: [id], onDelete: Restrict)
+  amountKobo   Int        @map("amount_kobo")
+  dueDate      DateTime   @map("due_date")
+  periodStart  DateTime   @map("period_start")
+  periodEnd    DateTime   @map("period_end")
+  status       BillStatus @default(PENDING) @map("status")
+  createdAt    DateTime   @default(now()) @map("created_at")
+  payments     Payment[]
+
+  @@index([residentId])
+  @@map("bills")
+}
+
+model Payment {
+  id               String        @id @default(uuid())
+  billId           String        @map("bill_id")
+  bill             Bill          @relation(fields: [billId], references: [id], onDelete: Restrict)
+  residentId       String        @map("resident_id")
+  resident         Resident      @relation(fields: [residentId], references: [id], onDelete: Restrict)
+  amountKobo       Int           @map("amount_kobo")
+  currency         String        @default("NGN") @map("currency")
+  status           PaymentStatus @default(PENDING) @map("status")
+  txRef            String        @unique @map("tx_ref")
+  gatewayReference String?       @unique @map("gateway_reference")
+  paidAt           DateTime?     @map("paid_at")
+  createdAt        DateTime      @default(now()) @map("created_at")
+
+  @@index([txRef])
+  @@index([residentId])
+  @@map("payments")
+}
+
+model Notification {
+  id         String   @id @default(uuid())
+  residentId String   @map("resident_id")
+  resident   Resident @relation(fields: [residentId], references: [id], onDelete: Cascade)
+  title      String   @map("title")
+  body       String   @map("body")
+  type       String   @map("type") // e.g. "SCHEDULE", "PAYMENT", "COMPLAINT"
+  isRead     Boolean  @default(false) @map("is_read")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@index([residentId])
+  @@map("notifications")
+}

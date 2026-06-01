@@ -1,0 +1,63 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 24px;
+}
+
+.title {
+  font-size: var(--headline-small-font-size);
+  font-weight: 600;
+  color: var(--color-on-surface);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.textareaLabel {
+  font-size: var(--label-large-font-size);
+  font-weight: 500;
+  color: var(--color-on-surface);
+}
+
+.textarea {
+  width: 100%;
+  min-height: 80px;
+  padding: 12px 16px;
+  border: 1px solid var(--color-outline-variant);
+  border-radius: 8px;
+  font-size: var(--body-large-font-size);
+  font-family: var(--body-large-font-family);
+  line-height: var(--body-large-line-height);
+  color: var(--color-on-surface);
+  background: var(--color-surface);
+  resize: vertical;
+}
+
+.textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.duplicateWarning {
+  font-size: var(--body-medium-font-size);
+  color: hsl(28, 80%, 26%);
+  background: hsl(39, 100%, 90%);
+  padding: 12px;
+  border-radius: 8px;
+}
+
+.error {
+  font-size: var(--body-small-font-size);
+  color: var(--color-error);
+  text-align: center;
+}

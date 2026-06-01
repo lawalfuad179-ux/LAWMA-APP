@@ -1,0 +1,61 @@
+import styles from './Select.module.css';
+
+type SelectOption = {
+  value: string;
+  label: string;
+};
+
+type SelectProps = React.SelectHTMLAttributes<HTMLSelectElement> & {
+  label: string;
+  options: SelectOption[];
+  placeholder?: string;
+  error?: string;
+};
+
+export function Select({
+  label,
+  options,
+  placeholder = 'Select an option',
+  error,
+  id,
+  className,
+  ...props
+}: SelectProps) {
+  const selectId = id || label.toLowerCase().replace(/\s+/g, '-');
+  const errorId = error ? `${selectId}-error` : undefined;
+  const rootClassName = className ? `${styles.root} ${className}` : styles.root;
+
+  return (
+    <div className={rootClassName}>
+      <label htmlFor={selectId} className={styles.label}>
+        {label}
+      </label>
+      <div className={styles.selectWrapper}>
+        <select
+          id={selectId}
+          className={`${styles.select} ${error ? styles.selectError : ''}`}
+          aria-describedby={errorId}
+          aria-invalid={!!error}
+          {...props}
+        >
+          <option value="" disabled>
+            {placeholder}
+          </option>
+          {options.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+        <span className={styles.chevron} aria-hidden="true">
+          ▾
+        </span>
+      </div>
+      {error ? (
+        <p id={errorId} className={styles.error} role="alert">
+          {error}
+        </p>
+      ) : null}
+    </div>
+  );
+}

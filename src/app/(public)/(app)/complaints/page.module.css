@@ -1,0 +1,64 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 24px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.title {
+  font-size: var(--headline-small-font-size);
+  font-weight: 600;
+  color: var(--color-on-surface);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.complaintCard {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.date {
+  font-size: var(--body-small-font-size);
+  color: var(--color-on-surface-variant);
+}
+
+.issueType {
+  font-size: var(--body-medium-font-size);
+  font-weight: 600;
+  color: var(--color-on-surface);
+  text-transform: capitalize;
+}
+
+.address {
+  font-size: var(--body-small-font-size);
+  color: var(--color-on-surface-variant);
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 48px 24px;
+  text-align: center;
+  font-size: var(--body-medium-font-size);
+  color: var(--color-outline);
+}

@@ -1,0 +1,62 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  padding: 24px;
+  gap: 24px;
+  background: var(--color-background);
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.greeting {
+  font-size: var(--headline-small-font-size);
+  font-weight: 600;
+  color: var(--color-on-surface);
+  line-height: var(--headline-small-line-height);
+}
+
+.location {
+  font-size: var(--body-large-font-size);
+  color: var(--color-on-surface-variant);
+  line-height: var(--body-large-line-height);
+}
+
+.grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-outline-variant);
+  border-radius: 12px;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+
+.card:hover {
+  background: var(--color-surface-container-low);
+}
+
+.card h2 {
+  font-size: var(--title-medium-font-size);
+  font-weight: 600;
+  color: var(--color-on-surface);
+  line-height: var(--title-medium-line-height);
+}
+
+.card p {
+  font-size: var(--body-medium-font-size);
+  color: var(--color-on-surface-variant);
+  line-height: var(--body-medium-line-height);
+}

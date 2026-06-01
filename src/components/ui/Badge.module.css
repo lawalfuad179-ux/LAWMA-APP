@@ -1,0 +1,35 @@
+.root {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: var(--label-small-font-size);
+  font-weight: 600;
+  line-height: var(--label-small-line-height);
+  white-space: nowrap;
+}
+
+.info {
+  background: var(--color-primary-container);
+  color: var(--color-on-primary-container);
+}
+
+.success {
+  background: var(--color-secondary-container);
+  color: var(--color-on-secondary-container);
+}
+
+.warning {
+  background: hsl(39, 100%, 90%);
+  color: hsl(28, 80%, 26%);
+}
+
+.error {
+  background: var(--color-error-container);
+  color: var(--color-on-error-container);
+}
+
+.neutral {
+  background: var(--color-surface-container-high);
+  color: var(--color-on-surface-variant);
+}
