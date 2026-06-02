@@ -95,8 +95,7 @@ export default function LandingPage() {
 
   return (
     <>
-      <ThemeToggle />
-
+      {!showOnboarding && <ThemeToggle />}
       {showOnboarding ? (
         <OnboardingOverlay
           onComplete={handleOnboardingComplete}
@@ -117,10 +116,10 @@ export default function LandingPage() {
                   LAWMA updates from one simple mobile-first app.
                 </p>
                 <div className={styles.heroActions}>
-                  <button className={styles.primaryCta} onClick={handleGetStarted} type="button">
+                  <button className={styles.primaryCta} onClick={() => router.push('/login?mode=signup')} type="button">
                     Get Started
                   </button>
-                  <button className={styles.secondaryCta} onClick={() => router.push('/login')} type="button">
+                  <button className={styles.secondaryCta} onClick={() => router.push('/login?mode=signin')} type="button">
                     I already have an account
                   </button>
                 </div>
@@ -276,11 +275,11 @@ export default function LandingPage() {
             <div className={styles.ctaInner}>
               <h2 className={styles.ctaHeadline}>Help keep Lagos cleaner, one report at a time.</h2>
               <div className={styles.ctaActions}>
-                <button className={styles.primaryCta} onClick={handleGetStarted} type="button">
+                <button className={styles.primaryCta} onClick={() => router.push('/login?mode=signup')} type="button">
                   Start Using LAWMA
                 </button>
-                <button className={styles.secondaryCta} onClick={() => router.push('/schedules')} type="button">
-                  View Collection Schedule
+                <button className={styles.secondaryCta} onClick={() => router.push('/login?mode=signin')} type="button">
+                  Sign In
                 </button>
               </div>
             </div>

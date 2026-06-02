@@ -62,6 +62,7 @@ export default function SetupPage() {
             onChange={(e) => setName(e.target.value)}
             error={errors.name}
             autoFocus
+            autoComplete="name"
           />
 
           <Select
@@ -79,6 +80,7 @@ export default function SetupPage() {
             value={address}
             onChange={(e) => setAddress(e.target.value)}
             error={errors.address}
+            autoComplete="street-address"
           />
 
           {serverError ? <p className={styles.serverError}>{serverError}</p> : null}

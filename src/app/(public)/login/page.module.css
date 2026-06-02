@@ -13,7 +13,74 @@
   max-width: 400px;
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 32px;
+  position: relative;
+  padding-top: 108px;
+}
+
+/* Back button — top left of container */
+.backBtn {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  color: var(--color-on-surface-variant);
+  cursor: pointer;
+  padding: 4px 0;
+  font-family: var(--body-large-font-family);
+  font-size: var(--body-medium-font-size);
+  -webkit-tap-highlight-color: transparent;
+  transition: color 0.15s;
+}
+
+.backText {
+  text-decoration: none;
+  transition: text-decoration 0.15s;
+}
+
+.backBtn:hover .backText,
+.backBtn:active .backText {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* Theme toggle override — top right of container */
+.toggleOverride {
+  position: absolute !important;
+  top: 0 !important;
+  right: 0 !important;
+}
+
+/* Centered logo */
+.logoWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logoLight {
+  height: 36px;
+  width: auto;
+  display: block;
+}
+
+.logoDark {
+  height: 36px;
+  width: auto;
+  display: none;
+}
+
+:global(html[data-theme="dark"]) .logoLight {
+  display: none;
+}
+
+:global(html[data-theme="dark"]) .logoDark {
+  display: block;
 }
 
 /* Step indicator */
@@ -60,6 +127,7 @@
   min-height: 80px;
   display: flex;
   justify-content: center;
+  width: 100%;
 }
 
 .enter {
@@ -88,26 +156,6 @@
   position: relative;
 }
 
-.backBtn {
-  position: absolute;
-  left: -8px;
-  top: -4px;
-  background: none;
-  border: none;
-  color: var(--color-on-surface-variant);
-  cursor: pointer;
-  padding: 8px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.15s;
-}
-
-.backBtn:hover {
-  background: var(--color-surface-container-high);
-}
-
 .title {
   font-size: var(--headline-small-font-size);
   font-weight: 600;
@@ -126,8 +174,26 @@
   color: var(--color-on-surface);
 }
 
+.modeToggle {
+  background: none;
+  border: none;
+  color: var(--color-primary);
+  font-size: var(--body-medium-font-size);
+  cursor: pointer;
+  padding: 4px;
+  transition: text-decoration 0.15s;
+  margin-top: 4px;
+}
+
+.modeToggle:hover,
+.modeToggle:active {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
 .form {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  width: 100%;
 }

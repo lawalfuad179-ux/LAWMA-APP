@@ -42,19 +42,22 @@ enum NotificationType {
 }
 
 model Resident {
-  id           String        @id @default(uuid())
-  phoneNumber  String        @unique @map("phone_number")
-  name         String?       @map("name")
-  address      String?       @map("address")
-  lga          String?       @map("lga")
-  createdAt    DateTime      @default(now()) @map("created_at")
-  updatedAt    DateTime      @updatedAt @map("updated_at")
+  id                     String        @id @default(uuid())
+  phoneNumber            String        @unique @map("phone_number")
+  name                   String?       @map("name")
+  address                String?       @map("address")
+  lga                    String?       @map("lga")
+  passwordHash           String?       @map("password_hash")
+  onboardingVersion      Int           @default(0) @map("onboarding_version")
+  onboardingCompletedAt  DateTime?     @map("onboarding_completed_at")
+  createdAt              DateTime      @default(now()) @map("created_at")
+  updatedAt              DateTime      @updatedAt @map("updated_at")
 
-  sessions     Session[]
-  complaints   Complaint[]
-  bills        Bill[]
-  payments     Payment[]
-  notifications Notification[]
+  sessions               Session[]
+  complaints             Complaint[]
+  bills                  Bill[]
+  payments               Payment[]
+  notifications          Notification[]
 
   @@index([lga])
   @@map("residents")
