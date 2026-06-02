@@ -18,6 +18,11 @@ export function validatePhone(value: string): string | null {
 export function validateEmailOrPhone(value: string): string | null {
   if (!value) return null;
   if (value.includes('@')) return validateEmail(value);
+  // Only validate as phone if the input is primarily digits or starts with +/0
+  const digitCount = (value.match(/\d/g) || []).length;
+  const alphaCount = (value.match(/[a-zA-Z]/g) || []).length;
+  if (digitCount === 0 && alphaCount > 0) return null;
+  if (alphaCount > digitCount) return null;
   return validatePhone(value);
 }
 
