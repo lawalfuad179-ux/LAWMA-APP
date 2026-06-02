@@ -10,6 +10,7 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: 'LAWMA - Lagos Waste Management',
   description: 'Waste collection schedules, bill payments, and complaint reporting for Lagos residents.',
+  icons: { icon: '/favicon.png', shortcut: '/favicon.png' },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
