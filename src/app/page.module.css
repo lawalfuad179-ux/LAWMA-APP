@@ -77,6 +77,22 @@
   display: block;
 }
 
+.logoLight {
+  display: block;
+}
+
+.logoDark {
+  display: none;
+}
+
+:global(html[data-theme="dark"]) .logoLight {
+  display: none;
+}
+
+:global(html[data-theme="dark"]) .logoDark {
+  display: block;
+}
+
 .subtitle {
   font-size: var(--body-large-font-size);
   color: var(--color-on-surface-variant);

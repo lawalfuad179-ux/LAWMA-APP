@@ -88,7 +88,8 @@ export default function LandingPage() {
                 <img src="/favicon.png" alt="" className={styles.faviconBadge} />
               </div>
               <span className={styles.badge}>Lagos State Government</span>
-              <img src="/logo.png" alt="LAWMA" className={styles.logo} />
+              <img src="/logo-light.png" alt="LAWMA" className={`${styles.logo} ${styles.logoLight}`} />
+              <img src="/logo-dark.png" alt="LAWMA" className={`${styles.logo} ${styles.logoDark}`} />
               <p className={styles.subtitle}>
                 Waste collection, reporting, and payments for Lagos residents.
               </p>
