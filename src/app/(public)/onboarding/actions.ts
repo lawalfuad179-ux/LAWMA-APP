@@ -8,6 +8,7 @@ import { db } from '@/lib/db';
 import { logger } from '@/lib/logger';
 
 const setupSchema = z.object({
+  email: z.string().email('Enter a valid email.').max(200),
   name: z.string().min(2).max(100),
   lga: z.string().min(2).max(100),
   address: z.string().min(5).max(200),
@@ -32,6 +33,7 @@ export async function completeOnboarding(formData: FormData): Promise<ActionResu
     await db.resident.update({
       where: { id: session.residentId },
       data: {
+        email: parsed.data.email.toLowerCase().trim(),
         name: parsed.data.name,
         lga: parsed.data.lga,
         address: parsed.data.address,

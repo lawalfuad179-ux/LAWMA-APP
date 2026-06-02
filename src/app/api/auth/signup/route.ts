@@ -22,13 +22,22 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { name, phoneNumber, password } = parsed.data;
+    const { name, email, phoneNumber, password } = parsed.data;
     const normalizedPhone = normalizePhone(phoneNumber);
+    const normalizedEmail = email.toLowerCase().trim();
 
-    const existing = await db.resident.findUnique({ where: { phoneNumber: normalizedPhone } });
-    if (existing) {
+    const existingPhone = await db.resident.findUnique({ where: { phoneNumber: normalizedPhone } });
+    if (existingPhone) {
       return NextResponse.json<Failure>(
         { ok: false, error: { code: 'phone_exists', message: 'This phone number is already registered. Sign in instead.' } },
+        { status: 409 },
+      );
+    }
+
+    const existingEmail = await db.resident.findUnique({ where: { email: normalizedEmail } });
+    if (existingEmail) {
+      return NextResponse.json<Failure>(
+        { ok: false, error: { code: 'email_exists', message: 'This email is already registered. Sign in instead.' } },
         { status: 409 },
       );
     }
@@ -38,6 +47,7 @@ export async function POST(req: NextRequest) {
     const resident = await db.resident.create({
       data: {
         phoneNumber: normalizedPhone,
+        email: normalizedEmail,
         name,
         passwordHash,
         onboardingVersion: 1,

@@ -4,12 +4,12 @@ import { z } from 'zod';
 import { db } from '@/lib/db';
 import { logger } from '@/lib/logger';
 import { createSession } from '@/lib/auth';
-import { OTP_EXPIRY_MINUTES } from '@/constants';
 
 const verifyOtpSchema = z.object({
-  phoneNumber: z.string().min(10).max(15).regex(/^\+?[0-9]+$/),
+  phoneNumber: z.string().min(10).max(15).regex(/^\+?[0-9]+$/).optional(),
+  email: z.string().email().max(200).optional(),
   code: z.string().length(6).regex(/^[0-9]+$/),
-});
+}).refine((d) => d.phoneNumber || d.email, { message: 'Phone number or email required.' });
 
 type Success = { ok: true; data: { residentId: string; isNewResident: boolean } };
 type Failure = { ok: false; error: { code: string; message: string } };
@@ -26,11 +26,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { phoneNumber, code } = parsed.data;
+    const { phoneNumber, email, code } = parsed.data;
+    const identifier = phoneNumber || email || '';
 
-    // Find the most recent unused OTP for this number
+    // Find the OTP record
     const otpRecord = await db.otpCode.findFirst({
-      where: { phoneNumber, code, isUsed: false },
+      where: { phoneNumber: identifier, code, isUsed: false },
       orderBy: { createdAt: 'desc' },
     });
 
@@ -43,10 +44,7 @@ export async function POST(req: NextRequest) {
 
     if (otpRecord.expiresAt < new Date()) {
       return NextResponse.json<Failure>(
-        {
-          ok: false,
-          error: { code: 'code_expired', message: `Code expired. Request a new one.` },
-        },
+        { ok: false, error: { code: 'code_expired', message: 'Code expired. Request a new one.' } },
         { status: 400 },
       );
     }
@@ -57,23 +55,25 @@ export async function POST(req: NextRequest) {
       data: { isUsed: true },
     });
 
-    // Find or create resident
-    let resident = await db.resident.findUnique({
-      where: { phoneNumber },
-    });
+    // Find or create resident by phone or email
+    let resident = email
+      ? await db.resident.findUnique({ where: { email } })
+      : await db.resident.findUnique({ where: { phoneNumber: identifier } });
 
     const isNewResident = !resident;
 
     if (!resident) {
-      resident = await db.resident.create({
-        data: { phoneNumber },
-      });
+      const createData: { phoneNumber: string; email?: string } = {
+        phoneNumber: identifier,
+      };
+      if (email) createData.email = identifier;
+      resident = await db.resident.create({ data: createData });
     }
 
-    // Create session (sets httpOnly cookie)
+    // Create session
     await createSession(resident.id);
 
-    logger.info('auth.otp.verified', { residentId: resident.id, isNewResident });
+    logger.info('auth.otp.verified', { residentId: resident.id, isNewResident, hasEmail: !!email });
 
     return NextResponse.json<Success>({
       ok: true,

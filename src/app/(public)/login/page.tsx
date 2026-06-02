@@ -23,6 +23,7 @@ function AuthContent() {
   const [mode, setMode] = useState<Mode>(modeParam === 'signup' ? 'signup' : 'signin');
   const [step, setStep] = useState<Step>('phone');
   const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
   const [code, setCode] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -78,9 +79,12 @@ function AuthContent() {
 
   async function sendOtp() {
     setError('');
-    const cleaned = phone.trim();
-    if (!cleaned) {
-      setError('Enter your phone number.');
+
+    const cleanedPhone = phone.trim();
+    const cleanedEmail = email.trim().toLowerCase();
+
+    if (!cleanedPhone && !cleanedEmail) {
+      setError('Enter your phone number or email.');
       return;
     }
 
@@ -89,7 +93,10 @@ function AuthContent() {
       const res = await fetch('/api/auth/otp/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phoneNumber: cleaned }),
+        body: JSON.stringify({
+          ...(cleanedPhone ? { phoneNumber: cleanedPhone } : {}),
+          ...(cleanedEmail ? { email: cleanedEmail } : {}),
+        }),
       });
       const data = await res.json();
 
@@ -114,7 +121,15 @@ function AuthContent() {
   async function verifyOtp() {
     setError('');
     if (code.length !== 6) {
-      setError('Enter the 6-digit code sent to your phone.');
+      setError('Enter the 6-digit code.');
+      return;
+    }
+
+    const cleanedPhone = phone.trim();
+    const cleanedEmail = email.trim().toLowerCase();
+
+    if (!cleanedPhone && !cleanedEmail) {
+      setError('Phone number or email required.');
       return;
     }
 
@@ -123,7 +138,11 @@ function AuthContent() {
       const res = await fetch('/api/auth/otp/verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phoneNumber: phone.trim(), code }),
+        body: JSON.stringify({
+          ...(cleanedPhone ? { phoneNumber: cleanedPhone } : {}),
+          ...(cleanedEmail ? { email: cleanedEmail } : {}),
+          code,
+        }),
       });
       const data = await res.json();
 
@@ -177,13 +196,14 @@ function AuthContent() {
     e.preventDefault();
     setError('');
 
-    if (!name || !lga || !address) {
+    if (!email || !name || !lga || !address) {
       setError('Please fill in all fields.');
       return;
     }
 
     setLoading(true);
     const formData = new FormData();
+    formData.set('email', email);
     formData.set('name', name);
     formData.set('lga', lga);
     formData.set('address', address);
@@ -270,6 +290,16 @@ function AuthContent() {
             className={styles.form}
           >
             <Input
+              label="Email Address"
+              type="email"
+              inputMode="email"
+              placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              error={error}
+              autoComplete="email"
+            />
+            <Input
               label="Phone Number"
               type="tel"
               inputMode="numeric"
@@ -278,7 +308,7 @@ function AuthContent() {
               onChange={(e) => setPhone(e.target.value)}
               error={error}
               maxLength={15}
-              autoFocus
+              autoFocus={!email}
               autoComplete="tel"
             />
             <Button type="submit" size="lg" isLoading={loading}>
@@ -321,6 +351,16 @@ function AuthContent() {
 
         {step === 'profile' && (
           <form onSubmit={submitProfile} className={styles.form}>
+            <Input
+              label="Email Address"
+              type="email"
+              inputMode="email"
+              placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              error={error}
+              autoComplete="email"
+            />
             <Input
               label="Full Name"
               placeholder="Your full name"
