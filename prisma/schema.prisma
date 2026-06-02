@@ -33,6 +33,12 @@ enum CollectionStatus {
   COMPLETED
 }
 
+enum EmailStatus {
+  PENDING
+  SENT
+  FAILED
+}
+
 enum NotificationType {
   COLLECTION_REMINDER
   DELAYED_PICKUP
@@ -211,4 +217,36 @@ model Notification {
   @@index([residentId, isRead])
   @@index([createdAt])
   @@map("notifications")
+}
+
+model EmailOutbox {
+  id         String      @id @default(cuid())
+  recipient  String      @map("recipient")
+  subject    String      @map("subject")
+  template   String      @map("template")
+  payload    Json        @map("payload")
+  status     EmailStatus @default(PENDING) @map("status")
+  attempts   Int         @default(0) @map("attempts")
+  lastError  String?     @map("last_error")
+  sentAt     DateTime?   @map("sent_at")
+  createdAt  DateTime    @default(now()) @map("created_at")
+  updatedAt  DateTime    @updatedAt @map("updated_at")
+
+  @@index([status])
+  @@index([createdAt])
+  @@index([recipient])
+  @@map("email_outbox")
+}
+
+model NotificationPreference {
+  id                       String   @id @default(cuid())
+  residentId               String   @unique @map("resident_id")
+  emailComplaintUpdates    Boolean  @default(true) @map("email_complaint_updates")
+  emailPaymentReceipts     Boolean  @default(true) @map("email_payment_receipts")
+  emailCollectionReminders Boolean  @default(true) @map("email_collection_reminders")
+  emailAnnouncements       Boolean  @default(false) @map("email_announcements")
+  createdAt                DateTime @default(now()) @map("created_at")
+  updatedAt                DateTime @updatedAt @map("updated_at")
+
+  @@map("notification_preferences")
 }
