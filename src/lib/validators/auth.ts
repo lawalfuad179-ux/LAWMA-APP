@@ -25,26 +25,20 @@ export const signInSchema = z.object({
 });
 
 export const forgotPasswordSchema = z.object({
-  phoneNumber: z
-    .string()
-    .min(10, 'Enter a valid Nigerian phone number.')
-    .max(15)
-    .regex(/^(\+?234|0)[0-9]{10}$/, 'Enter a valid Nigerian phone number.'),
-});
+  phoneNumber: z.string().min(10).max(15).regex(/^(\+?234|0)[0-9]{10}$/).optional(),
+  email: z.string().email().max(200).optional(),
+}).refine((d) => d.phoneNumber || d.email, { message: 'Phone number or email is required.' });
 
 export const resetPasswordSchema = z.object({
-  phoneNumber: z
-    .string()
-    .min(10, 'Enter a valid Nigerian phone number.')
-    .max(15)
-    .regex(/^(\+?234|0)[0-9]{10}$/, 'Enter a valid Nigerian phone number.'),
+  phoneNumber: z.string().min(10).max(15).regex(/^(\+?234|0)[0-9]{10}$/).optional(),
+  email: z.string().email().max(200).optional(),
   code: z.string().length(6, 'Enter a valid 6-digit code.').regex(/^[0-9]+$/),
   password: z
     .string()
     .min(8, 'Use at least 8 characters.')
     .regex(/[a-zA-Z]/, 'Use at least one letter.')
     .regex(/[0-9]/, 'Use at least one number.'),
-});
+}).refine((d) => d.phoneNumber || d.email, { message: 'Phone number or email is required.' });
 
 export const completeOnboardingSchema = z.object({
   lga: z.string().min(2, 'Select your Local Government Area.').max(100),

@@ -21,11 +21,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { phoneNumber, code, password } = parsed.data;
-    const normalizedPhone = normalizePhone(phoneNumber);
+    const { phoneNumber, email, code, password } = parsed.data;
+    const identifier = email || normalizePhone(phoneNumber || '');
+    const isEmail = !!email;
 
     const otpRecord = await db.otpCode.findFirst({
-      where: { phoneNumber: normalizedPhone, code, isUsed: false },
+      where: { phoneNumber: identifier, code, isUsed: false },
       orderBy: { createdAt: 'desc' },
     });
 
@@ -47,7 +48,7 @@ export async function POST(req: NextRequest) {
 
     await db.$transaction([
       db.resident.update({
-        where: { phoneNumber: normalizedPhone },
+        where: isEmail ? { email: identifier } : { phoneNumber: identifier },
         data: { passwordHash },
       }),
       db.otpCode.update({
@@ -56,7 +57,7 @@ export async function POST(req: NextRequest) {
       }),
     ]);
 
-    track('password_reset_completed', { phoneNumber: normalizedPhone });
+    track('password_reset_completed', { identifier });
 
     return NextResponse.json<Success>({
       ok: true,

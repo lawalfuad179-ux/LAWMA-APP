@@ -174,6 +174,24 @@
   color: var(--color-on-surface);
 }
 
+.forgotLink {
+  background: none;
+  border: none;
+  color: var(--color-on-surface-variant);
+  font-size: var(--body-medium-font-size);
+  cursor: pointer;
+  padding: 4px;
+  text-align: left;
+  transition: color 0.15s;
+  margin-top: -8px;
+}
+
+.forgotLink:hover {
+  color: var(--color-primary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
 .modeToggle {
   background: none;
   border: none;
@@ -189,6 +207,28 @@
 .modeToggle:active {
   text-decoration: underline;
   text-underline-offset: 3px;
+}
+
+.passwordRules {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-top: -8px;
+  margin-bottom: 4px;
+}
+
+.ruleItem {
+  font-size: var(--body-small-font-size);
+  color: var(--color-outline);
+  line-height: var(--body-small-line-height);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: color 0.2s;
+}
+
+.ruleMet {
+  color: var(--color-status-success);
 }
 
 .form {

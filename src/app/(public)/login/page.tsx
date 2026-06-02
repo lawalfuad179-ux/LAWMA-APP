@@ -8,11 +8,12 @@ import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { LAGOS_LGAS } from '@/constants';
+import { validateEmailOrPhone, passwordRules, getPasswordErrors, type FieldErrors } from '@/lib/validators/validation';
 
 import { completeOnboarding } from '../onboarding/actions';
 import styles from './page.module.css';
 
-type Step = 'phone' | 'otp' | 'profile';
+type Step = 'phone' | 'otp' | 'profile' | 'reset';
 type Mode = 'signin' | 'signup';
 
 function AuthContent() {
@@ -35,6 +36,11 @@ function AuthContent() {
   const [lga, setLga] = useState('');
   const [address, setAddress] = useState('');
   const [residentId, setResidentId] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [resetSent, setResetSent] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
+  const [passwordChecks, setPasswordChecks] = useState<Record<string, boolean>>({});
 
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -90,13 +96,11 @@ function AuthContent() {
 
     setLoading(true);
     try {
+      const isEmailField = cleanedEmail && !cleanedPhone;
       const res = await fetch('/api/auth/otp/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...(cleanedPhone ? { phoneNumber: cleanedPhone } : {}),
-          ...(cleanedEmail ? { email: cleanedEmail } : {}),
-        }),
+        body: JSON.stringify(isEmailField ? { email: cleanedEmail } : { phoneNumber: cleanedPhone }),
       });
       const data = await res.json();
 
@@ -135,12 +139,12 @@ function AuthContent() {
 
     setLoading(true);
     try {
+      const isEmailField = cleanedEmail && !cleanedPhone;
       const res = await fetch('/api/auth/otp/verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          ...(cleanedPhone ? { phoneNumber: cleanedPhone } : {}),
-          ...(cleanedEmail ? { email: cleanedEmail } : {}),
+          ...(isEmailField ? { email: cleanedEmail } : { phoneNumber: cleanedPhone }),
           code,
         }),
       });
@@ -224,6 +228,21 @@ function AuthContent() {
 
   const lgaOptions = LAGOS_LGAS.map((l) => ({ value: l, label: l }));
 
+  function validateField(field: string, value: string) {
+    let msg: string | null = null;
+    if (field === 'emailOrPhone') msg = validateEmailOrPhone(value);
+    if (field === 'email') msg = value && !value.includes('@') ? 'Enter a valid email address.' : null;
+    if (field === 'phone') msg = value && !value.replace(/\D/g, '').startsWith('0') && value.length > 3 ? 'Enter a valid phone number.' : null;
+    if (field === 'newPassword') {
+      const errors = getPasswordErrors(value);
+      setPasswordChecks(Object.fromEntries(passwordRules.map((r) => [r.key, r.test(value)])));
+      msg = value && errors.length > 0 ? errors.join('. ') + '.' : null;
+    }
+    if (field === 'confirmPassword') msg = value && value !== newPassword ? 'Passwords do not match.' : null;
+    setFieldErrors((prev) => ({ ...prev, [field]: msg || '' }));
+    return !msg;
+  }
+
   return (
     <div className={styles.page}>
       <div className={styles.container}>
@@ -250,9 +269,6 @@ function AuthContent() {
                   ? 'Enter your phone number to sign in.'
                   : 'Enter your phone number to get started.'}
               </p>
-              <button className={styles.modeToggle} onClick={toggleMode} type="button">
-                {mode === 'signin' ? "Don't have an account? Sign up" : 'Already have an account? Sign in'}
-              </button>
             </div>
           )}
 
@@ -289,28 +305,60 @@ function AuthContent() {
             onSubmit={(e) => { e.preventDefault(); sendOtp(); }}
             className={styles.form}
           >
-            <Input
-              label="Email Address"
-              type="email"
-              inputMode="email"
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              error={error}
-              autoComplete="email"
-            />
-            <Input
-              label="Phone Number"
-              type="tel"
-              inputMode="numeric"
-              placeholder="080 1234 5678"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              error={error}
-              maxLength={15}
-              autoFocus={!email}
-              autoComplete="tel"
-            />
+            {mode === 'signin' ? (
+              <>
+                <Input
+                  label="Email or Phone"
+                  type="text"
+                  inputMode="text"
+                  placeholder="you@example.com or 080 1234 5678"
+                  value={phone || email}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val.includes('@')) { setEmail(val); setPhone(''); }
+                    else { setPhone(val); setEmail(''); }
+                    validateField('emailOrPhone', val);
+                  }}
+                  onBlur={(e) => validateField('emailOrPhone', e.target.value)}
+                  error={fieldErrors.emailOrPhone || error}
+                  autoFocus
+                  autoComplete="off"
+                />
+                <button className={styles.forgotLink} onClick={() => { setStep('reset'); setError(''); setFieldErrors({}); setCode(''); }} type="button">
+                  Forgot password?
+                </button>
+              </>
+            ) : (
+              <>
+                <Input
+                  label="Email Address"
+                  type="email"
+                  inputMode="email"
+                  placeholder="you@example.com"
+                  value={email}
+                  onChange={(e) => { setEmail(e.target.value); validateField('email', e.target.value); }}
+                  onBlur={(e) => validateField('email', e.target.value)}
+                  error={fieldErrors.email || error}
+                  autoComplete="email"
+                />
+                <Input
+                  label="Phone Number"
+                  type="tel"
+                  inputMode="numeric"
+                  placeholder="080 1234 5678"
+                  value={phone}
+                  onChange={(e) => { setPhone(e.target.value); validateField('phone', e.target.value); }}
+                  onBlur={(e) => validateField('phone', e.target.value)}
+                  error={fieldErrors.phone || error}
+                  maxLength={15}
+                  autoFocus={!email}
+                  autoComplete="tel"
+                />
+              </>
+            )}
+            <button className={styles.modeToggle} onClick={toggleMode} type="button">
+              {mode === 'signin' ? "Don't have an account? Sign up" : 'Already have an account? Sign in'}
+            </button>
             <Button type="submit" size="lg" isLoading={loading}>
               Send Code
             </Button>
@@ -388,6 +436,141 @@ function AuthContent() {
             <Button type="submit" size="lg" isLoading={loading}>
               Complete Setup
             </Button>
+          </form>
+        )}
+
+        {step === 'reset' && !resetSent && (
+          <form
+            onSubmit={async (e) => {
+              e.preventDefault();
+              setError('');
+              const cleaned = (phone || email).trim();
+              if (!cleaned || !validateField('emailOrPhone', cleaned)) { setError('Enter a valid email or phone number.'); return; }
+              
+              const isEmail = cleaned.includes('@');
+              const check = await fetch('/api/auth/check-resident', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(isEmail ? { email: cleaned } : { phoneNumber: cleaned }),
+              });
+              const checkData = await check.json();
+              if (!checkData.exists) {
+                setError('No account found with this email or phone number.');
+                return;
+              }
+
+              setLoading(true);
+              try {
+                const res = await fetch('/api/auth/forgot-password', {
+                  method: 'POST', headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(isEmail ? { email: cleaned } : { phoneNumber: cleaned }),
+                });
+                const data = await res.json();
+                if (!data.ok) { setError(data.error?.message || 'Something went wrong.'); return; }
+                setResetSent(true);
+                setCode('');
+              } catch { setError('Network error.'); }
+              finally { setLoading(false); }
+            }}
+            className={styles.form}
+          >
+            <Input
+              label="Email or Phone"
+              type="text"
+              placeholder="you@example.com or 080 1234 5678"
+              value={phone || email}
+              onChange={(e) => {
+                const val = e.target.value;
+                if (val.includes('@')) { setEmail(val); setPhone(''); }
+                else { setPhone(val); setEmail(''); }
+                validateField('emailOrPhone', val);
+              }}
+              onBlur={(e) => validateField('emailOrPhone', e.target.value)}
+              error={fieldErrors.emailOrPhone || error}
+              autoFocus
+            />
+            <Button type="submit" size="lg" isLoading={loading}>
+              Send Reset Code
+            </Button>
+            <button className={styles.modeToggle} onClick={() => { setStep('phone'); setResetSent(false); setError(''); }} type="button">
+              Back to sign in
+            </button>
+          </form>
+        )}
+
+        {step === 'reset' && resetSent && (
+          <form
+            onSubmit={async (e) => {
+              e.preventDefault();
+              setError('');
+              if (code.length !== 6) { setError('Enter the 6-digit code.'); return; }
+              if (newPassword.length < 8) { setError('Use at least 8 characters with a letter and a number.'); return; }
+              if (newPassword !== confirmPassword) { setError('Passwords do not match.'); return; }
+              setLoading(true);
+              try {
+                const identifier = (phone || email).trim();
+                const isEmail = identifier.includes('@');
+                const res = await fetch('/api/auth/reset-password', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    ...(isEmail ? { email: identifier } : { phoneNumber: identifier }),
+                    code,
+                    password: newPassword,
+                  }),
+                });
+                const data = await res.json();
+                if (!data.ok) { setError(data.error?.message || 'Reset failed.'); return; }
+                setStep('phone'); setResetSent(false); setCode(''); setNewPassword(''); setConfirmPassword('');
+                setError('');
+              } catch { setError('Network error.'); }
+              finally { setLoading(false); }
+            }}
+            className={styles.form}
+          >
+            <Input
+              label="Verification Code"
+              type="text"
+              inputMode="numeric"
+              placeholder="000000"
+              value={code}
+              onChange={(e) => { setCode(e.target.value.replace(/\D/g, '').slice(0, 6)); setFieldErrors({}); }}
+              error={fieldErrors.code || error}
+              maxLength={6}
+              autoFocus
+            />
+            <Input
+              label="New Password"
+              type="password"
+              placeholder="At least 8 characters"
+              value={newPassword}
+              onChange={(e) => { setNewPassword(e.target.value); validateField('newPassword', e.target.value); }}
+              error={fieldErrors.newPassword}
+              autoComplete="new-password"
+            />
+            {newPassword && (
+              <div className={styles.passwordRules}>
+                {passwordRules.map((rule) => (
+                  <span key={rule.key} className={`${styles.ruleItem} ${passwordChecks[rule.key] ? styles.ruleMet : ''}`}>
+                    {passwordChecks[rule.key] ? '\u2713' : '\u2022'} {rule.label}
+                  </span>
+                ))}
+              </div>
+            )}
+            <Input
+              label="Confirm Password"
+              type="password"
+              placeholder="Re-enter your password"
+              value={confirmPassword}
+              onChange={(e) => { setConfirmPassword(e.target.value); validateField('confirmPassword', e.target.value); }}
+              error={fieldErrors.confirmPassword}
+              autoComplete="new-password"
+            />
+            <Button type="submit" size="lg" isLoading={loading}>
+              Reset Password
+            </Button>
+            <button className={styles.modeToggle} onClick={() => { setStep('phone'); setResetSent(false); setError(''); }} type="button">
+              Back to sign in
+            </button>
           </form>
         )}
       </div>

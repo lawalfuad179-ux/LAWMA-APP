@@ -4,7 +4,8 @@ import { z } from 'zod';
 import { db } from '@/lib/db';
 import { logger } from '@/lib/logger';
 import { generateOtpCode, sendOtpSms } from '@/lib/sms';
-import { enqueueEmail } from '@/lib/email/enqueue';
+import { sendEmail } from '@/lib/email/client';
+import { passwordResetEmail } from '@/lib/email/templates/password-reset';
 import { OTP_EXPIRY_MINUTES, OTP_COOLDOWN_SECONDS } from '@/constants';
 
 const sendOtpSchema = z.object({
@@ -62,7 +63,8 @@ export async function POST(req: NextRequest) {
     });
 
     if (isEmail) {
-      await enqueueEmail(email, 'Your LAWMA verification code', 'password-reset', { code });
+      const { subject, text, html } = passwordResetEmail(code);
+      await sendEmail(email || '', subject, html, text);
     } else {
       await sendOtpSms(phoneNumber || '', code);
     }

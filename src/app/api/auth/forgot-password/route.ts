@@ -5,6 +5,8 @@ import { logger } from '@/lib/logger';
 import { forgotPasswordSchema, normalizePhone } from '@/lib/validators/auth';
 import { track } from '@/lib/analytics';
 import { generateOtpCode, sendOtpSms } from '@/lib/sms';
+import { sendEmail } from '@/lib/email/client';
+import { passwordResetEmail } from '@/lib/email/templates/password-reset';
 import { OTP_EXPIRY_MINUTES } from '@/constants';
 
 type Failure = { ok: false; error: { code: string; message: string } };
@@ -22,20 +24,29 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { phoneNumber } = parsed.data;
-    const normalizedPhone = normalizePhone(phoneNumber);
+    const { phoneNumber, email } = parsed.data;
+    const identifier = email || normalizePhone(phoneNumber || '');
+    const isEmail = !!email;
 
-    const resident = await db.resident.findUnique({ where: { phoneNumber: normalizedPhone } });
+    const resident = email
+      ? await db.resident.findUnique({ where: { email: identifier } })
+      : await db.resident.findUnique({ where: { phoneNumber: identifier } });
 
     if (resident) {
       const code = generateOtpCode();
       const expiresAt = new Date(Date.now() + OTP_EXPIRY_MINUTES * 60 * 1000);
 
       await db.otpCode.create({
-        data: { phoneNumber: normalizedPhone, code, expiresAt },
+        data: { phoneNumber: identifier, code, expiresAt },
       });
 
-      await sendOtpSms(normalizedPhone, code);
+      if (isEmail) {
+        const { subject, text, html } = passwordResetEmail(code);
+        await sendEmail(identifier, subject, html, text);
+      } else {
+        await sendOtpSms(phoneNumber || '', code);
+      }
+
       track('password_reset_requested', { residentId: resident.id });
     }
 

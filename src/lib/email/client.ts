@@ -28,11 +28,17 @@ export async function sendEmail(
 
   try {
     const info = await transporter.sendMail({
-      from: `"${process.env.SMTP_FROM_NAME || 'LAWMA'}" <${process.env.SMTP_FROM_EMAIL || ''}>`,
+      from: `"LAWMA" <${process.env.SMTP_FROM_EMAIL || ''}>`,
       to,
       subject,
       text,
       html,
+      headers: {
+        'X-Mailer': 'LAWMA Notification Service',
+        'X-Entity-Ref-ID': `lawma-${Date.now()}`,
+        'List-Unsubscribe': `<mailto:${process.env.SMTP_FROM_EMAIL || ''}>`,
+        'Precedence': 'bulk',
+      },
     });
 
     logger.info('email.sent', { to, subject, messageId: info.messageId });
