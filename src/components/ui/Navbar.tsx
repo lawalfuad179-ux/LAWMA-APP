@@ -42,6 +42,7 @@ export function Navbar() {
   const [unreadCount, setUnreadCount] = useState(0);
   const [collapsed, setCollapsed] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
 
   useEffect(() => {
     fetch('/api/notifications/unread-count')
@@ -111,7 +112,7 @@ export function Navbar() {
           ))}
         </nav>
 
-        <button className={styles.logoutBtn} onClick={handleLogout} type="button" disabled={loggingOut} title={collapsed ? 'Sign out' : undefined}>
+        <button className={styles.logoutBtn} onClick={() => setShowConfirm(true)} type="button" title={collapsed ? 'Sign out' : undefined}>
           <span className={styles.logoutIcon}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
@@ -120,6 +121,22 @@ export function Navbar() {
           <span className={styles.logoutLabel}>Sign out</span>
         </button>
       </aside>
+
+      {/* ─── Logout Confirmation ─── */}
+      {showConfirm ? (
+        <div className={styles.confirmOverlay} onClick={() => setShowConfirm(false)}>
+          <div className={styles.confirmModal} onClick={(e) => e.stopPropagation()}>
+            <h3 className={styles.confirmTitle}>Sign out</h3>
+            <p className={styles.confirmText}>Are you sure you want to sign out?</p>
+            <div className={styles.confirmActions}>
+              <button className={styles.confirmCancel} onClick={() => setShowConfirm(false)} type="button">Cancel</button>
+              <button className={styles.confirmLogout} onClick={handleLogout} type="button" disabled={loggingOut}>
+                {loggingOut ? 'Signing out...' : 'Sign out'}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       {/* ─── Mobile Bottom Nav ─── */}
       <nav className={styles.mobileNav}>

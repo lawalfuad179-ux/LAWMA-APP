@@ -311,7 +311,7 @@ function AuthContent() {
                   onBlur={(e) => validateField('emailOrPhone', e.target.value)}
                   error={fieldErrors.emailOrPhone || error}
                   autoFocus
-                  autoComplete="off"
+                  autoComplete="username"
                 />
                 <button className={styles.forgotLink} onClick={() => { setStep('reset'); setError(''); setFieldErrors({}); setCode(''); }} type="button">
                   Forgot password?

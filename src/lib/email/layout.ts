@@ -5,8 +5,8 @@ export function emailLayout(content: string, footerSuffix?: string): string {
 <html><body style="margin:0;padding:0;background:${emailTheme.surface};font-family:${emailTheme.fontFamily}">
 <table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:32px 16px">
 <table width="480" cellpadding="0" cellspacing="0" style="background:${emailTheme.white};border-radius:${emailTheme.radius};overflow:hidden">
-<tr><td style="background:${emailTheme.brand};padding:20px 32px;text-align:center">
-<h1 style="margin:0;font-size:18px;color:${emailTheme.white};font-weight:600">LAWMA</h1>
+<tr><td style="background:${emailTheme.brand};padding:16px 32px;text-align:center">
+<h1 style="margin:0;font-size:16px;color:${emailTheme.white};font-weight:600;letter-spacing:1px">LAWMA</h1>
 </td></tr>
 ${content}
 <tr><td style="padding:0 32px 32px;text-align:center;font-size:12px;color:${emailTheme.muted};line-height:1.5">
