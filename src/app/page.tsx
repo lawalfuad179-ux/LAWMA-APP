@@ -85,13 +85,10 @@ export default function LandingPage() {
           <div className={`${styles.container} ${animIn ? styles.visible : ''}`}>
             <div className={styles.hero}>
               <div className={styles.insignia}>
-                <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
-                  <rect width="40" height="40" rx="10" fill="var(--color-primary)" />
-                  <path d="M12 28V12h4l4 8 4-8h4v16h-4V18l-4 8-4-8v10z" fill="var(--color-on-primary)" />
-                </svg>
+                <img src="/favicon.png" alt="" className={styles.faviconBadge} />
               </div>
               <span className={styles.badge}>Lagos State Government</span>
-              <h1 className={styles.title}>LAWMA</h1>
+              <img src="/logo.png" alt="LAWMA" className={styles.logo} />
               <p className={styles.subtitle}>
                 Waste collection, reporting, and payments for Lagos residents.
               </p>
