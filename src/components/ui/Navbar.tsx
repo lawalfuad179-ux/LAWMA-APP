@@ -44,24 +44,47 @@ export function Navbar() {
       .catch(() => {});
   }, []);
 
+  const activeClass = (href: string) => {
+    const active = href === '/dashboard' ? pathname === href : pathname.startsWith(href);
+    return active ? styles.itemActive : '';
+  };
+
   return (
-    <nav className={styles.nav}>
-      {navItems.map(({ href, label, icon }) => {
-        const active = href === '/dashboard' ? pathname === href : pathname.startsWith(href);
-        return (
-          <Link key={href} href={href} className={`${styles.item} ${active ? styles.itemActive : ''}`}>
-            <span className={`${styles.icon} ${active ? styles.iconActive : ''}`}>
+    <>
+      {/* ─── Desktop Top Nav ─── */}
+      <nav className={styles.desktopNav}>
+        <div className={styles.desktopInner}>
+          <Link href="/dashboard" className={styles.brand}>
+            <img src="/logo-light.png" alt="LAWMA" className={styles.brandLogoLight} />
+            <img src="/logo-dark.png" alt="LAWMA" className={styles.brandLogoDark} />
+          </Link>
+          <div className={styles.desktopLinks}>
+            {navItems.map(({ href, label }) => (
+              <Link key={href} href={href} className={`${styles.desktopLink} ${activeClass(href)}`}>
+                {label}
+              </Link>
+            ))}
+            {unreadCount > 0 ? (
+              <span className={styles.desktopBadge}>{unreadCount}</span>
+            ) : null}
+          </div>
+        </div>
+      </nav>
+
+      {/* ─── Mobile Bottom Nav ─── */}
+      <nav className={styles.mobileNav}>
+        {navItems.map(({ href, label, icon }) => (
+          <Link key={href} href={href} className={`${styles.mobileItem} ${activeClass(href)}`}>
+            <span className={styles.mobileIcon}>
               {icon}
               {href === '/profile' && unreadCount > 0 ? (
                 <span className={styles.badge}>{unreadCount > 9 ? '9+' : unreadCount}</span>
               ) : null}
             </span>
-            <span className={`${styles.label} ${active ? styles.labelActive : ''}`}>
-              {label}
-            </span>
+            <span className={styles.mobileLabel}>{label}</span>
           </Link>
-        );
-      })}
-    </nav>
+        ))}
+      </nav>
+    </>
   );
 }
