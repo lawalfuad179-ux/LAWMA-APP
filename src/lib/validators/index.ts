@@ -18,7 +18,7 @@ export const addressSetupSchema = z.object({
 });
 
 export const complaintSchema = z.object({
-  issueType: z.enum(['MISSED_PICKUP', 'ILLEGAL_DUMPING', 'OVERFLOWING_BIN', 'OTHER'], {
+  issueType: z.enum(['MISSED_PICKUP', 'ILLEGAL_DUMPING', 'OVERFLOWING_BIN', 'PSP_MISCONDUCT', 'WASTE_BURNING', 'OTHER'], {
     message: 'Please select an issue type.',
   }),
   area: z.string().min(2, 'Please enter your area.').max(100),

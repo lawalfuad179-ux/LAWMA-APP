@@ -17,67 +17,72 @@
   color: var(--color-on-surface);
 }
 
+.unreadBadge {
+  font-size: var(--label-small-font-size);
+  font-weight: 600;
+  color: var(--color-primary);
+  background: var(--color-primary-container);
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+
 .list {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-.complaintLink {
-  text-decoration: none;
-}
-
-.complaintCard {
+.item {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  cursor: pointer;
-  transition: box-shadow 0.2s, transform 0.2s;
+  gap: 4px;
 }
 
-.complaintLink:hover .complaintCard {
-  box-shadow: 0 4px 12px hsla(0, 0%, 0%, 0.06);
-  transform: translateX(4px);
+.unread {
+  border-left: 3px solid var(--color-primary);
 }
 
-.cardTop {
+.itemTop {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  gap: 8px;
 }
 
-.ticketId {
+.type {
   font-size: 11px;
   font-weight: 600;
-  color: var(--color-primary);
-  font-family: monospace;
+  color: var(--color-on-surface-variant);
+  text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
-.date {
-  font-size: var(--body-small-font-size);
-  color: var(--color-on-surface-variant);
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-primary);
 }
 
-.issueType {
+.itemTitle {
   font-size: var(--body-medium-font-size);
   font-weight: 600;
   color: var(--color-on-surface);
-  text-transform: capitalize;
 }
 
-.address {
-  font-size: var(--body-small-font-size);
+.itemBody {
+  font-size: var(--body-medium-font-size);
   color: var(--color-on-surface-variant);
+  line-height: var(--body-medium-line-height);
+}
+
+.time {
+  font-size: 11px;
+  color: var(--color-outline);
 }
 
 .empty {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 16px;
-  padding: 48px 24px;
   text-align: center;
   font-size: var(--body-medium-font-size);
   color: var(--color-outline);
+  padding: 48px 24px;
 }

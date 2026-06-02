@@ -1,38 +1,8 @@
 import { Card } from '@/components/ui/Card';
+import { RECYCLING_TIPS } from '@/constants';
 import styles from './page.module.css';
 
-const topics = [
-  {
-    icon: '🥤',
-    title: 'Plastic Bottles',
-    description: 'Rinse and crush PET bottles. Remove caps and labels. Drop at designated collection points.',
-  },
-  {
-    icon: '📦',
-    title: 'Cardboard & Paper',
-    description: 'Flatten cardboard boxes. Keep dry and clean. Separate from food waste.',
-  },
-  {
-    icon: '🥫',
-    title: 'Aluminum Cans',
-    description: 'Rinse cans. Crush to save space. Separate from general waste.',
-  },
-  {
-    icon: '🍌',
-    title: 'Organic Waste',
-    description: 'Food scraps and yard waste can be composted. Do not mix with plastics.',
-  },
-  {
-    icon: '🔋',
-    title: 'Electronics & Batteries',
-    description: 'Do not dispose of batteries, phones, or electronics in general waste. Take to dedicated e-waste collection points.',
-  },
-  {
-    icon: '♻️',
-    title: 'Why Recycle?',
-    description: 'Recycling reduces landfill waste, creates jobs, and keeps Lagos waterways clean. Every bottle and can diverted from a drainage channel helps prevent flooding.',
-  },
-];
+const categories = [...new Set(RECYCLING_TIPS.map((t) => t.category))];
 
 export default function RecyclingPage() {
   return (
@@ -40,15 +10,20 @@ export default function RecyclingPage() {
       <h1 className={styles.title}>Recycling Guide</h1>
       <p className={styles.subtitle}>Learn how to sort your waste properly</p>
 
-      <div className={styles.grid}>
-        {topics.map((topic) => (
-          <Card key={topic.title} className={styles.card}>
-            <span className={styles.icon} aria-hidden="true">{topic.icon}</span>
-            <h2 className={styles.cardTitle}>{topic.title}</h2>
-            <p className={styles.description}>{topic.description}</p>
-          </Card>
-        ))}
-      </div>
+      {categories.map((category) => (
+        <section key={category}>
+          <h2 className={styles.categoryTitle}>{category}</h2>
+          <div className={styles.grid}>
+            {RECYCLING_TIPS.filter((t) => t.category === category).map((tip) => (
+              <Card key={tip.title} className={styles.card}>
+                <span className={styles.cardCategory}>{tip.category}</span>
+                <h3 className={styles.cardTitle}>{tip.title}</h3>
+                <p className={styles.description}>{tip.description}</p>
+              </Card>
+            ))}
+          </div>
+        </section>
+      ))}
     </div>
   );
 }

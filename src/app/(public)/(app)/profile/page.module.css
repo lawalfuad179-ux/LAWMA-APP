@@ -1,7 +1,7 @@
 .page {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
   padding: 24px;
 }
 
@@ -14,7 +14,26 @@
 .card {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
+}
+
+.avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: var(--color-primary-container);
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--title-large-font-size);
+  font-weight: 700;
+}
+
+.sectionTitle {
+  font-size: var(--title-small-font-size);
+  font-weight: 600;
+  color: var(--color-on-surface);
 }
 
 .row {
@@ -33,4 +52,28 @@
 .value {
   font-size: var(--body-large-font-size);
   color: var(--color-on-surface);
+}
+
+.links {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.link {
+  display: flex;
+  align-items: center;
+  padding: 14px 16px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-outline-variant);
+  border-radius: 12px;
+  color: var(--color-primary);
+  font-size: var(--body-medium-font-size);
+  font-weight: 500;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+
+.link:hover {
+  background: var(--color-surface-container-high);
 }

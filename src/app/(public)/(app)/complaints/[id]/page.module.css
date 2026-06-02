@@ -1,0 +1,71 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 24px;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.title {
+  font-size: var(--headline-small-font-size);
+  font-weight: 600;
+  color: var(--color-on-surface);
+}
+
+.ticketId {
+  font-size: var(--label-large-font-size);
+  font-weight: 500;
+  color: var(--color-primary);
+  font-family: monospace;
+  letter-spacing: 0.5px;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.sectionTitle {
+  font-size: var(--title-small-font-size);
+  font-weight: 600;
+  color: var(--color-on-surface);
+}
+
+.row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.label {
+  font-size: var(--body-small-font-size);
+  color: var(--color-on-surface-variant);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.value {
+  font-size: var(--body-medium-font-size);
+  color: var(--color-on-surface);
+  line-height: var(--body-medium-line-height);
+}
+
+.images {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+}
+
+.image {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 8px;
+  flex-shrink: 0;
+}

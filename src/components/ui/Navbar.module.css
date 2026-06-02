@@ -7,7 +7,7 @@
   align-items: center;
   justify-content: space-around;
   height: 64px;
-  padding: 0 8px;
+  padding: 0 4px;
   padding-bottom: env(safe-area-inset-bottom, 0);
   background: var(--color-surface);
   border-top: 1px solid var(--color-outline-variant);
@@ -21,8 +21,8 @@
   justify-content: center;
   gap: 3px;
   min-height: 48px;
-  min-width: 56px;
-  padding: 4px 12px;
+  min-width: 52px;
+  padding: 4px 8px;
   text-decoration: none;
   border-radius: 12px;
   transition: background 0.2s;
@@ -37,6 +37,7 @@
 }
 
 .icon {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -50,8 +51,25 @@
   color: var(--color-primary);
 }
 
+.badge {
+  position: absolute;
+  top: -4px;
+  right: -6px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  background: var(--color-error);
+  color: var(--color-on-error);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 16px;
+  text-align: center;
+  border-radius: 8px;
+  pointer-events: none;
+}
+
 .label {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 500;
   line-height: 1;
   color: var(--color-on-surface-variant);

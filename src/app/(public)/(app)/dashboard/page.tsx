@@ -3,140 +3,108 @@ import Link from 'next/link';
 
 import { getSession } from '@/lib/auth';
 import { db } from '@/lib/db';
-import { DAYS_OF_WEEK } from '@/constants';
+import { Card } from '@/components/ui/Card';
+import { Badge } from '@/components/ui/Badge';
+import { DAYS_OF_WEEK, COMPLAINT_STATUS_LABELS, NOTIFICATION_TYPE_LABELS, RECYCLING_TIPS } from '@/constants';
 import styles from './page.module.css';
-
-function ScheduleIcon() {
-  return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
-    </svg>
-  );
-}
-
-function AlertIcon() {
-  return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
-    </svg>
-  );
-}
-
-function CreditCardIcon() {
-  return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/>
-    </svg>
-  );
-}
-
-function RecycleIcon() {
-  return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
-    </svg>
-  );
-}
 
 export default async function DashboardPage() {
   const session = await getSession();
   if (!session) redirect('/login');
 
-  const resident = await db.resident.findUnique({
-    where: { id: session.residentId },
-  });
+  const resident = await db.resident.findUnique({ where: { id: session.residentId } });
   if (!resident) redirect('/login');
-
-  if (!(resident.name && resident.address && resident.lga)) {
-    redirect('/onboarding');
-  }
+  if (!(resident.name && resident.address && resident.lga)) redirect('/onboarding');
 
   const today = new Date().getDay();
+  const todaySchedules = await db.collectionSchedule.findMany({
+    where: { lga: resident.lga, dayOfWeek: today },
+    include: { pspOperator: true },
+  });
+  const todaySchedule = todaySchedules[0];
 
-  const [todaySchedules, activeComplaints, bills] = await Promise.all([
-    db.collectionSchedule.findMany({
-      where: { lga: resident.lga },
-      include: { pspOperator: true },
-    }),
-    db.complaint.count({
-      where: { residentId: session.residentId, status: { not: 'RESOLVED' } },
-    }),
-    db.bill.findMany({
-      where: { residentId: session.residentId },
-      orderBy: { dueDate: 'desc' },
-      take: 10,
-    }),
-  ]);
+  const activeComplaints = await db.complaint.findMany({
+    where: { residentId: session.residentId, status: { not: 'RESOLVED' } },
+    orderBy: { createdAt: 'desc' },
+    take: 1,
+  });
+  const latestActive = activeComplaints[0];
 
-  const todayPickup = todaySchedules.find((s) => s.dayOfWeek === today);
-  const totalOutstanding = bills
-    .filter((b) => b.status === 'PENDING' || b.status === 'OVERDUE')
-    .reduce((sum, b) => sum + b.amountKobo, 0);
+  const notifications = await db.notification.findMany({
+    where: { residentId: session.residentId },
+    orderBy: { createdAt: 'desc' },
+    take: 3,
+  });
+
+  const recyclingTip = RECYCLING_TIPS[Math.floor(Math.random() * RECYCLING_TIPS.length)];
 
   return (
     <div className={styles.page}>
-      <header className={styles.header}>
-        <div className={styles.greetingRow}>
-          <div className={styles.avatar}>
-            {resident.name?.charAt(0).toUpperCase() || '?'}
-          </div>
-          <div>
-            <h1 className={styles.greeting}>Good day, {resident.name?.split(' ')[0]}</h1>
-            <p className={styles.location}>{resident.lga}</p>
-          </div>
-        </div>
-      </header>
-
-      <div className={styles.stats}>
-        <div className={styles.stat}>
-          <div className={`${styles.statValue} ${styles.statPositive}`}>
-            {todayPickup ? DAYS_OF_WEEK[todayPickup.dayOfWeek] : '--'}
-          </div>
-          <div className={styles.statLabel}>Next pickup</div>
-        </div>
-        <div className={styles.stat}>
-          <div className={`${styles.statValue} ${activeComplaints > 0 ? styles.statWarning : styles.statMuted}`}>
-            {activeComplaints}
-          </div>
-          <div className={styles.statLabel}>Active issues</div>
-        </div>
-        <div className={styles.stat}>
-          <div className={`${styles.statValue} ${totalOutstanding > 0 ? styles.statWarning : styles.statPositive}`}>
-            ₦{(totalOutstanding / 100).toLocaleString()}
-          </div>
-          <div className={styles.statLabel}>Due</div>
-        </div>
+      <div className={styles.greeting}>
+        <span className={styles.greetingText}>Good day, {resident.name?.split(' ')[0]}</span>
+        <span className={styles.location}>{resident.lga}</span>
       </div>
 
-      <div className={styles.grid}>
-        <Link href="/schedules" className={styles.card}>
-          <div className={styles.cardIcon}><ScheduleIcon /></div>
-          <div className={styles.cardContent}>
-            <span className={styles.cardLabel}>Collection Schedule</span>
-            <span className={styles.cardDesc}>View pickup days and operator</span>
+      {todaySchedule ? (
+        <Card className={styles.pickupCard}>
+          <div className={styles.pickupTop}>
+            <span className={styles.pickupLabel}>Next Pickup</span>
+            <Badge label={todaySchedule.status} variant="success" />
           </div>
+          <span className={styles.pickupDay}>Today</span>
+          <span className={styles.pickupTime}>{todaySchedule.windowStart} - {todaySchedule.windowEnd}</span>
+          <span className={styles.pickupPsp}>{todaySchedule.pspOperator.name}</span>
+        </Card>
+      ) : (
+        <Link href="/schedules" className={styles.scheduleLink}>
+          View collection schedule
         </Link>
-        <Link href="/complaints" className={styles.card}>
-          <div className={styles.cardIcon}><AlertIcon /></div>
-          <div className={styles.cardContent}>
-            <span className={styles.cardLabel}>Report an Issue</span>
-            <span className={styles.cardDesc}>Photo and location tracking</span>
-          </div>
+      )}
+
+      <div className={styles.actions}>
+        <Link href="/complaints/report" className={styles.actionButton}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          Report Issue
         </Link>
-        <Link href="/payments" className={styles.card}>
-          <div className={styles.cardIcon}><CreditCardIcon /></div>
-          <div className={styles.cardContent}>
-            <span className={styles.cardLabel}>Pay Waste Bill</span>
-            <span className={styles.cardDesc}>Digital payments via Flutterwave</span>
-          </div>
+        <Link href="/payments" className={styles.actionButton}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+          Pay Bill
         </Link>
-        <Link href="/recycling" className={styles.card}>
-          <div className={styles.cardIcon}><RecycleIcon /></div>
-          <div className={styles.cardContent}>
-            <span className={styles.cardLabel}>Recycling Guide</span>
-            <span className={styles.cardDesc}>Learn how to sort waste</span>
-          </div>
+      </div>
+
+      {latestActive ? (
+        <Link href={`/complaints/${latestActive.id}`} className={styles.complaintLink}>
+          <Card className={styles.complaintCard}>
+            <div className={styles.complaintTop}>
+              <span className={styles.complaintType}>{latestActive.issueType.replace(/_/g, ' ')}</span>
+              <Badge label={COMPLAINT_STATUS_LABELS[latestActive.status]} variant="warning" />
+            </div>
+            <span className={styles.complaintAddress}>{latestActive.address}</span>
+          </Card>
         </Link>
+      ) : null}
+
+      {notifications.length > 0 ? (
+        <div className={styles.notifSection}>
+          <span className={styles.sectionTitle}>Recent Notifications</span>
+          {notifications.map((n) => (
+            <Link key={n.id} href="/notifications" className={styles.notifLink}>
+              <div className={styles.notifItem}>
+                <div className={styles.notifTop}>
+                  <span className={styles.notifType}>{NOTIFICATION_TYPE_LABELS[n.type] || n.type}</span>
+                  {!n.isRead ? <span className={styles.notifDot} /> : null}
+                </div>
+                <span className={styles.notifTitle}>{n.title}</span>
+              </div>
+            </Link>
+          ))}
+        </div>
+      ) : null}
+
+      <div className={styles.tip}>
+        <span className={styles.tipCategory}>{recyclingTip.category}</span>
+        <span className={styles.tipTitle}>{recyclingTip.title}</span>
+        <span className={styles.tipDesc}>{recyclingTip.description}</span>
       </div>
     </div>
   );

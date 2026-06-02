@@ -1,7 +1,7 @@
 .page {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 20px;
   padding: 24px;
 }
 
@@ -15,21 +15,25 @@
   font-size: var(--title-medium-font-size);
   font-weight: 600;
   color: var(--color-on-surface);
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .scheduleCard {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
   margin-bottom: 8px;
 }
 
-.scheduleHeader {
+.scheduleTop {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
 }
 
 .day {
+  font-size: var(--body-medium-font-size);
   font-weight: 600;
   color: var(--color-on-surface);
 }
@@ -50,9 +54,22 @@
   color: var(--color-on-surface-variant);
 }
 
+.delayBanner {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  padding: 8px 12px;
+  background: hsl(39, 100%, 92%);
+  color: hsl(28, 80%, 26%);
+  border-radius: 8px;
+  font-size: var(--body-small-font-size);
+  font-weight: 500;
+}
+
 .empty {
+  text-align: center;
   font-size: var(--body-medium-font-size);
   color: var(--color-outline);
-  text-align: center;
-  padding: 24px;
+  padding: 48px 24px;
 }

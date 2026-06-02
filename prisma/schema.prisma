@@ -23,6 +23,22 @@ enum PaymentStatus {
   PENDING
   SUCCESSFUL
   FAILED
+  REVERSED
+}
+
+enum CollectionStatus {
+  SCHEDULED
+  DELAYED
+  MISSED
+  COMPLETED
+}
+
+enum NotificationType {
+  COLLECTION_REMINDER
+  DELAYED_PICKUP
+  COMPLAINT_UPDATE
+  PAYMENT_CONFIRMATION
+  ANNOUNCEMENT
 }
 
 model Resident {
@@ -40,6 +56,7 @@ model Resident {
   payments     Payment[]
   notifications Notification[]
 
+  @@index([lga])
   @@map("residents")
 }
 
@@ -76,25 +93,33 @@ model PspOperator {
   createdAt    DateTime             @default(now()) @map("created_at")
   schedules    CollectionSchedule[]
 
+  @@index([lga])
   @@map("psp_operators")
 }
 
 model CollectionSchedule {
-  id            String      @id @default(uuid())
-  lga           String      @map("lga")
-  dayOfWeek     Int         @map("day_of_week") // 0 = Sunday, 6 = Saturday
-  windowStart   String      @map("window_start") // e.g. "08:00"
-  windowEnd     String      @map("window_end") // e.g. "12:00"
-  pspOperatorId String      @map("psp_operator_id")
-  pspOperator   PspOperator @relation(fields: [pspOperatorId], references: [id], onDelete: Restrict)
-  createdAt     DateTime    @default(now()) @map("created_at")
+  id            String           @id @default(uuid())
+  lga           String           @map("lga")
+  dayOfWeek     Int              @map("day_of_week") // 0 = Sunday, 6 = Saturday
+  windowStart   String           @map("window_start") // e.g. "08:00"
+  windowEnd     String           @map("window_end") // e.g. "12:00"
+  status        CollectionStatus @default(SCHEDULED) @map("status")
+  delayReason   String?          @map("delay_reason")
+  nextCollectionDate DateTime?   @map("next_collection_date")
+  pspOperatorId String           @map("psp_operator_id")
+  pspOperator   PspOperator      @relation(fields: [pspOperatorId], references: [id], onDelete: Restrict)
+  createdAt     DateTime         @default(now()) @map("created_at")
+  updatedAt     DateTime         @updatedAt @map("updated_at")
 
   @@index([lga])
+  @@index([lga, dayOfWeek])
+  @@index([status])
   @@map("collection_schedules")
 }
 
 model Complaint {
   id          String          @id @default(uuid())
+  ticketId    String          @unique @map("ticket_id") // Human-readable, e.g. "LW-20250602-A3X9"
   residentId  String          @map("resident_id")
   resident    Resident        @relation(fields: [residentId], references: [id], onDelete: Restrict)
   issueType   String          @map("issue_type") // e.g. "MISSED_PICKUP", "ILLEGAL_DUMPING"
@@ -111,7 +136,9 @@ model Complaint {
 
   @@index([residentId])
   @@index([lga, status])
+  @@index([lga, area, issueType, status])
   @@index([createdAt])
+  @@index([ticketId])
   @@map("complaints")
 }
 
@@ -138,6 +165,8 @@ model Bill {
   payments     Payment[]
 
   @@index([residentId])
+  @@index([residentId, status])
+  @@index([dueDate])
   @@map("bills")
 }
 
@@ -151,25 +180,32 @@ model Payment {
   currency         String        @default("NGN") @map("currency")
   status           PaymentStatus @default(PENDING) @map("status")
   txRef            String        @unique @map("tx_ref")
-  gatewayReference String?       @unique @map("gateway_reference")
-  paidAt           DateTime?     @map("paid_at")
-  createdAt        DateTime      @default(now()) @map("created_at")
+  gatewayReference         String?       @unique @map("gateway_reference")
+  flutterwaveTransactionId String?       @map("flutterwave_transaction_id")
+  verifiedAt               DateTime?     @map("verified_at")
+  receiptNumber            String?       @unique @map("receipt_number")
+  paidAt                   DateTime?     @map("paid_at")
+  createdAt                DateTime      @default(now()) @map("created_at")
 
   @@index([txRef])
   @@index([residentId])
+  @@index([residentId, status])
   @@map("payments")
 }
 
 model Notification {
-  id         String   @id @default(uuid())
-  residentId String   @map("resident_id")
-  resident   Resident @relation(fields: [residentId], references: [id], onDelete: Cascade)
-  title      String   @map("title")
-  body       String   @map("body")
-  type       String   @map("type") // e.g. "SCHEDULE", "PAYMENT", "COMPLAINT"
-  isRead     Boolean  @default(false) @map("is_read")
-  createdAt  DateTime @default(now()) @map("created_at")
+  id          String           @id @default(uuid())
+  residentId  String           @map("resident_id")
+  resident    Resident         @relation(fields: [residentId], references: [id], onDelete: Cascade)
+  title       String           @map("title")
+  body        String           @map("body")
+  type        NotificationType @map("type")
+  referenceId String?          @map("reference_id") // Links to complaint/payment/schedule ID
+  isRead      Boolean          @default(false) @map("is_read")
+  createdAt   DateTime         @default(now()) @map("created_at")
 
   @@index([residentId])
+  @@index([residentId, isRead])
+  @@index([createdAt])
   @@map("notifications")
 }

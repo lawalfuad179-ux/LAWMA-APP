@@ -6,7 +6,7 @@ import { db } from '@/lib/db';
 import { logger } from '@/lib/logger';
 
 const complaintSchema = z.object({
-  issueType: z.enum(['MISSED_PICKUP', 'ILLEGAL_DUMPING', 'OVERFLOWING_BIN', 'OTHER']),
+  issueType: z.enum(['MISSED_PICKUP', 'ILLEGAL_DUMPING', 'OVERFLOWING_BIN', 'PSP_MISCONDUCT', 'WASTE_BURNING', 'OTHER']),
   area: z.string().min(2).max(100),
   address: z.string().min(5).max(200),
   description: z.string().max(500).optional(),
@@ -51,8 +51,14 @@ export async function POST(req: NextRequest) {
 
     const resident = await db.resident.findUnique({ where: { id: session.residentId } });
 
+    const datePart = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+    const slug = (resident?.lga || 'LAG').slice(0, 3).toUpperCase();
+    const rand = Math.random().toString(36).substring(2, 6).toUpperCase();
+    const ticketId = `LW-${datePart}-${slug}${rand}`;
+
     const complaint = await db.complaint.create({
       data: {
+        ticketId,
         residentId: session.residentId,
         issueType,
         lga: resident?.lga || '',
