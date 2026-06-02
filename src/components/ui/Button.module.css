@@ -27,9 +27,9 @@
 
 /* Variants */
 .primary {
-  background: linear-gradient(135deg, var(--color-primary), hsl(24, 98%, 42%));
+  background: var(--color-primary);
   color: var(--color-on-primary);
-  box-shadow: 0 2px 8px hsla(24, 98%, 50%, 0.3);
+  box-shadow: 0 2px 6px hsla(24, 98%, 50%, 0.2);
 }
 
 .primary:hover:not(:disabled) {
@@ -63,9 +63,9 @@
 }
 
 .danger {
-  background: linear-gradient(135deg, var(--color-error), hsl(0, 54%, 35%));
+  background: var(--color-error);
   color: var(--color-on-error);
-  box-shadow: 0 2px 8px hsla(0, 54%, 41%, 0.3);
+  box-shadow: 0 2px 6px hsla(0, 54%, 41%, 0.2);
 }
 
 .danger:hover:not(:disabled) {

@@ -28,7 +28,8 @@
   flex-direction: column;
   gap: 4px;
   padding: 16px;
-  background: linear-gradient(135deg, var(--color-primary-container), hsla(24, 98%, 50%, 0.08));
+  background: var(--color-primary-container);
+  box-shadow: 0 2px 8px hsla(24, 98%, 50%, 0.12);
   border-color: var(--color-primary);
 }
 

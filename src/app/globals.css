@@ -11,6 +11,7 @@ html {
   height: 100%;
   color-scheme: light;
   transition: background 0.4s ease;
+  --sidebar-w: 220px;
 }
 
 html[data-theme="dark"] {
@@ -57,4 +58,32 @@ textarea {
 :focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
+}
+
+/* ─── Page mount animation ─── */
+@keyframes pageIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.pageAnim {
+  animation: pageIn 0.5s ease forwards;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.fadeUp {
+  animation: fadeUp 0.5s ease forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.fadeIn {
+  animation: fadeIn 0.6s ease forwards;
 }

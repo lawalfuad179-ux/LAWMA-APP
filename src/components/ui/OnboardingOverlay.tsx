@@ -10,7 +10,7 @@ const steps = [
     description: 'View your assigned pickup days and PSP operator. Get notified before each collection.',
     illustration: (
       <svg viewBox="0 0 120 100" fill="none" className={styles.svg}>
-        <rect x="10" y="15" width="100" height="70" rx="8" stroke="currentColor" strokeWidth="2" fill="none" />
+        <rect x="10" y="15" width="100" height="70" rx="8" stroke="currentColor" strokeWidth="1" fill="none" />
         <text x="60" y="35" textAnchor="middle" fontSize="9" fill="currentColor">MON</text>
         <text x="60" y="45" textAnchor="middle" fontSize="9" fill="currentColor">TUE</text>
         <text x="60" y="55" textAnchor="middle" fontSize="9" fill="currentColor">WED</text>
@@ -26,7 +26,7 @@ const steps = [
     description: 'Report missed pickups or illegal dumping with photos and location. Track resolution in real time.',
     illustration: (
       <svg viewBox="0 0 120 100" fill="none" className={styles.svg}>
-        <circle cx="60" cy="40" r="25" stroke="currentColor" strokeWidth="2" fill="none" />
+        <circle cx="60" cy="40" r="25" stroke="currentColor" strokeWidth="1" fill="none" />
         <circle cx="60" cy="34" r="8" stroke="currentColor" strokeWidth="1.5" fill="none" />
         <path d="M45 65 Q60 55 75 65" stroke="currentColor" strokeWidth="1.5" fill="none" />
         <rect x="85" y="25" width="20" height="20" rx="3" stroke="currentColor" strokeWidth="1.5" fill="none" />
@@ -39,7 +39,7 @@ const steps = [
     description: 'View waste bills and pay securely through Flutterwave. Track your payment history.',
     illustration: (
       <svg viewBox="0 0 120 100" fill="none" className={styles.svg}>
-        <rect x="20" y="20" width="80" height="60" rx="6" stroke="currentColor" strokeWidth="2" fill="none" />
+        <rect x="20" y="20" width="80" height="60" rx="6" stroke="currentColor" strokeWidth="1" fill="none" />
         <text x="60" y="45" textAnchor="middle" fontSize="10" fontWeight="600" fill="currentColor">NGN</text>
         <text x="60" y="55" textAnchor="middle" fontSize="8" fill="currentColor">Waste Bill</text>
         <rect x="35" y="60" width="50" height="16" rx="3" fill="currentColor" opacity="0.15" />

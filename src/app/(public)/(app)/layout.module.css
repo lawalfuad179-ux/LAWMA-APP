@@ -12,6 +12,7 @@
 @media (min-width: 768px) {
   .main {
     padding-bottom: 0;
-    padding-top: 60px;
+    margin-left: var(--sidebar-w, 220px);
+    transition: margin-left 0.2s ease;
   }
 }

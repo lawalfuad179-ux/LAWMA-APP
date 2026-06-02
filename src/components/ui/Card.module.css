@@ -5,6 +5,7 @@
   padding: 16px;
   width: 100%;
   text-align: left;
+  box-shadow: 0 1px 3px hsla(0, 0%, 0%, 0.04);
   transition: box-shadow 0.2s;
 }
 
@@ -25,5 +26,5 @@
 
 .clickable:active {
   transform: translateY(0);
-  box-shadow: none;
+  box-shadow: 0 1px 3px hsla(0, 0%, 0%, 0.04);
 }

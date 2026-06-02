@@ -218,7 +218,7 @@ export default function LandingPage() {
                   <p className={styles.stepDesc}>Sign up with your phone number and set your address and Local Government Area.</p>
                 </div>
                 <div className={styles.stepArrow}>
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" strokeWidth="1.5"><polyline points="9 18 15 12 9 6"/></svg>
                 </div>
                 <div className={styles.step}>
                   <span className={styles.stepNumber}>2</span>
@@ -226,7 +226,7 @@ export default function LandingPage() {
                   <p className={styles.stepDesc}>Use the dashboard to manage your waste collection, payments, and reports.</p>
                 </div>
                 <div className={styles.stepArrow}>
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" strokeWidth="1.5"><polyline points="9 18 15 12 9 6"/></svg>
                 </div>
                 <div className={styles.step}>
                   <span className={styles.stepNumber}>3</span>
