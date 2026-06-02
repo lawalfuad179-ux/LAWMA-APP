@@ -11,6 +11,12 @@
   line-height: var(--label-large-line-height);
 }
 
+.inputWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
 .input {
   width: 100%;
   min-height: 48px;
@@ -37,12 +43,39 @@
   box-shadow: 0 0 0 3px hsla(24, 98%, 50%, 0.12);
 }
 
+.inputPassword {
+  padding-right: 48px;
+}
+
 .inputError {
   border-color: var(--color-error);
 }
 
 .inputError:focus {
   box-shadow: 0 0 0 3px hsla(0, 54%, 41%, 0.12);
+}
+
+.eyeBtn {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: var(--color-outline);
+  cursor: pointer;
+  border-radius: 8px;
+  transition: color 0.15s, background 0.15s;
+}
+
+.eyeBtn:hover {
+  color: var(--color-on-surface-variant);
+  background: var(--color-surface-container-high);
 }
 
 .error {

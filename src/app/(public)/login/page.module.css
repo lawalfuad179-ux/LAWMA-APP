@@ -192,6 +192,31 @@
   text-underline-offset: 3px;
 }
 
+.resendText {
+  background: none;
+  border: none;
+  color: var(--color-primary);
+  font-size: var(--body-medium-font-size);
+  font-weight: 500;
+  cursor: pointer;
+  padding: 4px 0;
+  text-align: left;
+  min-height: 44px;
+  transition: opacity 0.15s;
+  margin-top: -8px;
+}
+
+.resendText:disabled {
+  color: var(--color-outline);
+  cursor: default;
+  font-weight: 400;
+}
+
+.resendText:hover:not(:disabled) {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
 .modeToggle {
   background: none;
   border: none;

@@ -21,10 +21,7 @@ export function validateEmailOrPhone(value: string): string | null {
   const digitCount = (value.match(/\d/g) || []).length;
   const alphaCount = (value.match(/[a-zA-Z]/g) || []).length;
   if (alphaCount >= digitCount && alphaCount > 0) {
-    if (value.length > 2 && !/^[a-zA-Z0-9._%+-]+$/.test(value)) {
-      return 'Enter a valid email address (e.g. example@mail.com).';
-    }
-    return null;
+    return 'Enter a valid email address (e.g. example@mail.com).';
   }
   return validatePhone(value);
 }

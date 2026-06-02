@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
   }
 
   const resident = email
-    ? await db.resident.findUnique({ where: { email: identifier } })
+    ? await db.resident.findUnique({ where: { email: email.toLowerCase().trim() } })
     : await db.resident.findUnique({ where: { phoneNumber: identifier } });
 
   return NextResponse.json({ ok: true, exists: !!resident });

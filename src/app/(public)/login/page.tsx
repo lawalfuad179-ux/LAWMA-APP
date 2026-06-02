@@ -371,15 +371,14 @@ function AuthContent() {
               autoFocus
               autoComplete="one-time-code"
             />
-            <Button
+            <button
               type="button"
-              variant="ghost"
-              size="sm"
+              className={styles.resendText}
               onClick={resendOtp}
               disabled={cooldown > 0}
             >
-              {cooldown > 0 ? `Resend in ${cooldown}s` : 'Resend code'}
-            </Button>
+              {cooldown > 0 ? `Resend code in ${cooldown}s` : 'Resend code'}
+            </button>
             <Button type="submit" size="lg" isLoading={loading}>
               Verify
             </Button>
