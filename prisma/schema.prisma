@@ -246,6 +246,9 @@ model NotificationPreference {
   emailPaymentReceipts     Boolean  @default(true) @map("email_payment_receipts")
   emailCollectionReminders Boolean  @default(true) @map("email_collection_reminders")
   emailAnnouncements       Boolean  @default(false) @map("email_announcements")
+  smsComplaintUpdates      Boolean  @default(true) @map("sms_complaint_updates")
+  smsCollectionReminders   Boolean  @default(true) @map("sms_collection_reminders")
+  smsDelayedPickup         Boolean  @default(true) @map("sms_delayed_pickup")
   createdAt                DateTime @default(now()) @map("created_at")
   updatedAt                DateTime @updatedAt @map("updated_at")
 

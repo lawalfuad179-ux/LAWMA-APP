@@ -17,24 +17,24 @@
   --color-on-error: hsl(0, 0%, 100%);
   --color-error-container: hsl(0, 81%, 81%);
   --color-on-error-container: hsl(0, 59%, 29%);
-  --color-background: hsl(15, 40%, 98%);
+  --color-background: hsl(0, 0%, 99%);
   --color-on-background: hsl(180, 2%, 11%);
   --color-surface: hsl(0, 0%, 100%);
   --color-on-surface: hsl(180, 2%, 11%);
-  --color-surface-variant: hsl(15, 7%, 89%);
+  --color-surface-variant: hsl(0, 0%, 91%);
   --color-on-surface-variant: hsl(0, 1%, 28%);
-  --color-outline: hsl(30, 1%, 47%);
-  --color-outline-variant: hsl(20, 3%, 78%);
+  --color-outline: hsl(0, 0%, 47%);
+  --color-outline-variant: hsl(0, 0%, 88%);
   --color-inverse-surface: hsl(0, 0%, 19%);
-  --color-inverse-on-surface: hsl(0, 11%, 95%);
+  --color-inverse-on-surface: hsl(0, 0%, 95%);
   --color-inverse-primary: hsl(19, 100%, 79%);
-  --color-surface-dim: hsl(0, 4%, 86%);
-  --color-surface-bright: hsl(15, 40%, 98%);
+  --color-surface-dim: hsl(0, 0%, 87%);
+  --color-surface-bright: hsl(0, 0%, 99%);
   --color-surface-container-lowest: hsl(0, 0%, 100%);
-  --color-surface-container-low: hsl(15, 18%, 96%);
-  --color-surface-container: hsl(0, 9%, 94%);
-  --color-surface-container-high: hsl(0, 7%, 91%);
-  --color-surface-container-highest: hsl(15, 18%, 96%);
+  --color-surface-container-low: hsl(0, 0%, 97%);
+  --color-surface-container: hsl(0, 0%, 95%);
+  --color-surface-container-high: hsl(0, 0%, 92%);
+  --color-surface-container-highest: hsl(0, 0%, 90%);
 
   /* Status colors — semantic tokens for complaint, payment, collection states */
   --color-status-info: hsl(207, 70%, 50%);

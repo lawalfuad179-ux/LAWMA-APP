@@ -3,34 +3,30 @@
 import { useEffect, useState, useCallback } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import {
+  Home,
+  CalendarDays,
+  AlertCircle,
+  CreditCard,
+  Leaf,
+  Bell,
+  User,
+  Sun,
+  Moon,
+  LogOut,
+  ChevronLeft,
+  ChevronRight,
+  Menu,
+  X,
+} from 'lucide-react';
 import styles from './Navbar.module.css';
 
 const navItems = [
-  {
-    href: '/dashboard',
-    label: 'Home',
-    icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>,
-  },
-  {
-    href: '/schedules',
-    label: 'Schedule',
-    icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>,
-  },
-  {
-    href: '/complaints',
-    label: 'Report',
-    icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>,
-  },
-  {
-    href: '/payments',
-    label: 'Payments',
-    icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>,
-  },
-  {
-    href: '/profile',
-    label: 'Profile',
-    icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>,
-  },
+  { href: '/dashboard', label: 'Home',      Icon: Home },
+  { href: '/schedules', label: 'Schedule',  Icon: CalendarDays },
+  { href: '/complaints',label: 'Report',    Icon: AlertCircle },
+  { href: '/payments',  label: 'Payments',  Icon: CreditCard },
+  { href: '/recycling', label: 'Recycling', Icon: Leaf },
 ];
 
 const SIDEBAR_W_EXPANDED = '220px';
@@ -43,6 +39,8 @@ export function Navbar() {
   const [collapsed, setCollapsed] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [dark, setDark] = useState(false);
 
   useEffect(() => {
     fetch('/api/notifications/unread-count')
@@ -58,12 +56,29 @@ export function Navbar() {
     document.documentElement.style.setProperty('--sidebar-w', isCollapsed ? SIDEBAR_W_COLLAPSED : SIDEBAR_W_EXPANDED);
   }, []);
 
+  useEffect(() => {
+    const storedTheme = localStorage.getItem('lawma-theme');
+    setDark(storedTheme === 'dark');
+  }, []);
+
+  // Close hamburger sheet when route changes
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [pathname]);
+
   const toggleSidebar = useCallback(() => {
     const next = !collapsed;
     setCollapsed(next);
     localStorage.setItem('lawma-sidebar', next ? 'true' : 'false');
     document.documentElement.style.setProperty('--sidebar-w', next ? SIDEBAR_W_COLLAPSED : SIDEBAR_W_EXPANDED);
   }, [collapsed]);
+
+  const toggleTheme = useCallback(() => {
+    const next = !dark;
+    setDark(next);
+    document.documentElement.setAttribute('data-theme', next ? 'dark' : 'light');
+    localStorage.setItem('lawma-theme', next ? 'dark' : 'light');
+  }, [dark]);
 
   const handleLogout = useCallback(async () => {
     setLoggingOut(true);
@@ -83,18 +98,23 @@ export function Navbar() {
         <div className={styles.sidebarTop}>
           <Link href="/dashboard" className={styles.sidebarBrand}>
             <img src="/logo-light.png" alt="LAWMA" className={styles.sidebarLogoLight} />
-            <img src="/logo-dark.png" alt="LAWMA" className={styles.sidebarLogoDark} />
-            <img src="/favicon.png" alt="" className={styles.sidebarFavicon} />
+            <img src="/logo-dark.png"  alt="LAWMA" className={styles.sidebarLogoDark} />
+            <img src="/favicon.png"    alt=""       className={styles.sidebarFavicon} />
           </Link>
-          <button className={styles.collapseBtn} onClick={toggleSidebar} type="button" aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={collapsed ? styles.chevronRight : styles.chevronLeft}>
-              <polyline points="15 18 9 12 15 6" />
-            </svg>
+          <button
+            className={styles.collapseBtn}
+            onClick={toggleSidebar}
+            type="button"
+            aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          >
+            {collapsed
+              ? <ChevronRight size={16} strokeWidth={1.5} />
+              : <ChevronLeft  size={16} strokeWidth={1.5} />}
           </button>
         </div>
 
         <nav className={styles.sidebarNav}>
-          {navItems.map(({ href, label, icon }) => (
+          {navItems.map(({ href, label, Icon }) => (
             <Link
               key={href}
               href={href}
@@ -102,28 +122,63 @@ export function Navbar() {
               title={collapsed ? label : undefined}
             >
               <span className={styles.sidebarLinkIcon}>
-                {icon}
-                {href === '/profile' && unreadCount > 0 ? (
-                  <span className={styles.sidebarBadge}>{unreadCount > 9 ? '9+' : unreadCount}</span>
-                ) : null}
+                <Icon size={22} strokeWidth={1.5} />
               </span>
               <span className={styles.sidebarLinkLabel}>{label}</span>
             </Link>
           ))}
         </nav>
 
-        <button className={styles.logoutBtn} onClick={() => setShowConfirm(true)} type="button" title={collapsed ? 'Sign out' : undefined}>
-          <span className={styles.logoutIcon}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
-            </svg>
-          </span>
+        {/* Bottom account section */}
+        <div className={styles.sidebarAccount}>
+          <Link
+            href="/profile"
+            className={`${styles.sidebarAccountLink} ${isActive('/profile') ? styles.sidebarLinkActive : ''}`}
+            title={collapsed ? 'Profile' : undefined}
+          >
+            <span className={styles.sidebarLinkIcon}><User size={20} strokeWidth={1.5} /></span>
+            <span className={styles.sidebarLinkLabel}>Profile</span>
+          </Link>
+          <Link
+            href="/notifications"
+            className={`${styles.sidebarAccountLink} ${isActive('/notifications') ? styles.sidebarLinkActive : ''}`}
+            title={collapsed ? 'Notifications' : undefined}
+          >
+            <span className={styles.sidebarLinkIcon}>
+              <Bell size={20} strokeWidth={1.5} />
+              {unreadCount > 0 && (
+                <span className={styles.sidebarBadge}>{unreadCount > 9 ? '9+' : unreadCount}</span>
+              )}
+            </span>
+            <span className={styles.sidebarLinkLabel}>Notifications</span>
+          </Link>
+          <button
+            className={styles.sidebarThemeBtn}
+            onClick={toggleTheme}
+            type="button"
+            title={collapsed ? (dark ? 'Light mode' : 'Dark mode') : undefined}
+            aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'}
+          >
+            <span className={styles.sidebarLinkIcon}>
+              {dark ? <Sun size={20} strokeWidth={1.5} /> : <Moon size={20} strokeWidth={1.5} />}
+            </span>
+            <span className={styles.sidebarLinkLabel}>{dark ? 'Light mode' : 'Dark mode'}</span>
+          </button>
+        </div>
+
+        <button
+          className={styles.logoutBtn}
+          onClick={() => setShowConfirm(true)}
+          type="button"
+          title={collapsed ? 'Sign out' : undefined}
+        >
+          <span className={styles.logoutIcon}><LogOut size={20} strokeWidth={1.5} /></span>
           <span className={styles.logoutLabel}>Sign out</span>
         </button>
       </aside>
 
-      {/* ─── Logout Confirmation ─── */}
-      {showConfirm ? (
+      {/* ─── Logout Confirmation Modal ─── */}
+      {showConfirm && (
         <div className={styles.confirmOverlay} onClick={() => setShowConfirm(false)}>
           <div className={styles.confirmModal} onClick={(e) => e.stopPropagation()}>
             <h3 className={styles.confirmTitle}>Sign out</h3>
@@ -131,27 +186,80 @@ export function Navbar() {
             <div className={styles.confirmActions}>
               <button className={styles.confirmCancel} onClick={() => setShowConfirm(false)} type="button">Cancel</button>
               <button className={styles.confirmLogout} onClick={handleLogout} type="button" disabled={loggingOut}>
-                {loggingOut ? 'Signing out...' : 'Sign out'}
+                {loggingOut ? 'Signing out…' : 'Sign out'}
               </button>
             </div>
           </div>
         </div>
-      ) : null}
+      )}
+
+      {/* ─── Mobile Hamburger (top-left) ─── */}
+      <button
+        className={styles.hamburgerBtn}
+        onClick={() => setMenuOpen(true)}
+        type="button"
+        aria-label="Open menu"
+      >
+        <Menu size={22} strokeWidth={1.5} />
+      </button>
 
       {/* ─── Mobile Bottom Nav ─── */}
       <nav className={styles.mobileNav}>
-        {navItems.map(({ href, label, icon }) => (
+        {navItems.map(({ href, label, Icon }) => (
           <Link key={href} href={href} className={`${styles.mobileItem} ${isActive(href) ? styles.mobileItemActive : ''}`}>
             <span className={styles.mobileIcon}>
-              {icon}
-              {href === '/profile' && unreadCount > 0 ? (
-                <span className={styles.badge}>{unreadCount > 9 ? '9+' : unreadCount}</span>
-              ) : null}
+              <Icon size={22} strokeWidth={1.5} />
             </span>
             <span className={styles.mobileLabel}>{label}</span>
           </Link>
         ))}
       </nav>
+
+      {/* ─── Mobile Menu Sheet ─── */}
+      {menuOpen && (
+        <div className={styles.sheetOverlay} onClick={() => setMenuOpen(false)}>
+          <div className={styles.sheet} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.sheetHeader}>
+              <span className={styles.sheetTitle}>My Account</span>
+              <button className={styles.sheetClose} onClick={() => setMenuOpen(false)} type="button" aria-label="Close menu">
+                <X size={20} strokeWidth={1.5} />
+              </button>
+            </div>
+
+            <div className={styles.sheetBody}>
+              <Link href="/profile" className={styles.sheetItem}>
+                <span className={styles.sheetItemIcon}><User size={20} strokeWidth={1.5} /></span>
+                <span className={styles.sheetItemLabel}>Profile</span>
+              </Link>
+              <Link href="/notifications" className={styles.sheetItem}>
+                <span className={styles.sheetItemIcon}>
+                  <Bell size={20} strokeWidth={1.5} />
+                  {unreadCount > 0 && (
+                    <span className={styles.badge}>{unreadCount > 9 ? '9+' : unreadCount}</span>
+                  )}
+                </span>
+                <span className={styles.sheetItemLabel}>Notifications</span>
+                {unreadCount > 0 && (
+                  <span className={styles.sheetBadgeLabel}>{unreadCount} unread</span>
+                )}
+              </Link>
+              <button className={styles.sheetItem} onClick={toggleTheme} type="button">
+                <span className={styles.sheetItemIcon}>
+                  {dark ? <Sun size={20} strokeWidth={1.5} /> : <Moon size={20} strokeWidth={1.5} />}
+                </span>
+                <span className={styles.sheetItemLabel}>{dark ? 'Light mode' : 'Dark mode'}</span>
+              </button>
+            </div>
+
+            <div className={styles.sheetDivider} />
+
+            <button className={styles.sheetLogout} onClick={() => { setMenuOpen(false); setShowConfirm(true); }} type="button">
+              <LogOut size={18} strokeWidth={1.5} />
+              Sign out
+            </button>
+          </div>
+        </div>
+      )}
     </>
   );
 }

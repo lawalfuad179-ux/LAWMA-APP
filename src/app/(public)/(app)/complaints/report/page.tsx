@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { ImagePlus, X } from 'lucide-react';
 
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -9,17 +10,42 @@ import { Select } from '@/components/ui/Select';
 import { COMPLAINT_ISSUE_TYPES } from '@/constants';
 import styles from './page.module.css';
 
+type Preview = { file: File; objectUrl: string };
+
 export default function ReportComplaintPage() {
   const router = useRouter();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const [issueType, setIssueType] = useState('');
   const [area, setArea] = useState('');
   const [address, setAddress] = useState('');
   const [description, setDescription] = useState('');
+  const [previews, setPreviews] = useState<Preview[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [duplicateWarning, setDuplicateWarning] = useState('');
 
   const issueOptions = COMPLAINT_ISSUE_TYPES.map((t) => ({ value: t.value, label: t.label }));
+
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+
+    const remaining = 3 - previews.length;
+    const toAdd = files.slice(0, remaining).map((file) => ({
+      file,
+      objectUrl: URL.createObjectURL(file),
+    }));
+    setPreviews((p) => [...p, ...toAdd]);
+    e.target.value = '';
+  }
+
+  function removePhoto(index: number) {
+    setPreviews((p) => {
+      URL.revokeObjectURL(p[index].objectUrl);
+      return p.filter((_, i) => i !== index);
+    });
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -31,9 +57,10 @@ export default function ReportComplaintPage() {
       return;
     }
 
+    setLoading(true);
+
     let lat: number | undefined;
     let lng: number | undefined;
-
     try {
       const pos = await new Promise<GeolocationPosition>((resolve, reject) =>
         navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000 })
@@ -41,15 +68,36 @@ export default function ReportComplaintPage() {
       lat = pos.coords.latitude;
       lng = pos.coords.longitude;
     } catch {
-      // GPS failed — proceed without coordinates
+      // GPS unavailable — proceed without coordinates
     }
 
-    setLoading(true);
+    // Upload photos first
+    const imageUrls: string[] = [];
+    for (const preview of previews) {
+      const fd = new FormData();
+      fd.append('file', preview.file);
+      try {
+        const res = await fetch('/api/upload', { method: 'POST', body: fd });
+        const data = await res.json();
+        if (data.ok) imageUrls.push(data.url);
+      } catch {
+        // Photo upload failed — continue without this photo
+      }
+    }
+
     try {
       const res = await fetch('/api/complaints', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ issueType, area, address, description: description || undefined, latitude: lat, longitude: lng }),
+        body: JSON.stringify({
+          issueType,
+          area,
+          address,
+          description: description || undefined,
+          latitude: lat,
+          longitude: lng,
+          imageUrls: imageUrls.length ? imageUrls : undefined,
+        }),
       });
       const data = await res.json();
 
@@ -62,6 +110,8 @@ export default function ReportComplaintPage() {
         return;
       }
 
+      // Clean up object URLs before navigating
+      previews.forEach((p) => URL.revokeObjectURL(p.objectUrl));
       router.push('/complaints');
     } catch {
       setError('Network error. Please try again.');
@@ -101,18 +151,59 @@ export default function ReportComplaintPage() {
           <label className={styles.textareaLabel}>Description (optional)</label>
           <textarea
             className={styles.textarea}
-            placeholder="Describe the issue..."
+            placeholder="Describe the issue in more detail…"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={3}
           />
         </div>
 
-        {duplicateWarning ? (
-          <p className={styles.duplicateWarning}>{duplicateWarning}</p>
-        ) : null}
+        {/* ─── Photo Upload ─── */}
+        <div className={styles.field}>
+          <label className={styles.textareaLabel}>
+            Photos <span className={styles.photoHint}>— up to 3, optional</span>
+          </label>
+          <div className={styles.photoGrid}>
+            {previews.map((p, i) => (
+              <div key={p.objectUrl} className={styles.photoPreview}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={p.objectUrl} alt={`Photo ${i + 1}`} className={styles.photoImg} />
+                <button
+                  className={styles.removePhoto}
+                  onClick={() => removePhoto(i)}
+                  type="button"
+                  aria-label="Remove photo"
+                >
+                  <X size={14} strokeWidth={2} />
+                </button>
+              </div>
+            ))}
+            {previews.length < 3 && (
+              <button
+                className={styles.addPhoto}
+                onClick={() => fileInputRef.current?.click()}
+                type="button"
+                aria-label="Add photo"
+              >
+                <ImagePlus size={24} strokeWidth={1.5} />
+                <span className={styles.addPhotoLabel}>Add photo</span>
+              </button>
+            )}
+          </div>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp,image/heic"
+            multiple
+            className={styles.hiddenInput}
+            onChange={handleFileChange}
+          />
+        </div>
 
-        {error ? <p className={styles.error}>{error}</p> : null}
+        {duplicateWarning && (
+          <p className={styles.duplicateWarning}>{duplicateWarning}</p>
+        )}
+        {error && <p className={styles.error}>{error}</p>}
 
         <Button type="submit" size="lg" isLoading={loading}>
           Submit Report

@@ -23,19 +23,32 @@ export default function SetupPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setErrors({});
     setServerError('');
 
+    const clientErrors: Record<string, string> = {};
+    if (name.trim().length < 2) clientErrors.name = 'Name must be at least 2 characters.';
+    if (!lga) clientErrors.lga = 'Please select your LGA.';
+    if (address.trim().length < 5) clientErrors.address = 'Address must be at least 5 characters.';
+    if (Object.keys(clientErrors).length) {
+      setErrors(clientErrors);
+      return;
+    }
+    setErrors({});
+
     const formData = new FormData();
-    formData.set('name', name);
+    formData.set('name', name.trim());
     formData.set('lga', lga);
-    formData.set('address', address);
+    formData.set('address', address.trim());
 
     setLoading(true);
     try {
       const result = await completeOnboarding(formData);
       if (!result.ok) {
-        setServerError(result.error.message);
+        if (result.error.fieldErrors) {
+          setErrors(result.error.fieldErrors);
+        } else {
+          setServerError(result.error.message);
+        }
         return;
       }
       router.push('/dashboard');

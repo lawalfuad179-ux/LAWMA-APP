@@ -167,122 +167,24 @@
   border-radius: 32px;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 24px 48px hsla(0, 0%, 0%, 0.08);
+  box-shadow: 0 24px 48px hsla(0, 0%, 0%, 0.12);
 }
 
 .phoneNotch {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
   width: 80px;
   height: 20px;
   background: var(--color-outline-variant);
   border-radius: 0 0 12px 12px;
-  margin: 0 auto;
+  z-index: 2;
 }
 
-.phoneScreen {
-  padding: 16px 16px 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.mockupHeader {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.mockupAvatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  background: var(--color-primary-container);
-}
-
-.mockupLines {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  flex: 1;
-}
-
-.mockupLineShort {
-  width: 60%;
-  height: 8px;
-  border-radius: 4px;
-  background: var(--color-surface-container-high);
-}
-
-.mockupLineLong {
-  width: 90%;
-  height: 8px;
-  border-radius: 4px;
-  background: var(--color-surface-container-high);
-}
-
-.mockupCard {
-  padding: 14px;
-  background: var(--color-primary-container);
-  opacity: 0.6;
-  border: 1px solid var(--color-outline-variant);
-  border-radius: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.mockupCardTop {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.mockupTag {
-  width: 70px;
-  height: 18px;
-  border-radius: 4px;
-  background: var(--color-primary);
-}
-
-.mockupDot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--color-outline-variant);
-}
-
-.mockupCardLine {
-  width: 100%;
-  height: 10px;
-  border-radius: 5px;
-  background: var(--color-surface-container-high);
-}
-
-.mockupCardLineHalf {
-  width: 60%;
-  height: 10px;
-  border-radius: 5px;
-  background: var(--color-surface-container-high);
-}
-
-.mockupActions {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.mockupBtn {
-  width: 100%;
-  height: 40px;
-  border-radius: 10px;
-  background: var(--color-primary);
-  box-shadow: 0 2px 6px hsla(24, 98%, 50%, 0.2);
-}
-
-.mockupBtnOutline {
-  width: 100%;
-  height: 36px;
-  border-radius: 10px;
-  border: 1px solid var(--color-outline-variant);
+.phoneScreenImg {
+  position: absolute;
+  inset: 0;
 }
 
 /* ─────────── 2. Trust Section ─────────── */
@@ -297,9 +199,22 @@
   gap: 32px;
 }
 
-.trustPhoto1, .trustPhoto2 {
+.trustImgWrap {
+  position: relative;
   width: 100%;
   height: 220px;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid var(--color-outline-variant);
+}
+
+.trustImgWrap2 {
+  position: relative;
+  width: 100%;
+  height: 180px;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid var(--color-outline-variant);
 }
 
 .trustContent {
@@ -325,72 +240,24 @@
   line-height: var(--body-large-line-height);
 }
 
-/* ─── Photo & Image Placeholder Cards ─── */
-.photoCard {
-  position: relative;
-  border-radius: 16px;
-  overflow: hidden;
-  border: 1px solid var(--color-outline-variant);
-}
-
-.photoGradient {
-  position: absolute;
-  inset: 0;
-  background: var(--color-primary-container);
-  opacity: 0.25;
-}
-
-.photoLabel {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  padding: 20px;
-  font-size: var(--body-medium-font-size);
-  color: var(--color-on-surface-variant);
-  text-align: center;
-}
-
-.featureMockup {
+/* ─── Image wrappers for feature showcase & confidence ─── */
+.mockupImgWrap {
   position: relative;
   width: 100%;
   height: 200px;
   border-radius: 14px;
   overflow: hidden;
   border: 1px solid var(--color-outline-variant);
+  box-shadow: 0 4px 16px hsla(0, 0%, 0%, 0.06);
 }
 
-.featureMockGrad {
-  position: absolute;
-  inset: 0;
-  background: var(--color-primary-container);
-  opacity: 0.15;
-}
-
-.featureMockContent {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 10px;
-  padding: 24px;
-}
-
-.featureMockBar {
-  width: 70%;
-  height: 12px;
-  border-radius: 6px;
-  background: var(--color-surface-container-high);
-}
-
-.featureMockBarShort {
-  width: 40%;
-  height: 12px;
-  border-radius: 6px;
-  background: var(--color-surface-container-high);
+.showcasePhotoWrap {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid var(--color-outline-variant);
 }
 
 /* ─────────── 3. Feature Showcase ─────────── */
@@ -509,6 +376,15 @@
   height: 240px;
 }
 
+.confidenceImgWrap {
+  position: relative;
+  width: 100%;
+  height: 240px;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid var(--color-outline-variant);
+}
+
 .confidenceContent {
   display: flex;
   flex-direction: column;
@@ -612,11 +488,11 @@
     gap: 32px;
   }
 
-  .trustPhoto1 {
+  .trustImgWrap {
     height: 300px;
   }
 
-  .trustPhoto2 {
+  .trustImgWrap2 {
     height: 200px;
     grid-column: 1 / -1;
   }
@@ -654,7 +530,7 @@
     flex: 1;
   }
 
-  .featureMockup, .showcasePhoto {
+  .mockupImgWrap, .showcasePhotoWrap {
     width: 280px;
     flex-shrink: 0;
   }
@@ -666,7 +542,7 @@
     gap: 48px;
   }
 
-  .confidencePhoto {
+  .confidenceImgWrap {
     height: 300px;
   }
 
@@ -715,12 +591,12 @@
     grid-template-columns: 1fr 1fr 1fr;
   }
 
-  .trustPhoto1 {
+  .trustImgWrap {
     height: 400px;
     grid-row: 1 / 3;
   }
 
-  .trustPhoto2 {
+  .trustImgWrap2 {
     height: 180px;
     grid-column: auto;
   }
@@ -733,12 +609,12 @@
     gap: 64px;
   }
 
-  .featureMockup, .showcasePhoto {
+  .mockupImgWrap, .showcasePhotoWrap {
     width: 340px;
     height: 240px;
   }
 
-  .confidencePhoto {
+  .confidenceImgWrap {
     height: 360px;
   }
 

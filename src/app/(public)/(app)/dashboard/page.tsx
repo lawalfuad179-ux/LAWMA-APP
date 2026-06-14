@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
+import { AlertCircle, CreditCard } from 'lucide-react';
 
 import { getSession } from '@/lib/auth';
 import { db } from '@/lib/db';
@@ -16,7 +17,11 @@ export default async function DashboardPage() {
   if (!resident) redirect('/login');
   if (!(resident.name && resident.address && resident.lga)) redirect('/onboarding');
 
-  const today = new Date().getDay();
+  const now = new Date();
+  const hour = now.getHours();
+  const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+
+  const today = now.getDay();
   const todaySchedules = await db.collectionSchedule.findMany({
     where: { lga: resident.lga, dayOfWeek: today },
     include: { pspOperator: true },
@@ -41,7 +46,7 @@ export default async function DashboardPage() {
   return (
     <div className={styles.page}>
       <div className={styles.greeting}>
-        <span className={styles.greetingText}>Good day, {resident.name?.split(' ')[0]}</span>
+        <span className={styles.greetingText}>{greeting}, {resident.name?.split(' ')[0]}</span>
         <span className={styles.location}>{resident.lga}</span>
       </div>
 
@@ -52,7 +57,7 @@ export default async function DashboardPage() {
             <Badge label={todaySchedule.status} variant="success" />
           </div>
           <span className={styles.pickupDay}>Today</span>
-          <span className={styles.pickupTime}>{todaySchedule.windowStart} - {todaySchedule.windowEnd}</span>
+          <span className={styles.pickupTime}>{todaySchedule.windowStart} – {todaySchedule.windowEnd}</span>
           <span className={styles.pickupPsp}>{todaySchedule.pspOperator.name}</span>
         </Card>
       ) : (
@@ -63,11 +68,11 @@ export default async function DashboardPage() {
 
       <div className={styles.actions}>
         <Link href="/complaints/report" className={styles.actionButton}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <AlertCircle size={20} strokeWidth={1.5} />
           Report Issue
         </Link>
         <Link href="/payments" className={styles.actionButton}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+          <CreditCard size={20} strokeWidth={1.5} />
           Pay Bill
         </Link>
       </div>

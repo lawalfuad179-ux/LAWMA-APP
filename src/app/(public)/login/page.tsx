@@ -2,6 +2,7 @@
 
 import { useState, useRef, useCallback, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { ArrowLeft } from 'lucide-react';
 
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -247,10 +248,7 @@ function AuthContent() {
     <div className={styles.page}>
       <div className={styles.container}>
         <button className={styles.backBtn} onClick={() => router.push('/')} type="button" aria-label="Back to home">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="19" y1="12" x2="5" y2="12" />
-            <polyline points="12 5 5 12 12 19" />
-          </svg>
+          <ArrowLeft size={18} strokeWidth={1.5} />
           <span className={styles.backText}>Back</span>
         </button>
         <ThemeToggle className={styles.toggleOverride} />

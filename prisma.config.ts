@@ -1,14 +1,16 @@
-import { defineConfig, env } from 'prisma/config';
+import { defineConfig } from 'prisma/config';
+import * as dotenv from 'dotenv';
+import { resolve } from 'path';
 
-let datasource: { url: string } | undefined;
+dotenv.config({ path: resolve(__dirname, '.env') });
 
-try {
-  datasource = { url: env('DATABASE_URL') };
-} catch {
-  // DATABASE_URL may not be set for commands like `generate`
+const url = process.env.DATABASE_URL;
+
+if (!url) {
+  throw new Error('DATABASE_URL is not set in .env');
 }
 
 export default defineConfig({
   schema: './prisma/schema.prisma',
-  ...(datasource ? { datasource } : {}),
+  datasource: { url },
 });

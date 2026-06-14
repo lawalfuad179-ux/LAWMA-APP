@@ -8,15 +8,14 @@ import { db } from '@/lib/db';
 import { logger } from '@/lib/logger';
 
 const setupSchema = z.object({
-  email: z.string().email('Enter a valid email.').max(200),
-  name: z.string().min(2).max(100),
-  lga: z.string().min(2).max(100),
-  address: z.string().min(5).max(200),
+  name: z.string().min(2, 'Name must be at least 2 characters.').max(100),
+  lga: z.string().min(2, 'Please select your LGA.').max(100),
+  address: z.string().min(5, 'Address must be at least 5 characters.').max(200),
 });
 
 type ActionResult =
   | { ok: true; data?: unknown }
-  | { ok: false; error: { code: string; message: string } };
+  | { ok: false; error: { code: string; message: string; fieldErrors?: Record<string, string> } };
 
 export async function completeOnboarding(formData: FormData): Promise<ActionResult> {
   try {
@@ -27,13 +26,16 @@ export async function completeOnboarding(formData: FormData): Promise<ActionResu
 
     const parsed = setupSchema.safeParse(Object.fromEntries(formData));
     if (!parsed.success) {
-      return { ok: false, error: { code: 'invalid_input', message: 'Please check your entries.' } };
+      const fieldErrors: Record<string, string> = {};
+      for (const [field, issues] of Object.entries(parsed.error.flatten().fieldErrors)) {
+        fieldErrors[field] = (issues as string[])?.[0] ?? 'Invalid value.';
+      }
+      return { ok: false, error: { code: 'invalid_input', message: 'Please check your entries.', fieldErrors } };
     }
 
     await db.resident.update({
       where: { id: session.residentId },
       data: {
-        email: parsed.data.email.toLowerCase().trim(),
         name: parsed.data.name,
         lga: parsed.data.lga,
         address: parsed.data.address,

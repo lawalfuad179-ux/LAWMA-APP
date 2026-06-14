@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import { Clock } from 'lucide-react';
 
 import { getSession } from '@/lib/auth';
 import { db } from '@/lib/db';
@@ -75,7 +76,7 @@ export default async function SchedulesPage() {
                 <span className={styles.area}>{s.lga}</span>
                 {s.status === 'DELAYED' && s.delayReason ? (
                   <div className={styles.delayBanner}>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    <Clock size={14} strokeWidth={1.5} />
                     {s.delayReason}
                   </div>
                 ) : null}

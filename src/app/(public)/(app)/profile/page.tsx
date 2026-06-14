@@ -3,8 +3,8 @@ import { redirect } from 'next/navigation';
 import { getSession } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { Card } from '@/components/ui/Card';
-import { Button } from '@/components/ui/Button';
 import { LogoutButton } from '@/components/ui/LogoutButton';
+import { ProfileEditForm } from '@/components/profile/ProfileEditForm';
 import styles from './page.module.css';
 
 export default async function ProfilePage() {
@@ -18,7 +18,9 @@ export default async function ProfilePage() {
       where: { residentId: session.residentId, status: 'SUCCESSFUL' },
       _sum: { amountKobo: true },
     }),
-    db.pspOperator.findFirst({ where: { lga: (await db.resident.findUnique({ where: { id: session.residentId } }))?.lga || '' } }),
+    db.pspOperator.findFirst({
+      where: { lga: (await db.resident.findUnique({ where: { id: session.residentId } }))?.lga || '' },
+    }),
   ]);
 
   if (!resident) redirect('/login');
@@ -30,25 +32,21 @@ export default async function ProfilePage() {
       <h1 className={styles.title}>Profile</h1>
 
       <Card className={styles.card}>
-        <div className={styles.avatar}>
-          {resident.name?.charAt(0).toUpperCase() || '?'}
+        <div className={styles.avatarRow}>
+          <div className={styles.avatar}>
+            {resident.name?.charAt(0).toUpperCase() || '?'}
+          </div>
+          <div className={styles.avatarMeta}>
+            <span className={styles.avatarName}>{resident.name || 'Resident'}</span>
+            <span className={styles.avatarPhone}>{resident.phoneNumber}</span>
+          </div>
         </div>
-        <div className={styles.row}>
-          <span className={styles.label}>Name</span>
-          <span className={styles.value}>{resident.name || 'Not set'}</span>
-        </div>
-        <div className={styles.row}>
-          <span className={styles.label}>Phone</span>
-          <span className={styles.value}>{resident.phoneNumber}</span>
-        </div>
-        <div className={styles.row}>
-          <span className={styles.label}>LGA</span>
-          <span className={styles.value}>{resident.lga || 'Not set'}</span>
-        </div>
-        <div className={styles.row}>
-          <span className={styles.label}>Address</span>
-          <span className={styles.value}>{resident.address || 'Not set'}</span>
-        </div>
+
+        <ProfileEditForm
+          initialName={resident.name || ''}
+          initialAddress={resident.address || ''}
+          initialLga={resident.lga || ''}
+        />
       </Card>
 
       {pspOperator ? (
@@ -78,7 +76,7 @@ export default async function ProfilePage() {
       </Card>
 
       <div className={styles.links}>
-        <a href="/notifications" className={styles.link}>Notification Preferences</a>
+        <a href="/notifications/preferences" className={styles.link}>Notification Preferences</a>
       </div>
 
       <LogoutButton />
