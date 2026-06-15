@@ -6,14 +6,10 @@ import Image from 'next/image';
 import { Check } from 'lucide-react';
 
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
-import { OnboardingOverlay } from '@/components/ui/OnboardingOverlay';
 import styles from './page.module.css';
-
-const ONBOARDING_KEY = 'lawma-onboarding-seen';
 
 export default function LandingPage() {
   const router = useRouter();
-  const [showOnboarding, setShowOnboarding] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [animIn, setAnimIn] = useState(false);
 
@@ -22,38 +18,11 @@ export default function LandingPage() {
     requestAnimationFrame(() => setAnimIn(true));
   }, []);
 
-  function handleGetStarted() {
-    const seen = localStorage.getItem(ONBOARDING_KEY);
-    if (seen) {
-      router.push('/login');
-    } else {
-      setShowOnboarding(true);
-    }
-  }
-
-  function handleOnboardingComplete() {
-    localStorage.setItem(ONBOARDING_KEY, 'true');
-    setShowOnboarding(false);
-    router.push('/login');
-  }
-
-  function handleOnboardingSkip() {
-    localStorage.setItem(ONBOARDING_KEY, 'true');
-    setShowOnboarding(false);
-    router.push('/login');
-  }
-
   if (!mounted) return null;
 
   return (
     <>
-      {!showOnboarding && <ThemeToggle />}
-      {showOnboarding ? (
-        <OnboardingOverlay
-          onComplete={handleOnboardingComplete}
-          onSkip={handleOnboardingSkip}
-        />
-      ) : (
+      <ThemeToggle />
         <main className={styles.page}>
           {/* ─── 1. Hero ─── */}
           <section className={styles.heroSection}>
@@ -68,7 +37,7 @@ export default function LandingPage() {
                   LAWMA updates from one simple mobile-first app.
                 </p>
                 <div className={styles.heroActions}>
-                  <button className={styles.primaryCta} onClick={handleGetStarted} type="button">
+                  <button className={styles.primaryCta} onClick={() => router.push('/login')} type="button">
                     Get Started
                   </button>
                   <button className={styles.secondaryCta} onClick={() => router.push('/login?mode=signin')} type="button">
@@ -287,7 +256,7 @@ export default function LandingPage() {
             <div className={styles.ctaInner}>
               <h2 className={styles.ctaHeadline}>Help keep Lagos cleaner, one report at a time.</h2>
               <div className={styles.ctaActions}>
-                <button className={styles.primaryCta} onClick={handleGetStarted} type="button">
+                <button className={styles.primaryCta} onClick={() => router.push('/login')} type="button">
                   Start Using LAWMA
                 </button>
                 <button className={styles.secondaryCta} onClick={() => router.push('/login?mode=signin')} type="button">
@@ -297,7 +266,6 @@ export default function LandingPage() {
             </div>
           </section>
         </main>
-      )}
     </>
   );
 }
