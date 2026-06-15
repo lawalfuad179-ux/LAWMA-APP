@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { COMPLAINT_ISSUE_TYPES } from '@/constants';
+import { validateDescription } from '@/lib/validators/validation';
 import styles from './page.module.css';
 
 type Preview = { file: File; objectUrl: string };
@@ -24,6 +25,8 @@ export default function ReportComplaintPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [duplicateWarning, setDuplicateWarning] = useState('');
+  const [descTouched, setDescTouched] = useState(false);
+  const [descError, setDescError] = useState('');
 
   const issueOptions = COMPLAINT_ISSUE_TYPES.map((t) => ({ value: t.value, label: t.label }));
 
@@ -150,12 +153,24 @@ export default function ReportComplaintPage() {
         <div className={styles.field}>
           <label className={styles.textareaLabel}>Description (optional)</label>
           <textarea
-            className={styles.textarea}
-            placeholder="Describe the issue in more detail…"
+            className={`${styles.textarea} ${descError ? styles.textareaError : ''}`}
+            placeholder="Describe the issue in more detail\u2026"
             value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            onChange={(e) => {
+              const val = e.target.value.slice(0, 500);
+              setDescription(val);
+              if (descTouched) setDescError(validateDescription(val) || '');
+            }}
+            onBlur={() => {
+              setDescTouched(true);
+              setDescError(validateDescription(description) || '');
+            }}
             rows={3}
           />
+          <div className={styles.textareaBottom}>
+            {descError && <span className={styles.descError}>{descError}</span>}
+            <span className={styles.charCounter}>{description.length} / 500</span>
+          </div>
         </div>
 
         {/* ─── Photo Upload ─── */}

@@ -1,0 +1,110 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: hsla(0, 0%, 0%, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+}
+
+.modal {
+  width: 100%;
+  max-width: 420px;
+  max-height: 90dvh;
+  overflow-y: auto;
+  background: var(--color-surface);
+  border: 1px solid var(--color-outline-variant);
+  border-radius: 20px;
+  padding: 28px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: 0 8px 40px hsla(0, 0%, 0%, 0.2);
+}
+
+.title {
+  font-size: var(--headline-small-font-size);
+  font-weight: 700;
+  color: var(--color-on-surface);
+  line-height: var(--headline-small-line-height);
+  text-align: center;
+}
+
+.subtitle {
+  font-size: var(--body-medium-font-size);
+  color: var(--color-on-surface-variant);
+  line-height: var(--body-medium-line-height);
+  text-align: center;
+  margin-top: -8px;
+}
+
+.grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tile {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: var(--color-surface-container);
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+
+.tileIcon {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--color-primary) 10%, var(--color-surface));
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.tileText {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.tileLabel {
+  font-size: var(--title-small-font-size);
+  font-weight: 600;
+  color: var(--color-on-surface);
+  line-height: var(--title-small-line-height);
+}
+
+.tileDesc {
+  font-size: var(--body-small-font-size);
+  color: var(--color-on-surface-variant);
+  line-height: var(--body-small-line-height);
+}
+
+.dismissBtn {
+  width: 100%;
+  min-height: 48px;
+  border: none;
+  border-radius: 10px;
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  font-size: var(--body-large-font-size);
+  font-weight: 600;
+  font-family: var(--body-large-font-family);
+  cursor: pointer;
+  transition: opacity 0.15s;
+  margin-top: 4px;
+}
+
+.dismissBtn:hover {
+  opacity: 0.9;
+}
+
+.dismissBtn:active {
+  opacity: 0.8;
+}

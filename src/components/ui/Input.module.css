@@ -7,7 +7,7 @@
 .label {
   font-size: var(--label-large-font-size);
   font-weight: 500;
-  color: var(--color-on-surface);
+  color: var(--color-on-surface-variant);
   line-height: var(--label-large-line-height);
 }
 
@@ -41,6 +41,22 @@
   outline: none;
   border-color: var(--color-primary);
   box-shadow: 0 0 0 3px hsla(24, 98%, 50%, 0.12);
+}
+
+.iconWrap {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  color: var(--color-outline);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.inputWithIcon {
+  padding-left: 42px;
 }
 
 .inputPassword {

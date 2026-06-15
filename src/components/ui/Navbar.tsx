@@ -127,13 +127,12 @@ export function Navbar() {
               <span className={styles.sidebarLinkLabel}>{label}</span>
             </Link>
           ))}
-        </nav>
 
-        {/* Bottom account section */}
-        <div className={styles.sidebarAccount}>
+          <div style={{ flex: '0 0 0', height: 0 }} />
+
           <Link
             href="/profile"
-            className={`${styles.sidebarAccountLink} ${isActive('/profile') ? styles.sidebarLinkActive : ''}`}
+            className={`${styles.sidebarLink} ${isActive('/profile') ? styles.sidebarLinkActive : ''}`}
             title={collapsed ? 'Profile' : undefined}
           >
             <span className={styles.sidebarLinkIcon}><User size={20} strokeWidth={1.5} /></span>
@@ -141,7 +140,7 @@ export function Navbar() {
           </Link>
           <Link
             href="/notifications"
-            className={`${styles.sidebarAccountLink} ${isActive('/notifications') ? styles.sidebarLinkActive : ''}`}
+            className={`${styles.sidebarLink} ${isActive('/notifications') ? styles.sidebarLinkActive : ''}`}
             title={collapsed ? 'Notifications' : undefined}
           >
             <span className={styles.sidebarLinkIcon}>
@@ -164,7 +163,7 @@ export function Navbar() {
             </span>
             <span className={styles.sidebarLinkLabel}>{dark ? 'Light mode' : 'Dark mode'}</span>
           </button>
-        </div>
+        </nav>
 
         <button
           className={styles.logoutBtn}

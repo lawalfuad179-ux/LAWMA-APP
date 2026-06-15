@@ -2,7 +2,7 @@
 
 import { useState, useRef, useCallback, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Mail, Phone, Lock, Hash, User, MapPin, Check } from 'lucide-react';
 
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -10,6 +10,7 @@ import { Select } from '@/components/ui/Select';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { LAGOS_LGAS } from '@/constants';
 import { validateEmailOrPhone, passwordRules, getPasswordErrors, type FieldErrors } from '@/lib/validators/validation';
+import { OtpInput } from '@/components/ui/OtpInput';
 
 import { completeOnboarding } from '../onboarding/actions';
 import styles from './page.module.css';
@@ -36,18 +37,30 @@ function AuthContent() {
   const [name, setName] = useState('');
   const [lga, setLga] = useState('');
   const [address, setAddress] = useState('');
-  const [residentId, setResidentId] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [resetSent, setResetSent] = useState(false);
+  const [identifierTouched, setIdentifierTouched] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [passwordChecks, setPasswordChecks] = useState<Record<string, boolean>>({});
 
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const verifyInFlight = useRef(false);
+  const verifyOtpRef = useRef<() => Promise<void>>(async () => {});
 
   useEffect(() => {
     setTransition('enter');
   }, []);
+
+  useEffect(() => {
+    verifyOtpRef.current = verifyOtp;
+  });
+
+  useEffect(() => {
+    if (code.length === 6 && step === 'otp' && !verifyInFlight.current) {
+      verifyOtpRef.current?.();
+    }
+  }, [code]);
 
   useEffect(() => {
     setMode(modeParam === 'signup' ? 'signup' : 'signin');
@@ -68,8 +81,9 @@ function AuthContent() {
 
   function switchStep(to: Step) {
     setTransition('leave');
+    verifyInFlight.current = false;
     setTimeout(() => {
-      if (to === 'phone') setCode('');
+      if (to === 'phone') { setCode(''); setIdentifierTouched(false); }
       setStep(to);
       setError('');
       setTransition('enter');
@@ -84,15 +98,38 @@ function AuthContent() {
     setCode('');
   }
 
+  function normalizePhone(raw: string): string {
+    const trimmed = raw.trim();
+    return trimmed.startsWith('+')
+      ? '+' + trimmed.slice(1).replace(/\D/g, '')
+      : trimmed.replace(/\D/g, '');
+  }
+
   async function sendOtp() {
     setError('');
 
-    const cleanedPhone = phone.trim();
+    const cleanedPhone = normalizePhone(phone);
     const cleanedEmail = email.trim().toLowerCase();
 
     if (!cleanedPhone && !cleanedEmail) {
       setError('Enter your phone number or email.');
       return;
+    }
+
+    // Check for existing account during signup
+    if (mode === 'signup') {
+      const isEmailField = cleanedEmail && !cleanedPhone;
+      const checkRes = await fetch('/api/auth/check-resident', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(isEmailField ? { email: cleanedEmail } : { phoneNumber: cleanedPhone }),
+      });
+      const checkData = await checkRes.json();
+      if (checkData.exists) {
+        setError('An account with this email/phone number already exists. Sign in instead.');
+        setLoading(false);
+        return;
+      }
     }
 
     setLoading(true);
@@ -123,14 +160,16 @@ function AuthContent() {
     }
   }
 
-  async function verifyOtp() {
+  async function verifyOtp(overrideCode?: string) {
+    if (verifyInFlight.current) return;
     setError('');
-    if (code.length !== 6) {
+    const otpCode = overrideCode || code;
+    if (otpCode.length !== 6) {
       setError('Enter the 6-digit code.');
       return;
     }
 
-    const cleanedPhone = phone.trim();
+    const cleanedPhone = normalizePhone(phone);
     const cleanedEmail = email.trim().toLowerCase();
 
     if (!cleanedPhone && !cleanedEmail) {
@@ -138,6 +177,7 @@ function AuthContent() {
       return;
     }
 
+    verifyInFlight.current = true;
     setLoading(true);
     try {
       const isEmailField = cleanedEmail && !cleanedPhone;
@@ -146,7 +186,7 @@ function AuthContent() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...(isEmailField ? { email: cleanedEmail } : { phoneNumber: cleanedPhone }),
-          code,
+          code: otpCode,
         }),
       });
       const data = await res.json();
@@ -161,8 +201,8 @@ function AuthContent() {
       }
 
       if (data.data.isNewResident && mode === 'signup') {
-        setResidentId(data.data.residentId);
-        switchStep('profile');
+        const method = email ? 'email' : 'phone';
+        router.push(`/onboarding?method=${method}`);
       } else {
         router.push('/dashboard');
       }
@@ -170,6 +210,7 @@ function AuthContent() {
       setError('Network error. Please check your connection.');
     } finally {
       setLoading(false);
+      verifyInFlight.current = false;
     }
   }
 
@@ -177,11 +218,13 @@ function AuthContent() {
     if (cooldown > 0) return;
     setError('');
     setLoading(true);
+    const cleanedPhone = normalizePhone(phone);
+    const cleanedEmail = email.trim().toLowerCase();
     try {
       const res = await fetch('/api/auth/otp/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phoneNumber: phone.trim() }),
+        body: JSON.stringify(cleanedEmail && !cleanedPhone ? { email: cleanedEmail } : { phoneNumber: cleanedPhone }),
       });
       const data = await res.json();
       if (!data.ok) {
@@ -246,16 +289,17 @@ function AuthContent() {
 
   return (
     <div className={styles.page}>
-      <div className={styles.container}>
-        <button className={styles.backBtn} onClick={() => router.push('/')} type="button" aria-label="Back to home">
-          <ArrowLeft size={18} strokeWidth={1.5} />
-          <span className={styles.backText}>Back</span>
-        </button>
-        <ThemeToggle className={styles.toggleOverride} />
+      <div className={styles.card}>
+        <div className={styles.cardNav}>
+          <button className={styles.backBtn} onClick={() => router.push('/')} type="button" aria-label="Back to home">
+            <ArrowLeft size={18} strokeWidth={1.5} />
+            <span className={styles.backText}>Back</span>
+          </button>
+          <ThemeToggle className={styles.toggleInCard} />
+        </div>
 
-        <div className={styles.logoWrap}>
-          <img src="/logo-light.png" alt="LAWMA" className={styles.logoLight} />
-          <img src="/logo-dark.png" alt="LAWMA" className={styles.logoDark} />
+        <div className={styles.logoCircle}>
+          <img src="/favicon.png" alt="" className={styles.logoFavicon} />
         </div>
 
         <div className={`${styles.stage} ${transition === 'enter' ? styles.enter : styles.leave}`}>
@@ -274,7 +318,7 @@ function AuthContent() {
             <div className={styles.header}>
               <h1 className={styles.title}>Verify code</h1>
               <p className={styles.subtitle}>
-                Enter the code sent to <span className={styles.phoneDisplay}>{phone}</span>
+                We sent a 6-digit code to your {email && !phone ? 'email address' : 'phone number'}.
               </p>
             </div>
           )}
@@ -286,6 +330,7 @@ function AuthContent() {
             </div>
           )}
         </div>
+
 
         {step === 'phone' && (
           <form
@@ -304,10 +349,14 @@ function AuthContent() {
                     const val = e.target.value;
                     if (val.includes('@')) { setEmail(val); setPhone(''); }
                     else { setPhone(val); setEmail(''); }
-                    validateField('emailOrPhone', val);
+                    if (identifierTouched) validateField('emailOrPhone', val);
                   }}
-                  onBlur={(e) => validateField('emailOrPhone', e.target.value)}
+                  onBlur={(e) => {
+                    setIdentifierTouched(true);
+                    validateField('emailOrPhone', e.target.value);
+                  }}
                   error={fieldErrors.emailOrPhone || error}
+                  icon={<Mail size={16} strokeWidth={1.5} />}
                   autoFocus
                   autoComplete="username"
                 />
@@ -316,39 +365,36 @@ function AuthContent() {
                 </button>
               </>
             ) : (
-              <>
-                <Input
-                  label="Email Address"
-                  type="email"
-                  inputMode="email"
-                  placeholder="you@example.com"
-                  value={email}
-                  onChange={(e) => { setEmail(e.target.value); validateField('email', e.target.value); }}
-                  onBlur={(e) => validateField('email', e.target.value)}
-                  error={fieldErrors.email || error}
-                  autoComplete="email"
-                />
-                <Input
-                  label="Phone Number"
-                  type="tel"
-                  inputMode="numeric"
-                  placeholder="080 1234 5678"
-                  value={phone}
-                  onChange={(e) => { setPhone(e.target.value); validateField('phone', e.target.value); }}
-                  onBlur={(e) => validateField('phone', e.target.value)}
-                  error={fieldErrors.phone || error}
-                  maxLength={15}
-                  autoFocus={!email}
-                  autoComplete="tel"
-                />
-              </>
+              <Input
+                label="Phone or Email"
+                type="text"
+                inputMode="text"
+                placeholder="Phone number or email address"
+                value={phone || email}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (val.includes('@')) { setEmail(val); setPhone(''); }
+                  else { setPhone(val); setEmail(''); }
+                  if (identifierTouched) validateField('emailOrPhone', val);
+                }}
+                onBlur={(e) => {
+                  setIdentifierTouched(true);
+                  validateField('emailOrPhone', e.target.value);
+                }}
+                error={fieldErrors.emailOrPhone || error}
+                icon={(phone || email).includes('@') ? <Mail size={16} strokeWidth={1.5} /> : <Phone size={16} strokeWidth={1.5} />}
+                autoFocus
+                autoComplete="username"
+              />
             )}
-            <button className={styles.modeToggle} onClick={toggleMode} type="button">
-              {mode === 'signin' ? "Don't have an account? Sign up" : 'Already have an account? Sign in'}
-            </button>
             <Button type="submit" size="lg" isLoading={loading}>
-              Send Code
+              {mode === 'signin' ? 'Continue' : 'Create Account'}
             </Button>
+            <button className={styles.modeToggle} onClick={toggleMode} type="button">
+              {mode === 'signin'
+                ? <span>Don&apos;t have an account? <span className={styles.modeToggleBold}>Sign up</span></span>
+                : <span>Already have an account? <span className={styles.modeToggleBold}>Sign in</span></span>}
+            </button>
           </form>
         )}
 
@@ -357,17 +403,17 @@ function AuthContent() {
             onSubmit={(e) => { e.preventDefault(); verifyOtp(); }}
             className={styles.form}
           >
-            <Input
-              label="Verification Code"
-              type="text"
-              inputMode="numeric"
-              placeholder="000000"
+            <OtpInput
               value={code}
-              onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-              error={error}
-              maxLength={6}
+              onChange={(val) => {
+                setCode(val);
+                setFieldErrors((prev) => ({ ...prev, code: '' }));
+                if (val.length === 6 && step === 'otp') {
+                  verifyOtp(val);
+                }
+              }}
+              error={fieldErrors.code || error}
               autoFocus
-              autoComplete="one-time-code"
             />
             <button
               type="button"
@@ -393,6 +439,7 @@ function AuthContent() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               error={error}
+              icon={<Mail size={16} strokeWidth={1.5} />}
               autoComplete="email"
             />
             <Input
@@ -401,6 +448,7 @@ function AuthContent() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               error={error}
+              icon={<User size={16} strokeWidth={1.5} />}
               autoFocus
               autoComplete="name"
             />
@@ -417,6 +465,7 @@ function AuthContent() {
               value={address}
               onChange={(e) => setAddress(e.target.value)}
               error={error}
+              icon={<MapPin size={16} strokeWidth={1.5} />}
               autoComplete="street-address"
             />
             <Button type="submit" size="lg" isLoading={loading}>
@@ -468,17 +517,21 @@ function AuthContent() {
                 const val = e.target.value;
                 if (val.includes('@')) { setEmail(val); setPhone(''); }
                 else { setPhone(val); setEmail(''); }
-                validateField('emailOrPhone', val);
+                if (identifierTouched) validateField('emailOrPhone', val);
               }}
-              onBlur={(e) => validateField('emailOrPhone', e.target.value)}
+              onBlur={(e) => {
+                setIdentifierTouched(true);
+                validateField('emailOrPhone', e.target.value);
+              }}
               error={fieldErrors.emailOrPhone || error}
+              icon={<Mail size={16} strokeWidth={1.5} />}
               autoFocus
             />
             <Button type="submit" size="lg" isLoading={loading}>
               Send Reset Code
             </Button>
             <button className={styles.modeToggle} onClick={() => { setStep('phone'); setResetSent(false); setError(''); }} type="button">
-              Back to sign in
+              <span className={styles.modeToggleBold}>← Back to sign in</span>
             </button>
           </form>
         )}
@@ -521,6 +574,7 @@ function AuthContent() {
               value={code}
               onChange={(e) => { setCode(e.target.value.replace(/\D/g, '').slice(0, 6)); setFieldErrors({}); }}
               error={fieldErrors.code || error}
+              icon={<Hash size={16} strokeWidth={1.5} />}
               maxLength={6}
               autoFocus
             />
@@ -531,13 +585,15 @@ function AuthContent() {
               value={newPassword}
               onChange={(e) => { setNewPassword(e.target.value); validateField('newPassword', e.target.value); }}
               error={fieldErrors.newPassword}
+              icon={<Lock size={16} strokeWidth={1.5} />}
               autoComplete="new-password"
             />
             {newPassword && (
               <div className={styles.passwordRules}>
                 {passwordRules.map((rule) => (
                   <span key={rule.key} className={`${styles.ruleItem} ${passwordChecks[rule.key] ? styles.ruleMet : ''}`}>
-                    {passwordChecks[rule.key] ? '\u2713' : '\u2022'} {rule.label}
+                    <Check size={12} strokeWidth={2} className={passwordChecks[rule.key] ? styles.checkIconMet : styles.checkIcon} />
+                    {rule.label}
                   </span>
                 ))}
               </div>
@@ -549,13 +605,14 @@ function AuthContent() {
               value={confirmPassword}
               onChange={(e) => { setConfirmPassword(e.target.value); validateField('confirmPassword', e.target.value); }}
               error={fieldErrors.confirmPassword}
+              icon={<Lock size={16} strokeWidth={1.5} />}
               autoComplete="new-password"
             />
             <Button type="submit" size="lg" isLoading={loading}>
               Reset Password
             </Button>
             <button className={styles.modeToggle} onClick={() => { setStep('phone'); setResetSent(false); setError(''); }} type="button">
-              Back to sign in
+              <span className={styles.modeToggleBold}>← Back to sign in</span>
             </button>
           </form>
         )}

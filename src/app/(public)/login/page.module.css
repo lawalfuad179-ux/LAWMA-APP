@@ -4,26 +4,32 @@
   align-items: center;
   justify-content: center;
   min-height: 100dvh;
-  padding: 24px;
-  background: var(--color-background);
+  padding: 24px 16px;
+  background: var(--color-surface-container-low);
 }
 
-.container {
+/* ── Card ── */
+.card {
   width: 100%;
-  max-width: 400px;
+  max-width: 440px;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 32px;
-  position: relative;
-  padding-top: 108px;
+  gap: 24px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-outline-variant);
+  border-radius: 20px;
+  box-shadow: 0 4px 32px hsla(0, 0%, 0%, 0.07);
+  padding: 24px 28px 32px;
 }
 
-/* Back button — top left of container */
+/* ── Top bar: back + theme ── */
+.cardNav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 .backBtn {
-  position: absolute;
-  top: 0;
-  left: 0;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -40,7 +46,6 @@
 
 .backText {
   text-decoration: none;
-  transition: text-decoration 0.15s;
 }
 
 .backBtn:hover .backText,
@@ -49,82 +54,36 @@
   text-underline-offset: 3px;
 }
 
-/* Theme toggle override — top right of container */
-.toggleOverride {
-  position: absolute !important;
-  top: 0 !important;
-  right: 0 !important;
+/* Override ThemeToggle's fixed positioning inside the card nav */
+.toggleInCard {
+  position: static !important;
+  top: auto !important;
+  right: auto !important;
+  flex-shrink: 0;
 }
 
-/* Centered logo */
-.logoWrap {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.logoLight {
-  height: 36px;
-  width: auto;
-  display: block;
-}
-
-.logoDark {
-  height: 36px;
-  width: auto;
-  display: none;
-}
-
-:global(html[data-theme="dark"]) .logoLight {
-  display: none;
-}
-
-:global(html[data-theme="dark"]) .logoDark {
-  display: block;
-}
-
-/* Step indicator */
-.steps {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-
-.stepDot {
-  width: 10px;
-  height: 10px;
+/* ── Logo circle ── */
+.logoCircle {
+  width: 60px;
+  height: 60px;
   border-radius: 50%;
-  background: var(--color-outline-variant);
-  transition: background 0.3s, transform 0.3s;
+  background: var(--color-surface-container);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-self: center;
+  flex-shrink: 0;
 }
 
-.stepActive {
-  background: var(--color-primary);
-  transform: scale(1.2);
-}
-
-.stepDone {
-  background: var(--color-primary);
-  opacity: 0.5;
-}
-
-.stepLine {
+.logoFavicon {
   width: 32px;
-  height: 2px;
-  border-radius: 1px;
-  background: var(--color-outline-variant);
-  transition: background 0.3s;
+  height: 32px;
+  border-radius: 6px;
 }
 
-.stepLineActive {
-  background: var(--color-primary);
-}
-
-/* Header area with transitions */
+/* ── Header area with transitions ── */
 .stage {
   text-align: center;
-  min-height: 80px;
   display: flex;
   justify-content: center;
   width: 100%;
@@ -139,39 +98,42 @@
 }
 
 @keyframes fadeSlideIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes fadeSlideOut {
   from { opacity: 1; transform: translateY(0); }
-  to { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 0; transform: translateY(-8px); }
 }
 
 .header {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
-  position: relative;
+  gap: 6px;
 }
 
 .title {
-  font-size: var(--headline-small-font-size);
-  font-weight: 600;
+  font-size: var(--headline-medium-font-size);
+  font-weight: 700;
   color: var(--color-on-surface);
-  line-height: var(--headline-small-line-height);
+  line-height: var(--headline-medium-line-height);
+  letter-spacing: var(--headline-medium-letter-spacing);
 }
 
 .subtitle {
-  font-size: var(--body-large-font-size);
+  font-size: var(--body-medium-font-size);
   color: var(--color-on-surface-variant);
-  line-height: var(--body-large-line-height);
+  line-height: var(--body-medium-line-height);
 }
 
-.phoneDisplay {
-  font-weight: 600;
-  color: var(--color-on-surface);
+/* ── Form ── */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
 }
 
 .forgotLink {
@@ -180,10 +142,10 @@
   color: var(--color-on-surface-variant);
   font-size: var(--body-medium-font-size);
   cursor: pointer;
-  padding: 4px;
+  padding: 2px 0;
   text-align: left;
   transition: color 0.15s;
-  margin-top: -8px;
+  margin-top: -4px;
 }
 
 .forgotLink:hover {
@@ -200,10 +162,9 @@
   font-weight: 500;
   cursor: pointer;
   padding: 4px 0;
-  text-align: left;
-  min-height: 44px;
+  text-align: center;
   transition: opacity 0.15s;
-  margin-top: -8px;
+  margin-top: -4px;
 }
 
 .resendText:disabled {
@@ -217,29 +178,35 @@
   text-underline-offset: 3px;
 }
 
+/* ── Mode toggle / footer links ── */
 .modeToggle {
   background: none;
   border: none;
-  color: var(--color-primary);
+  color: var(--color-on-surface-variant);
   font-size: var(--body-medium-font-size);
   cursor: pointer;
-  padding: 4px;
-  transition: text-decoration 0.15s;
-  margin-top: 4px;
+  padding: 2px 0;
+  text-align: center;
+  width: 100%;
+  transition: color 0.15s;
 }
 
 .modeToggle:hover,
 .modeToggle:active {
-  text-decoration: underline;
-  text-underline-offset: 3px;
+  color: var(--color-primary);
 }
 
+.modeToggleBold {
+  font-weight: 600;
+  color: var(--color-on-surface);
+}
+
+/* ── Password rules ── */
 .passwordRules {
   display: flex;
   flex-direction: column;
   gap: 3px;
-  margin-top: -8px;
-  margin-bottom: 4px;
+  margin-top: -6px;
 }
 
 .ruleItem {
@@ -256,9 +223,49 @@
   color: var(--color-status-success);
 }
 
-.form {
+.checkIcon {
+  color: var(--color-outline);
+  flex-shrink: 0;
+}
+
+.checkIconMet {
+  color: var(--color-status-success);
+  flex-shrink: 0;
+}
+
+/* ── Step indicator (kept for potential use) ── */
+.steps {
   display: flex;
-  flex-direction: column;
-  gap: 16px;
-  width: 100%;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.stepDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-outline-variant);
+  transition: background 0.3s, transform 0.3s;
+}
+
+.stepActive {
+  background: var(--color-primary);
+  transform: scale(1.2);
+}
+
+.stepDone {
+  background: var(--color-primary);
+  opacity: 0.5;
+}
+
+.stepLine {
+  width: 28px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--color-outline-variant);
+}
+
+.stepLineActive {
+  background: var(--color-primary);
 }

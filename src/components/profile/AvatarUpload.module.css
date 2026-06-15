@@ -1,0 +1,132 @@
+.wrapper {
+  position: relative;
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: var(--color-primary-container);
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--title-large-font-size);
+  font-weight: 700;
+  flex-shrink: 0;
+  border: none;
+  cursor: pointer;
+  overflow: hidden;
+  transition: opacity 0.15s;
+}
+
+.wrapper:hover .overlay {
+  opacity: 1;
+}
+
+.wrapper:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.initial {
+  z-index: 1;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: hsla(0, 0%, 0%, 0.4);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.15s;
+  border-radius: 14px;
+}
+
+.input {
+  display: none;
+}
+
+/* ── Crop Modal ── */
+
+.cropOverlay {
+  position: fixed;
+  inset: 0;
+  background: hsla(0, 0%, 0%, 0.6);
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.cropModal {
+  width: 100%;
+  max-width: 400px;
+  background: var(--color-surface);
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: fadeIn 0.15s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.cropHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+}
+
+.cropTitle {
+  font-size: var(--title-small-font-size);
+  font-weight: 600;
+  color: var(--color-on-surface);
+}
+
+.cropClose {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-surface-container-high);
+  border: none;
+  border-radius: 50%;
+  color: var(--color-on-surface-variant);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.cropClose:hover {
+  background: var(--color-surface-container-highest);
+}
+
+.cropContainer {
+  position: relative;
+  width: 100%;
+  height: 320px;
+  background: hsl(0, 0%, 10%);
+}
+
+.cropFooter {
+  display: flex;
+  gap: 8px;
+  padding: 16px 20px;
+}
+
+.cropFooter > * {
+  flex: 1;
+}

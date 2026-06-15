@@ -1,10 +1,13 @@
 import { redirect } from 'next/navigation';
+import Link from 'next/link';
+import { Truck, BarChart3, Bell } from 'lucide-react';
 
 import { getSession } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { Card } from '@/components/ui/Card';
 import { LogoutButton } from '@/components/ui/LogoutButton';
 import { ProfileEditForm } from '@/components/profile/ProfileEditForm';
+import { AvatarUpload } from '@/components/profile/AvatarUpload';
 import styles from './page.module.css';
 
 export default async function ProfilePage() {
@@ -33,9 +36,7 @@ export default async function ProfilePage() {
 
       <Card className={styles.card}>
         <div className={styles.avatarRow}>
-          <div className={styles.avatar}>
-            {resident.name?.charAt(0).toUpperCase() || '?'}
-          </div>
+          <AvatarUpload name={resident.name || ''} avatarUrl={resident.avatarUrl} />
           <div className={styles.avatarMeta}>
             <span className={styles.avatarName}>{resident.name || 'Resident'}</span>
             <span className={styles.avatarPhone}>{resident.phoneNumber}</span>
@@ -46,40 +47,54 @@ export default async function ProfilePage() {
           initialName={resident.name || ''}
           initialAddress={resident.address || ''}
           initialLga={resident.lga || ''}
+          initialEmail={resident.email || ''}
+          initialPhone={resident.phoneNumber || ''}
         />
       </Card>
 
       {pspOperator ? (
-        <Card className={styles.card}>
-          <h2 className={styles.sectionTitle}>Assigned PSP Operator</h2>
-          <div className={styles.row}>
-            <span className={styles.label}>Name</span>
-            <span className={styles.value}>{pspOperator.name}</span>
+        <div className={styles.section}>
+          <div className={styles.sectionHeader}>
+            <Truck size={16} strokeWidth={1.5} />
+            <span className={styles.sectionTitle}>Assigned PSP Operator</span>
           </div>
-          <div className={styles.row}>
-            <span className={styles.label}>Zone</span>
-            <span className={styles.value}>{pspOperator.zone}</span>
-          </div>
-        </Card>
+          <Card className={styles.card}>
+            <div className={styles.row}>
+              <span className={styles.label}>Name</span>
+              <span className={styles.value}>{pspOperator.name}</span>
+            </div>
+            <div className={styles.row}>
+              <span className={styles.label}>Zone</span>
+              <span className={styles.value}>{pspOperator.zone}</span>
+            </div>
+          </Card>
+        </div>
       ) : null}
 
-      <Card className={styles.card}>
-        <h2 className={styles.sectionTitle}>Activity Summary</h2>
-        <div className={styles.row}>
-          <span className={styles.label}>Complaints Filed</span>
-          <span className={styles.value}>{complaintCount}</span>
+      <div className={styles.section}>
+        <div className={styles.sectionHeader}>
+          <BarChart3 size={16} strokeWidth={1.5} />
+          <span className={styles.sectionTitle}>Activity Summary</span>
         </div>
-        <div className={styles.row}>
-          <span className={styles.label}>Total Paid</span>
-          <span className={styles.value}>₦{(totalPaid / 100).toLocaleString()}</span>
-        </div>
-      </Card>
-
-      <div className={styles.links}>
-        <a href="/notifications/preferences" className={styles.link}>Notification Preferences</a>
+        <Card className={styles.card}>
+          <div className={styles.row}>
+            <span className={styles.label}>Complaints Filed</span>
+            <span className={styles.value}>{complaintCount}</span>
+          </div>
+          <div className={styles.row}>
+            <span className={styles.label}>Total Paid</span>
+            <span className={styles.value}>₦{(totalPaid / 100).toLocaleString()}</span>
+          </div>
+        </Card>
       </div>
 
-      <LogoutButton />
+      <div className={styles.links}>
+        <Link href="/notifications/preferences" className={styles.link}>
+          <Bell size={16} strokeWidth={1.5} />
+          Notification Preferences
+        </Link>
+      </div>
+
     </div>
   );
 }

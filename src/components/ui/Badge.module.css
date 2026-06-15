@@ -1,27 +1,29 @@
 .root {
   display: inline-flex;
   align-items: center;
-  padding: 4px 10px;
-  border-radius: 4px;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 100px;
   font-size: var(--label-small-font-size);
   font-weight: 600;
   line-height: var(--label-small-line-height);
   white-space: nowrap;
+  letter-spacing: 0.3px;
 }
 
 .info {
-  background: var(--color-primary-container);
-  color: var(--color-on-primary-container);
+  background: hsl(33, 100%, 92%);
+  color: hsl(24, 70%, 30%);
 }
 
 .success {
-  background: var(--color-secondary-container);
+  background: color-mix(in srgb, var(--color-secondary-container) 60%, var(--color-surface));
   color: var(--color-on-secondary-container);
 }
 
 .warning {
-  background: hsl(39, 100%, 90%);
-  color: hsl(28, 80%, 26%);
+  background: hsl(39, 70%, 92%);
+  color: hsl(28, 70%, 20%);
 }
 
 .error {

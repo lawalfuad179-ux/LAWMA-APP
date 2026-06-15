@@ -10,6 +10,7 @@ type SelectProps = React.SelectHTMLAttributes<HTMLSelectElement> & {
   options: SelectOption[];
   placeholder?: string;
   error?: string;
+  icon?: React.ReactNode;
 };
 
 export function Select({
@@ -17,6 +18,7 @@ export function Select({
   options,
   placeholder = 'Select an option',
   error,
+  icon,
   id,
   className,
   ...props
@@ -31,9 +33,10 @@ export function Select({
         {label}
       </label>
       <div className={styles.selectWrapper}>
+        {icon && <span className={styles.iconWrap}>{icon}</span>}
         <select
           id={selectId}
-          className={`${styles.select} ${error ? styles.selectError : ''}`}
+          className={`${styles.select} ${error ? styles.selectError : ''} ${icon ? styles.selectWithIcon : ''}`}
           aria-describedby={errorId}
           aria-invalid={!!error}
           {...props}

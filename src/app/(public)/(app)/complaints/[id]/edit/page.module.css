@@ -1,0 +1,27 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 24px;
+}
+
+.backBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+  color: var(--color-on-surface-variant);
+  font-size: var(--body-medium-font-size);
+  width: fit-content;
+  transition: color 0.15s;
+}
+
+.backBtn:hover {
+  color: var(--color-primary);
+}
+
+.title {
+  font-size: var(--headline-small-font-size);
+  font-weight: 600;
+  color: var(--color-on-surface);
+}

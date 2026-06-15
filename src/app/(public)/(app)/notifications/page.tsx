@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import { Bell } from 'lucide-react';
 
 import { getSession } from '@/lib/auth';
 import { db } from '@/lib/db';
@@ -28,7 +29,19 @@ export default async function NotificationsPage() {
       </div>
 
       {notifications.length === 0 ? (
-        <p className={styles.empty}>No notifications yet.</p>
+        <div className={styles.emptyState}>
+          <div className={styles.emptyIllustration}>
+            <div className={styles.emptyBlob1} />
+            <div className={styles.emptyBlob2} />
+            <div className={styles.emptyCard}>
+              <Bell size={32} strokeWidth={1.2} className={styles.emptyCardIcon} />
+            </div>
+          </div>
+          <h2 className={styles.emptyTitle}>No notifications yet</h2>
+          <p className={styles.emptySubtext}>
+            You don&apos;t have any notifications right now. They will appear here when something needs your attention.
+          </p>
+        </div>
       ) : (
         <div className={styles.list}>
           {notifications.map((n) => (

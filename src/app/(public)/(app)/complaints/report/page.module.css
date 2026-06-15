@@ -26,26 +26,64 @@
 .textareaLabel {
   font-size: var(--label-large-font-size);
   font-weight: 500;
-  color: var(--color-on-surface);
+  color: var(--color-on-surface-variant);
 }
 
 .textarea {
   width: 100%;
   min-height: 80px;
   padding: 12px 16px;
-  border: 1px solid var(--color-outline-variant);
-  border-radius: 8px;
+  border: 1.5px solid var(--color-outline-variant);
+  border-radius: 10px;
   font-size: var(--body-large-font-size);
   font-family: var(--body-large-font-family);
   line-height: var(--body-large-line-height);
   color: var(--color-on-surface);
   background: var(--color-surface);
   resize: vertical;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.textarea::placeholder {
+  color: var(--color-outline);
 }
 
 .textarea:focus {
   outline: none;
   border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px hsla(24, 98%, 50%, 0.12);
+}
+
+.textareaError {
+  border-color: var(--color-error);
+}
+
+.textareaError:focus {
+  box-shadow: 0 0 0 3px hsla(0, 54%, 41%, 0.12);
+}
+
+.textareaBottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 18px;
+}
+
+.descError {
+  font-size: var(--body-small-font-size);
+  color: var(--color-error);
+  line-height: var(--body-small-line-height);
+}
+
+.charCounter {
+  font-size: var(--label-small-font-size);
+  color: var(--color-outline);
+  line-height: var(--label-small-line-height);
+  flex-shrink: 0;
+  margin-left: auto;
 }
 
 /* ─── Photo upload ─── */

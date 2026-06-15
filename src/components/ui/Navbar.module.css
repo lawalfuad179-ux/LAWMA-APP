@@ -34,13 +34,14 @@
   left: 0;
   right: 0;
   display: flex;
-  align-items: center;
+  align-items: stretch;
   justify-content: space-around;
   height: 64px;
-  padding: 0 4px;
+  padding: 0 2px;
   padding-bottom: env(safe-area-inset-bottom, 0);
   background: var(--color-surface);
   border-top: 1px solid var(--color-outline-variant);
+  box-shadow: 0 -2px 12px hsla(0, 0%, 0%, 0.04);
   z-index: 50;
 }
 
@@ -50,23 +51,31 @@
   align-items: center;
   justify-content: center;
   gap: 3px;
+  flex: 1;
   min-height: 48px;
-  min-width: 48px;
   padding: 4px 6px;
   text-decoration: none;
   background: none;
   border: none;
-  border-radius: 12px;
-  transition: background 0.2s;
+  position: relative;
   cursor: pointer;
+  transition: transform 0.15s;
 }
 
-.mobileItem:hover {
-  background: var(--color-surface-container-high);
+.mobileItem:active {
+  transform: scale(0.92);
 }
 
-.mobileItemActive {
-  background: var(--color-primary-container);
+.mobileItemActive::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 20px;
+  height: 3px;
+  border-radius: 0 0 3px 3px;
+  background: var(--color-primary);
 }
 
 .mobileIcon {
@@ -77,11 +86,12 @@
   width: 24px;
   height: 24px;
   color: var(--color-on-surface-variant);
-  transition: color 0.2s;
+  transition: color 0.15s, transform 0.15s;
 }
 
 .mobileItemActive .mobileIcon {
   color: var(--color-primary);
+  transform: scale(1.1);
 }
 
 .mobileLabel {
@@ -89,12 +99,12 @@
   font-weight: 500;
   line-height: 1;
   color: var(--color-on-surface-variant);
-  transition: color 0.2s;
+  transition: color 0.15s, font-weight 0.15s;
 }
 
 .mobileItemActive .mobileLabel {
   color: var(--color-primary);
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .badge {
@@ -123,7 +133,6 @@
   z-index: 100;
   background: hsla(0, 0%, 0%, 0.4);
   display: flex;
-  align-items: flex-end;
   animation: fadeIn 0.2s ease;
 }
 
@@ -133,16 +142,20 @@
 }
 
 .sheet {
-  width: 100%;
+  width: 280px;
+  max-width: 75vw;
+  height: 100%;
   background: var(--color-surface);
-  border-radius: 20px 20px 0 0;
-  padding: 0 0 calc(env(safe-area-inset-bottom, 0px) + 16px);
-  animation: slideUp 0.25s cubic-bezier(0.34, 1.06, 0.64, 1);
+  border-radius: 0 20px 20px 0;
+  padding: 0 0 16px;
+  animation: slideInLeft 0.25s cubic-bezier(0.34, 1.06, 0.64, 1);
+  display: flex;
+  flex-direction: column;
 }
 
-@keyframes slideUp {
-  from { transform: translateY(100%); }
-  to   { transform: translateY(0); }
+@keyframes slideInLeft {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(0); }
 }
 
 .sheetHeader {
@@ -181,6 +194,8 @@
   display: flex;
   flex-direction: column;
   padding: 8px 12px;
+  flex: 1;
+  overflow-y: auto;
 }
 
 .sheetItem {
@@ -365,6 +380,7 @@
 
 .sidebarLink,
 .sidebarAccountLink {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -384,13 +400,19 @@
   color: var(--color-on-surface);
 }
 
-.sidebarLinkActive {
-  background: var(--color-primary-container);
-  color: var(--color-primary);
+.sidebarLinkActive::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 20px;
+  border-radius: 0 3px 3px 0;
+  background: var(--color-primary);
 }
 
-.sidebarLinkActive:hover {
-  background: var(--color-primary-container);
+.sidebarLinkActive {
   color: var(--color-primary);
 }
 
@@ -433,16 +455,7 @@
   pointer-events: none;
 }
 
-/* Bottom account section (Profile, Notifications, Theme) */
-.sidebarAccount {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding: 8px 8px;
-  border-top: 1px solid var(--color-outline-variant);
-  flex-shrink: 0;
-}
-
+/* Theme toggle in sidebar */
 .sidebarThemeBtn {
   display: flex;
   align-items: center;

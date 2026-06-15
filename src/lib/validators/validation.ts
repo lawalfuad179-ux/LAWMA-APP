@@ -2,16 +2,17 @@ export type FieldErrors = Record<string, string>;
 
 export function validateEmail(value: string): string | null {
   if (!value) return null;
-  if (!value.includes('@') || !value.includes('.')) return 'Enter a valid email address.';
+  if (!value.includes('@')) return 'Email address must include \'@\'';
+  if (!value.includes('.')) return 'Please enter a valid email address (e.g. name@example.com)';
   return null;
 }
 
 export function validatePhone(value: string): string | null {
   if (!value) return null;
   const cleaned = value.replace(/\D/g, '');
-  if (!/^(\+?234|0)?[0-9]{10}$/.test(value) && !/^0[0-9]{10}$/.test(value) && !/^\+234[0-9]{10}$/.test(value)) {
-    return 'Enter a valid Nigerian phone number (e.g. 080 1234 5678).';
-  }
+  if (/[a-zA-Z]/.test(value)) return 'Phone number can only contain digits';
+  if (cleaned.length < 10) return 'Please enter a valid Nigerian phone number';
+  if (!/^0/.test(cleaned) && !/^234/.test(cleaned)) return 'Phone number should start with 0 or +234';
   return null;
 }
 
@@ -43,4 +44,52 @@ export function getPasswordErrors(value: string): string[] {
 export function validateRequired(value: string, label: string): string | null {
   if (!value.trim()) return `${label} is required.`;
   return null;
+}
+
+export function validateName(value: string): string | null {
+  if (!value.trim()) return null;
+  if (/\d/.test(value)) return 'Name cannot contain numbers';
+  if (!/^[a-zA-Z\s'\-]+$/.test(value)) return 'Name can only contain letters, hyphens, and apostrophes';
+  if (value.trim().length < 2) return 'Please enter your full name';
+  return null;
+}
+
+export function validateAddress(value: string): string | null {
+  if (!value.trim()) return null;
+  if (/^\d+$/.test(value.trim())) return 'Address seems incomplete \u2014 please include a street name';
+  if (value.trim().length < 10) return 'Please enter your full street address';
+  return null;
+}
+
+export function validateOtpCode(value: string): string | null {
+  if (!value) return null;
+  if (value.length < 6) return 'Code must be 6 digits';
+  return null;
+}
+
+export function validateDescription(value: string): string | null {
+  if (!value.trim()) return null;
+  if (value.trim().length < 20) return 'Please describe the issue in a bit more detail';
+  return null;
+}
+
+export function maskIdentifier(value: string): string {
+  if (!value) return '';
+  if (value.includes('@')) {
+    const [local, domain] = value.split('@');
+    if (local.length <= 2) return `${local}***@${domain}`;
+    return `${local.slice(0, 2)}***@${domain}`;
+  }
+  const cleaned = value.replace(/\D/g, '');
+  if (cleaned.length >= 10) {
+    const last4 = cleaned.slice(-4);
+    if (value.startsWith('+234')) {
+      return `+234 *** *** ${last4}`;
+    }
+    if (value.startsWith('0')) {
+      return `0*** *** ${last4}`;
+    }
+    return `*** *** ${last4}`;
+  }
+  return value;
 }

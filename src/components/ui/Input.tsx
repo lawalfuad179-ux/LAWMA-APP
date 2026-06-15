@@ -8,12 +8,14 @@ type InputProps = React.InputHTMLAttributes<HTMLInputElement> & {
   label: string;
   error?: string;
   helpText?: string;
+  icon?: React.ReactNode;
 };
 
 export function Input({
   label,
   error,
   helpText,
+  icon,
   id,
   className,
   ...props
@@ -30,9 +32,15 @@ export function Input({
         {label}
       </label>
       <div className={styles.inputWrap}>
+        {icon && <span className={styles.iconWrap}>{icon}</span>}
         <input
           id={inputId}
-          className={`${styles.input} ${error ? styles.inputError : ''} ${isPassword ? styles.inputPassword : ''}`}
+          className={[
+            styles.input,
+            error ? styles.inputError : '',
+            isPassword ? styles.inputPassword : '',
+            icon ? styles.inputWithIcon : '',
+          ].filter(Boolean).join(' ')}
           aria-describedby={errorId}
           aria-invalid={!!error}
           {...props}

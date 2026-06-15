@@ -11,65 +11,247 @@
   color: var(--color-on-surface);
 }
 
-.sectionTitle {
-  font-size: var(--title-medium-font-size);
-  font-weight: 600;
-  color: var(--color-on-surface);
-  margin-bottom: 10px;
-}
+/* ── Sections ── */
 
-.scheduleCard {
+.section {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  margin-bottom: 8px;
+  gap: 10px;
 }
 
-.scheduleTop {
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-on-surface-variant);
+}
+
+.sectionTitle {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-on-surface-variant);
+}
+
+/* ── No Today ── */
+
+.noToday {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 16px;
+  background: var(--color-surface-container-low);
+  border-radius: 12px;
+}
+
+.noTodayText {
+  font-size: var(--body-medium-font-size);
+  color: var(--color-on-surface-variant);
+}
+
+/* ── Today Card ── */
+
+.todayCard {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: var(--color-primary-container);
+  border-color: transparent;
+  box-shadow: 0 4px 16px hsla(24, 98%, 50%, 0.14);
+  transition: transform 0.15s, box-shadow 0.2s;
+}
+
+.todayCard:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px hsla(24, 98%, 50%, 0.18);
+}
+
+.todayHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 4px;
 }
 
-.day {
-  font-size: var(--body-medium-font-size);
-  font-weight: 600;
+.todayPill {
+  display: inline-flex;
+  align-items: center;
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: 100px;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-primary) 40%, transparent); }
+  50% { box-shadow: 0 0 0 6px color-mix(in srgb, var(--color-primary) 0%, transparent); }
+}
+
+.todayTime {
+  font-size: var(--headline-small-font-size);
+  font-weight: 700;
+  color: var(--color-on-surface);
+  letter-spacing: var(--headline-small-letter-spacing);
+}
+
+/* ── Upcoming Cards ── */
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  box-shadow: 0 1px 3px hsla(0, 0%, 0%, 0.04);
+  transition: transform 0.15s, box-shadow 0.2s;
+}
+
+.card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px hsla(0, 0%, 0%, 0.06);
+}
+
+.cardNext {
+  box-shadow: 0 2px 8px hsla(24, 98%, 50%, 0.1);
+  background: color-mix(in srgb, var(--color-primary) 3%, var(--color-surface));
+  transition: transform 0.15s, box-shadow 0.2s;
+}
+
+.cardNext:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px hsla(24, 98%, 50%, 0.16);
+}
+
+.cardRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dayName {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--title-small-font-size);
+  font-weight: 700;
   color: var(--color-on-surface);
 }
 
-.time {
-  font-size: var(--body-medium-font-size);
-  color: var(--color-on-surface-variant);
+.nextTag {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-on-primary);
+  background: var(--color-primary);
+  padding: 2px 8px;
+  border-radius: 100px;
 }
 
-.operator {
+.metaRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-on-surface-variant);
   font-size: var(--body-medium-font-size);
-  color: var(--color-on-surface);
-  font-weight: 500;
 }
 
-.area {
-  font-size: var(--body-small-font-size);
-  color: var(--color-on-surface-variant);
-}
+/* ── Delay ── */
 
 .delayBanner {
   display: flex;
   align-items: center;
   gap: 6px;
-  margin-top: 6px;
+  margin-top: 4px;
   padding: 8px 12px;
-  background: hsl(39, 100%, 92%);
-  color: hsl(28, 80%, 26%);
+  background: var(--color-status-warning-container, hsl(39, 100%, 92%));
+  color: var(--color-on-status-warning, hsl(28, 80%, 26%));
   border-radius: 8px;
   font-size: var(--body-small-font-size);
   font-weight: 500;
 }
 
-.empty {
+/* ── Empty state ── */
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   text-align: center;
+  padding: 40px 24px 56px;
+}
+
+.emptyIllustration {
+  position: relative;
+  width: 220px;
+  height: 200px;
+  margin-bottom: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.emptyBlob1 {
+  position: absolute;
+  top: 10px;
+  left: 18px;
+  width: 118px;
+  height: 138px;
+  border-radius: 52% 48% 40% 60% / 58% 44% 56% 42%;
+  background: var(--color-primary-container);
+  animation: blobFloat 4s ease-in-out infinite;
+}
+
+.emptyBlob2 {
+  position: absolute;
+  bottom: 8px;
+  right: 14px;
+  width: 96px;
+  height: 116px;
+  border-radius: 64% 36% 62% 38% / 42% 58% 42% 58%;
+  background: var(--color-tertiary-container);
+  animation: blobFloat 4s ease-in-out infinite reverse;
+}
+
+@keyframes blobFloat {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-8px) rotate(2deg); }
+}
+
+.emptyCard {
+  position: relative;
+  z-index: 2;
+  width: 124px;
+  height: 144px;
+  background: var(--color-surface);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px hsla(0, 0%, 0%, 0.14), 0 2px 8px hsla(0, 0%, 0%, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: rotate(-7deg);
+  animation: cardBob 3s ease-in-out infinite;
+}
+
+@keyframes cardBob {
+  0%, 100% { transform: rotate(-7deg) translateY(0); }
+  50% { transform: rotate(-5deg) translateY(-6px); }
+}
+
+.emptyTitle {
+  font-size: var(--title-medium-font-size);
+  font-weight: 700;
+  color: var(--color-on-surface);
+  margin: 0 0 8px;
+}
+
+.emptySubtext {
   font-size: var(--body-medium-font-size);
-  color: var(--color-outline);
-  padding: 48px 24px;
+  color: var(--color-on-surface-variant);
+  line-height: var(--body-medium-line-height);
+  max-width: 260px;
+  margin: 0;
 }
