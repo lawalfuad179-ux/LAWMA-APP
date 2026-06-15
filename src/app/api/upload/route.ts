@@ -1,13 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { writeFile, mkdir } from 'fs/promises';
-import { join, extname } from 'path';
+import { put } from '@vercel/blob';
 import { getSession } from '@/lib/auth';
 
 export const maxDuration = 30;
 export const dynamic = 'force-dynamic';
 
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/heic'];
-const MAX_BYTES = 10 * 1024 * 1024; // 10 MB
+const MAX_BYTES = 10 * 1024 * 1024;
 
 export async function POST(req: NextRequest) {
   const session = await getSession();
@@ -31,15 +30,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false, error: 'File exceeds 10 MB limit' }, { status: 413 });
   }
 
-  const bytes = await file.arrayBuffer();
-  const buffer = Buffer.from(bytes);
+  const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg';
+  const filename = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
 
-  const ext = extname(file.name).toLowerCase() || '.jpg';
-  const filename = `${Date.now()}-${Math.random().toString(36).slice(2)}${ext}`;
-  const uploadDir = join(process.cwd(), 'public', 'uploads', 'complaints');
+  const blob = await put(filename, file, {
+    access: 'public',
+    addRandomSuffix: false,
+  });
 
-  await mkdir(uploadDir, { recursive: true });
-  await writeFile(join(uploadDir, filename), buffer);
-
-  return NextResponse.json({ ok: true, url: `/uploads/complaints/${filename}` });
+  return NextResponse.json({ ok: true, url: blob.url });
 }
