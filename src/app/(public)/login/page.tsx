@@ -342,7 +342,7 @@ function AuthContent() {
                 <Input
                   label="Email or Phone"
                   type="text"
-                  inputMode="text"
+                  inputMode={(phone || email).includes('@') ? 'email' : 'tel'}
                   placeholder="you@example.com or 080 1234 5678"
                   value={phone || email}
                   onChange={(e) => {
@@ -368,7 +368,7 @@ function AuthContent() {
               <Input
                 label="Phone or Email"
                 type="text"
-                inputMode="text"
+                inputMode={(phone || email).includes('@') ? 'email' : 'tel'}
                 placeholder="Phone number or email address"
                 value={phone || email}
                 onChange={(e) => {
@@ -511,6 +511,7 @@ function AuthContent() {
             <Input
               label="Email or Phone"
               type="text"
+              inputMode={(phone || email).includes('@') ? 'email' : 'tel'}
               placeholder="you@example.com or 080 1234 5678"
               value={phone || email}
               onChange={(e) => {

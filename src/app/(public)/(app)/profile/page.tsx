@@ -95,6 +95,9 @@ export default async function ProfilePage() {
         </Link>
       </div>
 
+      <div className={styles.signOutRow}>
+        <LogoutButton variant="danger" />
+      </div>
     </div>
   );
 }

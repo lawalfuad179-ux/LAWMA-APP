@@ -68,14 +68,15 @@ export function SwipeableComplaintCard({ complaint, onDelete }: Props) {
     }
   }, [offsetX, snapClosed]);
 
-  const onMouseStart = useCallback((e: React.MouseEvent) => {
+  const onPointerStart = useCallback((e: React.PointerEvent) => {
     startX.current = e.clientX;
     currentX.current = e.clientX;
     isDragging.current = true;
+    (e.target as HTMLElement).setPointerCapture(e.pointerId);
     (e.target as HTMLElement).style.cursor = 'grabbing';
   }, []);
 
-  const onMouseMove = useCallback((e: React.MouseEvent) => {
+  const onPointerMove = useCallback((e: React.PointerEvent) => {
     if (!isDragging.current) return;
     currentX.current = e.clientX;
     const delta = startX.current - currentX.current;
@@ -83,10 +84,10 @@ export function SwipeableComplaintCard({ complaint, onDelete }: Props) {
     setOffsetX(clamped);
   }, []);
 
-  const onMouseEnd = useCallback(() => {
+  const onPointerEnd = useCallback((e: React.PointerEvent) => {
     if (!isDragging.current) return;
     isDragging.current = false;
-    document.body.style.cursor = '';
+    (e.target as HTMLElement).style.cursor = '';
     if (offsetX >= SWIPE_THRESHOLD) {
       setOpen(true);
       setOffsetX(ACTION_WIDTH);
@@ -151,10 +152,10 @@ export function SwipeableComplaintCard({ complaint, onDelete }: Props) {
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
-        onMouseDown={onMouseStart}
-        onMouseMove={onMouseMove}
-        onMouseUp={onMouseEnd}
-        onMouseLeave={onMouseEnd}
+        onPointerDown={onPointerStart}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerEnd}
+        onPointerCancel={onPointerEnd}
       >
         <Link href={`/complaints/${complaint.id}`} className={styles.link}>
           <Card className={styles.card}>

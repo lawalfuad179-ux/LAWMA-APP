@@ -52,7 +52,7 @@ export function Input({
             type="button"
             onClick={() => setShowPassword(!showPassword)}
             aria-label={showPassword ? 'Hide password' : 'Show password'}
-            tabIndex={-1}
+            tabIndex={0}
           >
             {showPassword
               ? <EyeOff size={20} strokeWidth={1.5} />

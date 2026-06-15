@@ -121,3 +121,8 @@
 .link:hover {
   background: var(--color-surface-container-high);
 }
+
+.signOutRow {
+  display: flex;
+  flex-direction: column;
+}

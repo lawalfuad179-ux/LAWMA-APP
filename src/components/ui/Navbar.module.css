@@ -166,10 +166,57 @@
   border-bottom: 1px solid var(--color-outline-variant);
 }
 
+.sheetProfileRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  text-decoration: none;
+  min-width: 0;
+}
+
+.sheetAvatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.sheetAvatarInitial {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--color-primary-container);
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--title-small-font-size);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.sheetProfileInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.sheetProfileSub {
+  font-size: var(--body-small-font-size);
+  color: var(--color-primary);
+  font-weight: 500;
+}
+
 .sheetTitle {
   font-size: var(--title-small-font-size);
   font-weight: 600;
   color: var(--color-on-surface);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .sheetClose {
@@ -331,6 +378,27 @@
   width: 28px;
   height: 28px;
   border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.sidebarAvatar {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.sidebarAvatarInitial {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--color-primary-container);
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
   flex-shrink: 0;
 }
 
