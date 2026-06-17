@@ -262,6 +262,8 @@
   justify-content: center;
   gap: 6px;
   min-height: 222px;
+  width: 100%;
+  flex: 1;
   border: 1px dashed var(--color-outline-variant);
   border-radius: 16px;
   color: var(--color-primary);
