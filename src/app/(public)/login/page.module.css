@@ -56,9 +56,6 @@
 
 /* Override ThemeToggle's fixed positioning inside the card nav */
 .toggleInCard {
-  position: static !important;
-  top: auto !important;
-  right: auto !important;
   flex-shrink: 0;
 }
 

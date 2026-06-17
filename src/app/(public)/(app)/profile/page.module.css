@@ -5,10 +5,112 @@
   padding: 24px;
 }
 
-.title {
-  font-size: var(--headline-small-font-size);
-  font-weight: 600;
+/* ─── Hero ─── */
+
+.hero {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-outline-variant);
+  border-radius: 20px;
+}
+
+.heroMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.heroName {
+  font-size: var(--title-large-font-size);
+  font-weight: 700;
   color: var(--color-on-surface);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.heroPhone {
+  font-size: var(--body-small-font-size);
+  color: var(--color-on-surface-variant);
+}
+
+.heroBadges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+/* ─── Badges ─── */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+
+.badge_green {
+  background: var(--color-status-success-container);
+  color: var(--color-on-status-success-container);
+}
+
+.badge_orange {
+  background: var(--color-primary-container);
+  color: var(--color-on-primary-container);
+}
+
+.badge_blue {
+  background: var(--color-tertiary-container);
+  color: var(--color-on-tertiary-container);
+}
+
+/* ─── Stats Row ─── */
+
+.statsRow {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.statCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 14px 8px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-outline-variant);
+  border-radius: 16px;
+  text-align: center;
+}
+
+.statIcon {
+  color: var(--color-primary);
+  margin-bottom: 2px;
+}
+
+.statValue {
+  font-size: var(--title-medium-font-size);
+  font-weight: 700;
+  color: var(--color-on-surface);
+  line-height: 1.1;
+}
+
+.statLabel {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--color-on-surface-variant);
 }
 
 /* ─── Section ─── */
@@ -34,49 +136,205 @@
   color: var(--color-on-surface-variant);
 }
 
-.card {
+/* ─── Rewards Card ─── */
+
+.rewardsCard {
   display: flex;
   flex-direction: column;
   gap: 14px;
 }
 
-.avatarRow {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding-bottom: 14px;
-  border-bottom: 1px solid var(--color-outline-variant);
-}
-
-.avatar {
-  width: 52px;
-  height: 52px;
-  border-radius: 14px;
-  background: var(--color-primary-container);
-  color: var(--color-primary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: var(--title-large-font-size);
-  font-weight: 700;
-  flex-shrink: 0;
-}
-
-.avatarMeta {
+.rewardsBalance {
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
 
-.avatarName {
-  font-size: var(--title-small-font-size);
+.rewardsBalanceNum {
+  font-size: 36px;
+  font-weight: 800;
+  color: var(--color-primary);
+  line-height: 1;
+}
+
+.rewardsBalanceLabel {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.rewardsBalanceValue {
+  font-size: var(--body-small-font-size);
+  color: var(--color-on-surface-variant);
+}
+
+.rewardsProgress {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.rewardsProgressBar {
+  width: 100%;
+  height: 6px;
+  background: var(--color-surface-container-high);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.rewardsProgressFill {
+  height: 100%;
+  background: var(--color-primary);
+  border-radius: 999px;
+  transition: width 0.4s ease;
+}
+
+.rewardsProgressLabel {
+  font-size: var(--body-small-font-size);
+  color: var(--color-on-surface-variant);
+}
+
+.rewardsAction {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: var(--color-primary-container);
+  color: var(--color-on-primary-container);
+  border-radius: 12px;
+  font-size: var(--body-small-font-size);
+  font-weight: 600;
+  text-decoration: none;
+  transition: opacity 0.15s;
+}
+
+.rewardsAction:hover {
+  opacity: 0.85;
+}
+
+.rewardsAction svg:last-child {
+  margin-left: auto;
+}
+
+/* ─── Achievements ─── */
+
+.achievements {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.achievement {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 8px;
+  border-radius: 16px;
+  border: 1.5px solid transparent;
+  text-align: center;
+}
+
+.achievementEarned {
+  background: var(--color-primary-container);
+  border-color: var(--color-primary);
+}
+
+.achievementLocked {
+  background: var(--color-surface-container);
+  border-color: var(--color-outline-variant);
+  opacity: 0.5;
+}
+
+.achievementIcon {
+  color: var(--color-primary);
+}
+
+.achievementLocked .achievementIcon {
+  color: var(--color-on-surface-variant);
+}
+
+.achievementLabel {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--color-on-surface);
+  line-height: 1.2;
+}
+
+/* ─── Quick Links ─── */
+
+.linksCard {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 0 !important;
+  overflow: hidden;
+}
+
+.quickLink {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.12s;
+  border-bottom: 1px solid var(--color-outline-variant);
+}
+
+.quickLink:last-child {
+  border-bottom: none;
+}
+
+.quickLink:hover {
+  background: var(--color-surface-container-low);
+}
+
+.quickLinkIcon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--color-primary-container);
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.quickLinkBody {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  flex: 1;
+  min-width: 0;
+}
+
+.quickLinkLabel {
+  font-size: var(--body-medium-font-size);
   font-weight: 600;
   color: var(--color-on-surface);
 }
 
-.avatarPhone {
+.quickLinkDesc {
   font-size: var(--body-small-font-size);
   color: var(--color-on-surface-variant);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.quickLinkChevron {
+  color: var(--color-on-surface-variant);
+  flex-shrink: 0;
+}
+
+/* ─── Generic card ─── */
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
 }
 
 .row {
@@ -97,32 +355,16 @@
   color: var(--color-on-surface);
 }
 
-.links {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.link {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 14px 16px;
-  background: var(--color-surface);
-  border: 1px solid var(--color-outline-variant);
-  border-radius: 12px;
+.valueLink {
+  font-size: var(--body-large-font-size);
   color: var(--color-primary);
-  font-size: var(--body-medium-font-size);
-  font-weight: 500;
   text-decoration: none;
-  transition: background 0.15s;
 }
 
-.link:hover {
-  background: var(--color-surface-container-high);
-}
+/* ─── Sign Out ─── */
 
 .signOutRow {
   display: flex;
   flex-direction: column;
+  padding-bottom: 8px;
 }

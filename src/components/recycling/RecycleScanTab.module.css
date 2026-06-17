@@ -1,0 +1,345 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ─── Idle ─── */
+.idle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 32px 16px;
+  text-align: center;
+}
+
+.scanIllustration {
+  width: 90px;
+  height: 90px;
+  border-radius: 24px;
+  background: var(--color-primary-container);
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.idleTitle {
+  font-size: var(--title-large-font-size);
+  font-weight: 700;
+  color: var(--color-on-surface);
+}
+
+.idleDesc {
+  font-size: var(--body-medium-font-size);
+  color: var(--color-on-surface-variant);
+  line-height: 1.55;
+  max-width: 320px;
+}
+
+.earnBanner {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: var(--color-secondary-container);
+  color: var(--color-on-secondary-container);
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.hiddenInput {
+  display: none;
+}
+
+.uploadActions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.errorMsg {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-error);
+  font-size: var(--body-small-font-size);
+}
+
+/* ─── Preview ─── */
+.preview {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.previewImg {
+  width: 100%;
+  max-height: 280px;
+  object-fit: cover;
+  border-radius: 16px;
+  border: 1px solid var(--color-outline-variant);
+}
+
+.previewActions {
+  display: flex;
+  gap: 10px;
+}
+
+/* ─── Scanning / Confirming ─── */
+.scanning {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 48px 16px;
+  text-align: center;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.12); opacity: 0.8; }
+}
+
+.scanningPulse {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: var(--color-primary-container);
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.scanningText {
+  font-size: var(--title-medium-font-size);
+  font-weight: 600;
+  color: var(--color-on-surface);
+}
+
+.scanningSubtext {
+  font-size: var(--body-medium-font-size);
+  color: var(--color-on-surface-variant);
+}
+
+/* ─── Report ─── */
+.report {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.reportImg {
+  width: 100%;
+  max-height: 200px;
+  object-fit: cover;
+  border-radius: 14px;
+  border: 1px solid var(--color-outline-variant);
+}
+
+.reportSummary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  background: var(--color-surface-container-low);
+  border-radius: 14px;
+  padding: 16px;
+}
+
+.reportStat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  flex: 1;
+}
+
+.reportStatNum {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--color-on-surface);
+}
+
+.reportStatLabel {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-on-surface-variant);
+}
+
+.reportDivider {
+  width: 1px;
+  height: 40px;
+  background: var(--color-outline-variant);
+  margin: 0 8px;
+}
+
+.reportDescription {
+  font-size: var(--body-medium-font-size);
+  color: var(--color-on-surface-variant);
+  line-height: 1.5;
+}
+
+/* ─── Item list ─── */
+.itemList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.item {
+  display: flex;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+}
+
+.itemRecyclable {
+  background: var(--color-status-success-container);
+  border-color: hsl(142, 40%, 82%);
+}
+
+.itemNotRecyclable {
+  background: var(--color-surface-container);
+  border-color: var(--color-outline-variant);
+}
+
+.itemEmoji {
+  font-size: 20px;
+  flex-shrink: 0;
+  line-height: 1.4;
+}
+
+.itemBody {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+  min-width: 0;
+}
+
+.itemName {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--body-medium-font-size);
+  font-weight: 600;
+  color: var(--color-on-surface);
+}
+
+.recyclableBadge {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--color-on-status-success-container);
+  background: hsl(142, 60%, 82%);
+  padding: 1px 6px;
+  border-radius: 999px;
+}
+
+.nonRecyclableBadge {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--color-on-surface-variant);
+  background: var(--color-surface-container-high);
+  padding: 1px 6px;
+  border-radius: 999px;
+}
+
+.itemInstruction {
+  font-size: var(--body-small-font-size);
+  color: var(--color-on-surface-variant);
+  line-height: 1.4;
+}
+
+/* ─── Tips ─── */
+.tips {
+  background: var(--color-tertiary-container);
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tipsTitle {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-on-tertiary-container);
+  margin-bottom: 4px;
+}
+
+.tip {
+  font-size: var(--body-small-font-size);
+  color: var(--color-on-tertiary-container);
+  line-height: 1.45;
+}
+
+/* ─── Impact ─── */
+.reportImpact {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 14px;
+  background: var(--color-secondary-container);
+  color: var(--color-on-secondary-container);
+  border-radius: 12px;
+  font-size: var(--body-small-font-size);
+  line-height: 1.45;
+}
+
+.reportActions {
+  display: flex;
+  gap: 10px;
+}
+
+/* ─── Done ─── */
+.done {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 40px 16px;
+  text-align: center;
+}
+
+.doneIcon {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: var(--color-primary-container);
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.doneTitle {
+  font-size: var(--headline-small-font-size);
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.doneDesc {
+  font-size: var(--body-medium-font-size);
+  color: var(--color-on-surface-variant);
+  line-height: 1.55;
+}
+
+.doneActions {
+  display: flex;
+  gap: 10px;
+}

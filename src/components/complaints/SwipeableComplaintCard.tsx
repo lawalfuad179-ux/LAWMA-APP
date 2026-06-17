@@ -34,10 +34,6 @@ export function SwipeableComplaintCard({ complaint, onDelete }: Props) {
   const [open, setOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
-  const getTranslateX = useCallback(() => {
-    return open ? -ACTION_WIDTH : 0;
-  }, [open]);
-
   const snapClosed = useCallback(() => {
     setOpen(false);
     setOffsetX(0);
@@ -72,7 +68,6 @@ export function SwipeableComplaintCard({ complaint, onDelete }: Props) {
     startX.current = e.clientX;
     currentX.current = e.clientX;
     isDragging.current = true;
-    (e.target as HTMLElement).setPointerCapture(e.pointerId);
     (e.target as HTMLElement).style.cursor = 'grabbing';
   }, []);
 

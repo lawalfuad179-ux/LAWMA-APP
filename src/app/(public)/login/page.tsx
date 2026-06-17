@@ -527,6 +527,7 @@ function AuthContent() {
               error={fieldErrors.emailOrPhone || error}
               icon={<Mail size={16} strokeWidth={1.5} />}
               autoFocus
+              autoComplete="username"
             />
             <Button type="submit" size="lg" isLoading={loading}>
               Send Reset Code

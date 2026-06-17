@@ -45,6 +45,12 @@
   color: var(--color-on-surface-variant);
 }
 
+.guideContent {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
 /* ─── Grid ─── */
 
 .grid {

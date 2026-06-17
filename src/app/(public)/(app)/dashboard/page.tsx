@@ -1,13 +1,9 @@
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { AlertCircle, CreditCard, CalendarDays, Leaf, Bell } from 'lucide-react';
-import Image from 'next/image';
+import { AlertCircle, CreditCard, CalendarDays, Leaf, Bell, ArrowRight } from 'lucide-react';
 
 import { getSession } from '@/lib/auth';
 import { db } from '@/lib/db';
-import { Card } from '@/components/ui/Card';
-import { Badge } from '@/components/ui/Badge';
-import { DashboardClient } from '@/components/dashboard/DashboardClient';
 import { DashboardActivity } from '@/components/dashboard/DashboardActivity';
 import { COMPLAINT_STATUS_LABELS, PAYMENT_STATUS_LABELS, RECYCLING_TIPS, DAYS_OF_WEEK, COLLECTION_STATUS_LABELS } from '@/constants';
 import styles from './page.module.css';
@@ -44,23 +40,21 @@ export default async function DashboardPage() {
   const session = await getSession();
   if (!session) redirect('/login');
 
-  const resident = await db.resident.findUnique({ where: { id: session.residentId } });
+  const resident = await db.resident.findUnique({
+    where: { id: session.residentId },
+    select: { name: true, lga: true, avatarUrl: true },
+  });
   if (!resident) redirect('/login');
-
-  const isProfileIncomplete = !resident.name || !resident.address || !resident.lga;
 
   const now = new Date();
   const hour = now.getHours();
   const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
   const firstName = resident.name?.split(' ')[0] || 'there';
-  const initial = resident.name?.charAt(0)?.toUpperCase() || '?';
-  const avatarUrl = resident.avatarUrl;
 
   const [
     nextScheduleResult,
     activeComplaintsCount,
     overdueBillsCount,
-    pendingBill,
     recentComplaints,
     recentPayments,
     unreadCount,
@@ -71,10 +65,6 @@ export default async function DashboardPage() {
     }),
     db.bill.count({
       where: { residentId: session.residentId, status: 'OVERDUE' },
-    }),
-    db.bill.findFirst({
-      where: { residentId: session.residentId, status: { in: ['PENDING', 'OVERDUE'] } },
-      orderBy: { dueDate: 'asc' },
     }),
     db.complaint.findMany({
       where: { residentId: session.residentId },
@@ -116,16 +106,14 @@ export default async function DashboardPage() {
   const recyclingTip = RECYCLING_TIPS[tipIndex];
 
   return (
-    <div className={styles.page}>
-      <DashboardClient isProfileIncomplete={isProfileIncomplete} />
-
-      {/* Desktop topbar — hidden on mobile */}
-      <div className={styles.desktopTopbar}>
-        <div className={styles.desktopGreetingBlock}>
-          <span className={styles.desktopGreeting}>{greeting}, {firstName}</span>
-          {resident.lga && <span className={styles.desktopLocation}>{resident.lga} · Lagos</span>}
+    <div className={styles.dashboardPage}>
+      {/* Desktop topbar — hidden on mobile (mobileTopbar in Navbar handles that) */}
+      <div className={styles.dashboardTopbar}>
+        <div>
+          <h1 className={styles.greeting}>{greeting}, {firstName}</h1>
+          {resident.lga && <p className={styles.locationText}>{resident.lga} · Lagos</p>}
         </div>
-        <Link href="/notifications" className={styles.topbarBell} aria-label="Notifications">
+        <Link href="/notifications" className={styles.bellButton} aria-label="Notifications">
           <Bell size={20} strokeWidth={1.5} />
           {unreadCount > 0 && (
             <span className={styles.topbarBadge}>{unreadCount > 9 ? '9+' : unreadCount}</span>
@@ -133,34 +121,38 @@ export default async function DashboardPage() {
         </Link>
       </div>
 
-      {/* Mobile greeting — hidden on desktop */}
-      <div className={styles.greetingSection}>
-        <div className={styles.avatar}>
-          {avatarUrl ? (
-            <Image src={avatarUrl} alt="" width={44} height={44} className={styles.avatarImg} />
-          ) : (
-            initial
-          )}
+      <div className={styles.dashboardContent}>
+        {/* Mobile user row — visible only on mobile */}
+        <div className={styles.mobileUserRow}>
+          <div className={styles.mobileUserAvatar}>
+            {resident.avatarUrl
+              ? <img src={resident.avatarUrl} alt="" className={styles.mobileUserAvatarImg} />
+              : <span className={styles.mobileUserAvatarInitial}>{firstName.charAt(0).toUpperCase()}</span>
+            }
+          </div>
+          <div className={styles.mobileUserMeta}>
+            <h1 className={styles.mobileGreeting}>{greeting}, {firstName}</h1>
+            {resident.lga && <p className={styles.mobileLocation}>{resident.lga} · Lagos</p>}
+          </div>
         </div>
-        <div className={styles.greetingTexts}>
-          <span className={styles.greetingText}>{greeting}, {firstName}</span>
-          {resident.lga && <span className={styles.location}>{resident.lga}</span>}
-        </div>
-      </div>
-
-      {/* 2-column content grid */}
-      <div className={styles.contentGrid}>
-        {/* Left: Collection Schedule */}
-        <div className={styles.gridLeft}>
-          <div className={styles.section}>
-            <div className={styles.sectionHeader}>
+        {/* Collection Schedule */}
+        <div className={styles.dashboardSection}>
+          <div className={styles.sectionHeader}>
+            <div className={styles.sectionEyebrow}>
               <CalendarDays size={16} strokeWidth={1.5} />
-              <span className={styles.sectionTitle}>Collection Schedule</span>
+              <span>Collection Schedule</span>
             </div>
-            {nextSchedule ? (
-              <Link href="/schedules" className={styles.cardLink}>
-                <Card className={styles.pickupCard}>
-                  <div className={styles.pickupTop}>
+            <Link href="/schedules" className={styles.sectionAction}>
+              View schedule <ArrowRight size={14} strokeWidth={1.5} />
+            </Link>
+          </div>
+
+          <div className={styles.collectionGrid}>
+            {/* Left: Pickup card */}
+            <div>
+              {nextSchedule ? (
+                <div className={styles.pickupCard}>
+                  <div className={styles.pickupCardTop}>
                     <span className={styles.pickupLabel}>Next Pickup</span>
                     <span
                       className={
@@ -168,93 +160,67 @@ export default async function DashboardPage() {
                           ? styles.scheduledPill
                           : styles.statusPill
                       }
-                      data-status={nextSchedule.schedule.status}
                     >
                       {COLLECTION_STATUS_LABELS[nextSchedule.schedule.status]}
                     </span>
                   </div>
-                  <span className={styles.pickupDay}>
-                    {nextSchedule.dayOffset === 0 ? 'Today' : nextSchedule.dayOffset === 1 ? 'Tomorrow' : DAYS_OF_WEEK[nextSchedule.schedule.dayOfWeek]}
-                  </span>
-                  <span className={styles.pickupTime}>{nextSchedule.schedule.windowStart} – {nextSchedule.schedule.windowEnd}</span>
-                  <span className={styles.pickupPsp}>{nextSchedule.schedule.pspOperator.name}</span>
-                </Card>
-              </Link>
-            ) : (
-              <Link href="/schedules" className={styles.scheduleLink}>
-                <CalendarDays size={16} strokeWidth={1.5} />
-                View available schedules
-              </Link>
-            )}
-          </div>
-
-          {/* Outstanding Bill (left column on desktop) */}
-          {pendingBill ? (
-            <div className={styles.section}>
-              <div className={styles.sectionHeader}>
-                <CreditCard size={16} strokeWidth={1.5} />
-                <span className={styles.sectionTitle}>Outstanding Bill</span>
-              </div>
-              <Link href="/payments" className={styles.cardLink}>
-                <Card className={styles.billCard}>
-                  <div className={styles.pickupTop}>
-                    <span className={styles.pickupLabel}>Amount Due</span>
-                    <Badge
-                      label={pendingBill.status === 'OVERDUE' ? 'Overdue' : 'Pending'}
-                      variant={pendingBill.status === 'OVERDUE' ? 'error' : 'warning'}
-                    />
+                  <div>
+                    <p className={styles.pickupDay}>
+                      {nextSchedule.dayOffset === 0 ? 'Today' : nextSchedule.dayOffset === 1 ? 'Tomorrow' : DAYS_OF_WEEK[nextSchedule.schedule.dayOfWeek]}
+                    </p>
+                    <p className={styles.pickupMeta}>
+                      {nextSchedule.schedule.windowStart} – {nextSchedule.schedule.windowEnd} · {nextSchedule.schedule.pspOperator.name}
+                    </p>
                   </div>
-                  <span className={styles.billAmount}>{formatKobo(pendingBill.amountKobo)}</span>
-                  <span className={styles.pickupTime}>
-                    Due {new Date(pendingBill.dueDate).toLocaleDateString('en-NG', { day: 'numeric', month: 'long', year: 'numeric' })}
-                  </span>
-                </Card>
+                </div>
+              ) : (
+                <Link href="/schedules" className={styles.scheduleLink}>
+                  <CalendarDays size={16} strokeWidth={1.5} />
+                  View available schedules
+                </Link>
+              )}
+            </div>
+
+            {/* Right: Quick action + stat cards */}
+            <div className={styles.quickGrid}>
+              <Link href="/complaints/report" className={styles.quickActionCard}>
+                <AlertCircle size={24} strokeWidth={1.5} />
+                Report Issue
+              </Link>
+              <Link href="/payments" className={styles.quickActionCard}>
+                <CreditCard size={24} strokeWidth={1.5} />
+                Pay Bill
+              </Link>
+              <Link href="/complaints" className={styles.statCard}>
+                <span className={styles.statValue}>{activeComplaintsCount}</span>
+                <span className={styles.statLabel}>Active {activeComplaintsCount === 1 ? 'complaint' : 'complaints'}</span>
+              </Link>
+              <Link href="/payments" className={styles.statCard}>
+                <span className={styles.statValue}>{overdueBillsCount}</span>
+                <span className={styles.statLabel}>Overdue {overdueBillsCount === 1 ? 'bill' : 'bills'}</span>
               </Link>
             </div>
-          ) : null}
-        </div>
-
-        {/* Right: Quick actions + stats */}
-        <div className={styles.gridRight}>
-          <div className={styles.actions}>
-            <Link href="/complaints/report" className={styles.actionButton}>
-              <AlertCircle size={20} strokeWidth={1.5} />
-              Report Issue
-            </Link>
-            <Link href="/payments" className={styles.actionButton}>
-              <CreditCard size={20} strokeWidth={1.5} />
-              Pay Bill
-            </Link>
-          </div>
-
-          <div className={styles.statsRow}>
-            <Link href="/complaints" className={styles.stat}>
-              <span className={styles.statValue}>{activeComplaintsCount}</span>
-              <span className={styles.statLabel}>Active {activeComplaintsCount === 1 ? 'complaint' : 'complaints'}</span>
-            </Link>
-            <Link href="/payments" className={`${styles.stat} ${overdueBillsCount > 0 ? styles.statOverdue : ''}`}>
-              <span className={styles.statValue}>{overdueBillsCount}</span>
-              <span className={styles.statLabel}>Overdue {overdueBillsCount === 1 ? 'bill' : 'bills'}</span>
-            </Link>
           </div>
         </div>
-      </div>
 
-      {/* Recent Activity feed */}
-      <div className={styles.activitySection}>
-        <DashboardActivity activities={activities} />
-      </div>
-
-      {/* Recycling Tip */}
-      <div className={styles.section}>
-        <div className={styles.sectionHeader}>
-          <Leaf size={16} strokeWidth={1.5} />
-          <span className={styles.sectionTitle}>Recycling Tip</span>
+        {/* Recent Activity */}
+        <div className={styles.dashboardSection}>
+          <DashboardActivity activities={activities} />
         </div>
-        <div className={styles.tipCard}>
-          <span className={styles.tipCategory}>{recyclingTip.category}</span>
-          <span className={styles.tipTitle}>{recyclingTip.title}</span>
-          <span className={styles.tipDesc}>{recyclingTip.description}</span>
+
+        {/* Recycling Tip */}
+        <div className={styles.dashboardSection}>
+          <div className={styles.sectionHeader}>
+            <div className={styles.sectionEyebrow}>
+              <Leaf size={16} strokeWidth={1.5} />
+              <span>Recycling Tip</span>
+            </div>
+          </div>
+          <div className={styles.tipCard}>
+            <span className={styles.tipCategory}>{recyclingTip.category}</span>
+            <h3 className={styles.tipTitle}>{recyclingTip.title}</h3>
+            <p className={styles.tipDesc}>{recyclingTip.description}</p>
+          </div>
         </div>
       </div>
     </div>

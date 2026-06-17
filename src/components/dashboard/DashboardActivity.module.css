@@ -1,35 +1,37 @@
-.root {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
 .header {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin-bottom: 18px;
 }
 
 .headerLeft {
   display: flex;
   align-items: center;
-  gap: 6px;
-  color: var(--color-on-surface-variant);
+  gap: 10px;
+  font-size: var(--text-13);
+  font-weight: 700;
+  letter-spacing: 1.4px;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
 }
 
 .title {
-  font-size: 11px;
-  font-weight: 600;
+  font-size: var(--text-13);
+  font-weight: 700;
+  letter-spacing: 1.4px;
+  color: var(--color-text-secondary);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: var(--color-on-surface-variant);
 }
 
 .viewAll {
-  font-size: var(--body-small-font-size);
-  font-weight: 600;
+  font-size: var(--body-medium-font-size);
+  font-weight: 500;
   color: var(--color-primary);
   text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .viewAll:hover {
@@ -39,59 +41,52 @@
 .empty {
   font-size: var(--body-medium-font-size);
   color: var(--color-on-surface-variant);
-  padding: 16px 0;
+  padding: 24px;
+  border: 1px solid var(--color-outline-variant);
+  border-radius: 16px;
 }
 
-.list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+.activityCard {
+  border: 1px solid var(--color-outline-variant);
+  border-radius: 16px;
+  background: var(--color-surface);
+  overflow: hidden;
 }
 
-.itemLink {
-  text-decoration: none;
-  display: block;
-}
-
-.item {
+.activityItem {
+  min-height: 76px;
+  padding: 18px 24px;
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 14px 16px;
+  justify-content: space-between;
+  gap: 24px;
+  border-bottom: 1px solid var(--color-outline-variant);
+  text-decoration: none;
+  transition: background 0.1s;
 }
 
-.itemBody {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
+.activityItem:last-child {
+  border-bottom: none;
 }
 
-.itemTitle {
-  font-size: var(--text-13);
+.activityItem:hover {
+  background: var(--color-surface-container-low);
+}
+
+.activityTitle {
+  font-size: var(--body-large-font-size);
   font-weight: 600;
   color: var(--color-on-surface);
-  text-transform: capitalize;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  margin: 0;
 }
 
-.itemSub {
-  font-size: var(--label-small-font-size);
-  color: var(--color-on-surface-variant);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.activityMeta {
+  font-size: var(--text-13);
+  color: var(--color-text-secondary);
+  margin: 8px 0 0;
 }
 
-/* ── Custom badge pills ── */
-
-.badgeConfirmed {
-  background: var(--color-activity-confirmed-bg);
-  color: var(--color-activity-confirmed-text);
-}
+/* ── Badge pills ── */
 
 .badgeReview {
   background: var(--color-activity-review-bg);
@@ -103,20 +98,27 @@
   color: var(--color-activity-submitted-text);
 }
 
+.badgeConfirmed {
+  background: var(--color-activity-confirmed-bg);
+  color: var(--color-activity-confirmed-text);
+}
+
 .badgeNeutral {
   background: var(--color-surface-container);
   color: var(--color-on-surface-variant);
 }
 
-.badgeConfirmed,
 .badgeReview,
 .badgeSubmitted,
+.badgeConfirmed,
 .badgeNeutral {
   display: inline-flex;
   align-items: center;
-  padding: 3px 10px;
+  justify-content: center;
+  min-height: 32px;
+  padding: 0 16px;
   border-radius: 999px;
-  font-size: 11px;
+  font-size: var(--body-small-font-size);
   font-weight: 600;
   white-space: nowrap;
   flex-shrink: 0;

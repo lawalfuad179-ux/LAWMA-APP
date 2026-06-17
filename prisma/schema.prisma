@@ -45,6 +45,20 @@ enum NotificationType {
   COMPLAINT_UPDATE
   PAYMENT_CONFIRMATION
   ANNOUNCEMENT
+  RECYCLING_REWARD
+}
+
+enum RecycleActivityStatus {
+  PENDING
+  CONFIRMED
+  REJECTED
+}
+
+enum PointTransactionType {
+  EARNED_RECYCLING
+  REDEEMED_BILL_DISCOUNT
+  BONUS_FIRST_SCAN
+  ADMIN_ADJUSTMENT
 }
 
 model Resident {
@@ -66,6 +80,9 @@ model Resident {
   bills                  Bill[]
   payments               Payment[]
   notifications          Notification[]
+  recycleActivities      RecycleActivity[]
+  pointTransactions      PointTransaction[]
+  rewardAccount          RewardAccount?
 
   @@index([lga])
   @@map("residents")
@@ -168,6 +185,7 @@ model Bill {
   residentId   String     @map("resident_id")
   resident     Resident   @relation(fields: [residentId], references: [id], onDelete: Restrict)
   amountKobo   Int        @map("amount_kobo")
+  discountKobo Int        @default(0) @map("discount_kobo")
   dueDate      DateTime   @map("due_date")
   periodStart  DateTime   @map("period_start")
   periodEnd    DateTime   @map("period_end")
@@ -238,6 +256,54 @@ model EmailOutbox {
   @@index([createdAt])
   @@index([recipient])
   @@map("email_outbox")
+}
+
+model RecycleActivity {
+  id           String                @id @default(uuid())
+  residentId   String                @map("resident_id")
+  resident     Resident              @relation(fields: [residentId], references: [id], onDelete: Cascade)
+  imageUrl     String                @map("image_url")
+  aiReport     Json                  @map("ai_report")
+  pointsEarned Int                   @default(0) @map("points_earned")
+  status       RecycleActivityStatus @default(PENDING) @map("status")
+  confirmedAt  DateTime?             @map("confirmed_at")
+  createdAt    DateTime              @default(now()) @map("created_at")
+  updatedAt    DateTime              @updatedAt @map("updated_at")
+
+  pointTransactions PointTransaction[]
+
+  @@index([residentId])
+  @@index([residentId, status])
+  @@map("recycle_activities")
+}
+
+model RewardAccount {
+  id            String   @id @default(uuid())
+  residentId    String   @unique @map("resident_id")
+  resident      Resident @relation(fields: [residentId], references: [id], onDelete: Cascade)
+  balance       Int      @default(0) @map("balance")
+  totalEarned   Int      @default(0) @map("total_earned")
+  totalRedeemed Int      @default(0) @map("total_redeemed")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@map("reward_accounts")
+}
+
+model PointTransaction {
+  id          String               @id @default(uuid())
+  residentId  String               @map("resident_id")
+  resident    Resident             @relation(fields: [residentId], references: [id], onDelete: Cascade)
+  amount      Int                  @map("amount")
+  type        PointTransactionType @map("type")
+  description String               @map("description")
+  activityId  String?              @map("activity_id")
+  activity    RecycleActivity?     @relation(fields: [activityId], references: [id], onDelete: SetNull)
+  billId      String?              @map("bill_id")
+  createdAt   DateTime             @default(now()) @map("created_at")
+
+  @@index([residentId])
+  @@index([residentId, createdAt])
+  @@map("point_transactions")
 }
 
 model NotificationPreference {

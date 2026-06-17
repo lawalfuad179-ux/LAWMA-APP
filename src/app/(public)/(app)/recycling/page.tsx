@@ -1,6 +1,7 @@
 import { Leaf, Home, Store, Building2, Ban } from 'lucide-react';
 
 import { Card } from '@/components/ui/Card';
+import { RecycleTabs } from '@/components/recycling/RecycleTabs';
 import { RECYCLING_TIPS } from '@/constants';
 import styles from './page.module.css';
 
@@ -13,14 +14,9 @@ const CATEGORY_ICONS: Record<string, React.ReactNode> = {
 
 const categories = [...new Set(RECYCLING_TIPS.map((t) => t.category))];
 
-export default function RecyclingPage() {
+function GuideContent() {
   return (
-    <div className={styles.page}>
-      <div className={styles.header}>
-        <h1 className={styles.title}>Recycling Guide</h1>
-        <p className={styles.subtitle}>Learn how to sort your waste properly</p>
-      </div>
-
+    <div className={styles.guideContent}>
       {categories.map((category) => (
         <div key={category} className={styles.section}>
           <div className={styles.sectionHeader}>
@@ -38,6 +34,19 @@ export default function RecyclingPage() {
           </div>
         </div>
       ))}
+    </div>
+  );
+}
+
+export default function RecyclingPage() {
+  return (
+    <div className={styles.page}>
+      <div className={styles.header}>
+        <h1 className={styles.title}>Recycling</h1>
+        <p className={styles.subtitle}>Learn, scan your waste & earn bill discounts</p>
+      </div>
+
+      <RecycleTabs guideContent={<GuideContent />} />
     </div>
   );
 }

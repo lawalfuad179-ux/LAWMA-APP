@@ -2,52 +2,61 @@
   position: relative;
   width: 76px;
   height: 38px;
-  padding: 3px;
   border: 1px solid var(--color-outline-variant);
   border-radius: 999px;
   background: var(--color-surface-container-low);
-  display: inline-flex;
-  align-items: center;
-  justify-content: space-between;
   cursor: pointer;
-  overflow: hidden;
   transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
   -webkit-tap-highlight-color: transparent;
 }
 
 .themeSwitchThumb {
   position: absolute;
-  top: 3px;
+  top: 50%;
   left: 3px;
   width: 32px;
   height: 32px;
   border-radius: 999px;
   background: var(--color-surface);
   box-shadow: 0 4px 14px hsla(220, 20%, 10%, 0.12);
-  transform: translateX(0);
+  transform: translateY(-50%) translateX(0);
   transition: transform 0.22s ease, background 0.22s ease, box-shadow 0.22s ease;
   z-index: 1;
 }
 
 .themeSwitchOption {
-  position: relative;
+  position: absolute;
+  top: 50%;
   z-index: 2;
   width: 32px;
   height: 32px;
   border-radius: 999px;
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
   transition: color 0.2s ease, opacity 0.2s ease;
+  line-height: 0;
+  transform: translateY(-50%);
 }
 
 .themeSwitchOptionLight {
+  left: 3px;
   color: var(--color-on-surface);
 }
 
 .themeSwitchOptionDark {
+  right: 3px;
   color: var(--color-on-surface-variant);
 }
+
+.themeSwitchOption svg {
+  display: block;
+}
+
+.themeSwitchOptionDark svg {
+  transform: translate(2px, 0);
+}
+
 
 .themeSwitch[data-theme-state='dark'] {
   background: var(--color-surface);
@@ -55,7 +64,7 @@
 }
 
 .themeSwitch[data-theme-state='dark'] .themeSwitchThumb {
-  transform: translateX(38px);
+  transform: translateY(-50%) translateX(38px);
   background: var(--color-surface-container-high);
   box-shadow: none;
 }

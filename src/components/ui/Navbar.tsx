@@ -20,9 +20,11 @@ import {
   Menu,
   X,
 } from 'lucide-react';
+import { AiRecycleIcon } from '@/components/ui/icons/AiRecycleIcon';
 import styles from './Navbar.module.css';
 
-const navItems = [
+// Desktop sidebar nav items (all 5)
+const sidebarItems = [
   { href: '/dashboard', label: 'Home',      Icon: Home },
   { href: '/schedules', label: 'Schedule',  Icon: CalendarDays },
   { href: '/complaints',label: 'Report',    Icon: AlertCircle },
@@ -30,8 +32,18 @@ const navItems = [
   { href: '/recycling', label: 'Recycling', Icon: Leaf },
 ];
 
-const SIDEBAR_W_EXPANDED = '220px';
-const SIDEBAR_W_COLLAPSED = '64px';
+// Mobile bottom nav: 4 items + center AI Recycle button
+const mobileNavLeft  = [
+  { href: '/dashboard', label: 'Home',     Icon: Home },
+  { href: '/schedules', label: 'Schedule', Icon: CalendarDays },
+];
+const mobileNavRight = [
+  { href: '/complaints', label: 'Report',   Icon: AlertCircle },
+  { href: '/payments',   label: 'Payments', Icon: CreditCard },
+];
+
+const SIDEBAR_W_EXPANDED = '280px';
+const SIDEBAR_W_COLLAPSED = '72px';
 
 export function Navbar() {
   const router = useRouter();
@@ -44,6 +56,7 @@ export function Navbar() {
   const [dark, setDark] = useState(false);
   const [profileName, setProfileName] = useState('');
   const [profileAvatar, setProfileAvatar] = useState<string | null>(null);
+  const [profileLocation, setProfileLocation] = useState('');
   const confirmModalRef = useRef<HTMLDivElement>(null);
   const sheetRef = useRef<HTMLDivElement>(null);
 
@@ -54,7 +67,7 @@ export function Navbar() {
       .catch(() => {});
     fetch('/api/profile/me')
       .then((r) => r.json())
-      .then((d) => { if (d.ok) { setProfileName(d.name || ''); setProfileAvatar(d.avatarUrl || null); } })
+      .then((d) => { if (d.ok) { setProfileName(d.name || ''); setProfileAvatar(d.avatarUrl || null); setProfileLocation(d.address || d.lga || ''); } })
       .catch(() => {});
   }, []);
 
@@ -144,26 +157,27 @@ export function Navbar() {
     <>
       {/* ─── Desktop Sidebar ─── */}
       <aside className={`${styles.sidebar} ${collapsed ? styles.sidebarCollapsed : ''}`}>
+        <button
+          className={styles.sidebarToggle}
+          onClick={toggleSidebar}
+          type="button"
+          aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+        >
+          {collapsed
+            ? <ChevronRight size={16} strokeWidth={1.5} />
+            : <ChevronLeft  size={16} strokeWidth={1.5} />}
+        </button>
+
         <div className={styles.sidebarTop}>
           <Link href="/dashboard" className={styles.sidebarBrand}>
-            <Image src="/logo-light.png" alt="LAWMA" width={150} height={28} className={styles.sidebarLogoLight} />
-            <Image src="/logo-dark.png"  alt="LAWMA" width={150} height={28} className={styles.sidebarLogoDark} />
+            <Image src="/logo-light.png" alt="LAWMA" width={150} height={28} className={styles.sidebarLogoLight} style={{ width: 'auto', height: 28 }} />
+            <Image src="/logo-dark.png"  alt="LAWMA" width={150} height={28} className={styles.sidebarLogoDark} style={{ width: 'auto', height: 28 }} />
             <Image src="/favicon.png"    alt=""       width={28}  height={28} className={styles.sidebarFavicon} aria-hidden="true" />
           </Link>
-          <button
-            className={styles.collapseBtn}
-            onClick={toggleSidebar}
-            type="button"
-            aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-          >
-            {collapsed
-              ? <ChevronRight size={16} strokeWidth={1.5} />
-              : <ChevronLeft  size={16} strokeWidth={1.5} />}
-          </button>
         </div>
 
         <nav className={styles.sidebarNav}>
-          {navItems.map(({ href, label, Icon }) => (
+          {sidebarItems.map(({ href, label, Icon }) => (
             <Link
               key={href}
               href={href}
@@ -176,60 +190,22 @@ export function Navbar() {
               <span className={styles.sidebarLinkLabel}>{label}</span>
             </Link>
           ))}
-
-          <div style={{ flex: '0 0 0', height: 0 }} />
-
-          <Link
-            href="/profile"
-            className={`${styles.sidebarLink} ${isActive('/profile') ? styles.sidebarLinkActive : ''}`}
-            title={collapsed ? 'Profile' : undefined}
-          >
-            <span className={styles.sidebarLinkIcon}>
-              {profileAvatar ? (
-                <img src={profileAvatar} alt="" className={styles.sidebarAvatar} />
-              ) : (
-                <span className={styles.sidebarAvatarInitial}>
-                  {profileName ? profileName.charAt(0).toUpperCase() : <User size={18} strokeWidth={1.5} />}
-                </span>
-              )}
-            </span>
-            <span className={styles.sidebarLinkLabel}>Profile</span>
-          </Link>
-          <Link
-            href="/notifications"
-            className={`${styles.sidebarLink} ${isActive('/notifications') ? styles.sidebarLinkActive : ''}`}
-            title={collapsed ? 'Notifications' : undefined}
-          >
-            <span className={styles.sidebarLinkIcon}>
-              <Bell size={20} strokeWidth={1.5} />
-              {unreadCount > 0 && (
-                <span className={styles.sidebarBadge}>{unreadCount > 9 ? '9+' : unreadCount}</span>
-              )}
-            </span>
-            <span className={styles.sidebarLinkLabel}>Notifications</span>
-          </Link>
-          <button
-            className={styles.logoutBtn}
-            onClick={() => setShowConfirm(true)}
-            type="button"
-            title={collapsed ? 'Sign out' : undefined}
-          >
-            <span className={styles.logoutIcon}><LogOut size={20} strokeWidth={1.5} /></span>
-            <span className={styles.logoutLabel}>Sign out</span>
-          </button>
-          <button
-            className={styles.sidebarThemeBtn}
-            onClick={toggleTheme}
-            type="button"
-            title={collapsed ? (dark ? 'Light mode' : 'Dark mode') : undefined}
-            aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'}
-          >
-            <span className={styles.sidebarLinkIcon}>
-              {dark ? <Sun size={20} strokeWidth={1.5} /> : <Moon size={20} strokeWidth={1.5} />}
-            </span>
-            <span className={styles.sidebarLinkLabel}>{dark ? 'Light mode' : 'Dark mode'}</span>
-          </button>
         </nav>
+
+        {/* Sidebar bottom profile */}
+        <Link href="/profile" className={styles.sidebarProfile}>
+          <div className={styles.sidebarProfileAvatar}>
+            {profileAvatar ? (
+              <img src={profileAvatar} alt="" />
+            ) : (
+              <span>{profileName ? profileName.charAt(0).toUpperCase() : <User size={18} strokeWidth={1.5} />}</span>
+            )}
+          </div>
+          <div className={styles.sidebarProfileText}>
+            <div className={styles.sidebarProfileName}>{profileName || 'Resident'}</div>
+            <div className={styles.sidebarProfileLocation}>{profileLocation || 'Lagos'}</div>
+          </div>
+        </Link>
       </aside>
 
       {/* ─── Logout Confirmation Modal ─── */}
@@ -266,8 +242,8 @@ export function Navbar() {
           <Menu size={22} strokeWidth={1.5} />
         </button>
         <Link href="/dashboard" className={styles.mobileTopbarLogo}>
-          <Image src="/logo-light.png" alt="LAWMA" width={90} height={22} className={styles.mobileLogoLight} />
-          <Image src="/logo-dark.png"  alt="LAWMA" width={90} height={22} className={styles.mobileLogoDark} />
+          <Image src="/logo-light.png" alt="LAWMA" width={90} height={22} className={styles.mobileLogoLight} style={{ width: 'auto', height: 22 }} />
+          <Image src="/logo-dark.png"  alt="LAWMA" width={90} height={22} className={styles.mobileLogoDark} style={{ width: 'auto', height: 22 }} />
         </Link>
         <Link href="/notifications" aria-label="Notifications" className={styles.mobileTopbarBell}>
           <Bell size={22} strokeWidth={1.5} />
@@ -279,11 +255,27 @@ export function Navbar() {
 
       {/* ─── Mobile Bottom Nav ─── */}
       <nav className={styles.mobileNav}>
-        {navItems.map(({ href, label, Icon }) => (
+        {mobileNavLeft.map(({ href, label, Icon }) => (
           <Link key={href} href={href} className={`${styles.mobileItem} ${isActive(href) ? styles.mobileItemActive : ''}`}>
-            <span className={styles.mobileIcon}>
-              <Icon size={22} strokeWidth={1.5} />
-            </span>
+            <span className={styles.mobileIcon}><Icon size={22} strokeWidth={1.5} /></span>
+            <span className={styles.mobileLabel}>{label}</span>
+          </Link>
+        ))}
+
+        {/* Center AI Recycle button */}
+        <div className={styles.mobileCenterSlot}>
+          <Link
+            href="/recycling"
+            className={`${styles.mobileCenterBtn} ${isActive('/recycling') ? styles.mobileCenterBtnActive : ''}`}
+            aria-label="Scan & Recycle"
+          >
+            <AiRecycleIcon size={26} color="white" />
+          </Link>
+        </div>
+
+        {mobileNavRight.map(({ href, label, Icon }) => (
+          <Link key={href} href={href} className={`${styles.mobileItem} ${isActive(href) ? styles.mobileItemActive : ''}`}>
+            <span className={styles.mobileIcon}><Icon size={22} strokeWidth={1.5} /></span>
             <span className={styles.mobileLabel}>{label}</span>
           </Link>
         ))}
@@ -311,7 +303,7 @@ export function Navbar() {
                 )}
                 <div className={styles.sheetProfileInfo}>
                   <span className={styles.sheetTitle}>{profileName || 'My Account'}</span>
-                  <span className={styles.sheetProfileSub}>View profile</span>
+                  <span className={styles.sheetProfileSub}>{profileLocation || 'Lagos'}</span>
                 </div>
               </Link>
               <button className={styles.sheetClose} onClick={() => setMenuOpen(false)} type="button" aria-label="Close menu">
