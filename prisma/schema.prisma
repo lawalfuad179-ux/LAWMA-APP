@@ -139,8 +139,8 @@ model CollectionSchedule {
   createdAt     DateTime         @default(now()) @map("created_at")
   updatedAt     DateTime         @updatedAt @map("updated_at")
 
+  @@unique([lga, dayOfWeek])
   @@index([lga])
-  @@index([lga, dayOfWeek])
   @@index([status])
   @@map("collection_schedules")
 }

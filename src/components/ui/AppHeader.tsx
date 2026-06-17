@@ -9,8 +9,8 @@ import styles from './AppHeader.module.css';
 
 const PAGE_TITLES: Record<string, string> = {
   '/dashboard': 'Dashboard',
-  '/schedules': 'Collection Schedule',
-  '/complaints': 'My Reports',
+  '/schedules': 'Schedule',
+  '/complaints': 'Reports',
   '/payments': 'Payments',
   '/recycling': 'Recycling',
   '/profile': 'Profile',

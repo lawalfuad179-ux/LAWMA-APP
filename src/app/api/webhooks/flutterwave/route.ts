@@ -80,6 +80,17 @@ export async function POST(req: NextRequest) {
       });
 
       logger.info('webhook.flutterwave.success', { tx_ref, billId: payment.billId });
+
+      db.notification.create({
+        data: {
+          residentId: payment.residentId,
+          type: 'PAYMENT_CONFIRMATION',
+          title: 'Payment Successful',
+          body: `Your payment of ₦${(payment.amountKobo / 100).toLocaleString('en-NG')} has been confirmed. Your bill is now marked as paid.`,
+          referenceId: payment.id,
+        },
+      }).catch(() => {});
+
       return NextResponse.json({ ok: true, message: 'Payment completed successfully' });
     } catch (dbError: any) {
       if (dbError.code === 'P2002') {

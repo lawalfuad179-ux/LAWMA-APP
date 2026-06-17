@@ -102,6 +102,17 @@ export async function GET(req: NextRequest) {
         });
 
         logger.info('payments.status.verified', { txRef, transactionId, isBulk });
+
+        db.notification.create({
+          data: {
+            residentId: payment.residentId,
+            type: 'PAYMENT_CONFIRMATION',
+            title: 'Payment Successful',
+            body: `Your payment of ₦${(payment.amountKobo / 100).toLocaleString('en-NG')} has been confirmed. Your bill is now marked as paid.`,
+            referenceId: payment.id,
+          },
+        }).catch(() => {});
+
         return NextResponse.json({ status: 'SUCCESSFUL' });
       }
     } catch (fwError) {

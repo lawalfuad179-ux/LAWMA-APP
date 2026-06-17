@@ -92,6 +92,7 @@ export const NOTIFICATION_TYPE_LABELS: Record<string, string> = {
   COMPLAINT_UPDATE: 'Complaint Update',
   PAYMENT_CONFIRMATION: 'Payment Confirmation',
   ANNOUNCEMENT: 'LAWMA Announcement',
+  RECYCLING_REWARD: 'Recycling Reward',
 };
 
 export const RECYCLING_TIPS = [

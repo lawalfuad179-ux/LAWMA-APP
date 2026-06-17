@@ -8,12 +8,6 @@ import { Badge } from '@/components/ui/Badge';
 import { DAYS_OF_WEEK, COLLECTION_STATUS_LABELS } from '@/constants';
 import styles from './page.module.css';
 
-type ScheduleWithOperator = {
-  id: string; lga: string; dayOfWeek: number; windowStart: string; windowEnd: string;
-  status: string; delayReason: string | null; pspOperatorId: string; createdAt: Date;
-  pspOperator: { id: string; name: string; contactPhone: string | null; email: string | null; zone: string; lga: string; createdAt: Date; };
-};
-
 export default async function SchedulesPage() {
   const session = await getSession();
   if (!session) redirect('/login');
@@ -21,18 +15,26 @@ export default async function SchedulesPage() {
   const resident = await db.resident.findUnique({ where: { id: session.residentId } });
   if (!resident) redirect('/login');
 
-  const schedules: ScheduleWithOperator[] = await db.collectionSchedule.findMany({
-    include: { pspOperator: true },
-    orderBy: { dayOfWeek: 'asc' },
+  const rawSchedules = resident.lga
+    ? await db.collectionSchedule.findMany({
+        where: { lga: resident.lga },
+        include: { pspOperator: true },
+        orderBy: { dayOfWeek: 'asc' },
+      })
+    : [];
+
+  // Deduplicate: one entry per dayOfWeek — keeps the first (earliest created) per day
+  const seen = new Set<number>();
+  const schedules = rawSchedules.filter((s) => {
+    if (seen.has(s.dayOfWeek)) return false;
+    seen.add(s.dayOfWeek);
+    return true;
   });
 
   const today = new Date().getDay();
-  const mySchedules = resident.lga ? schedules.filter((s) => s.lga === resident.lga) : schedules;
-  const displaySchedules = mySchedules.length > 0 ? mySchedules : schedules;
-  const todaySchedules = displaySchedules.filter((s) => s.dayOfWeek === today);
+  const todaySchedules = schedules.filter((s) => s.dayOfWeek === today);
 
-  // Only future days (strictly after today)
-  const upcomingSchedules = displaySchedules
+  const upcomingSchedules = schedules
     .filter((s) => s.dayOfWeek > today)
     .sort((a, b) => a.dayOfWeek - b.dayOfWeek);
 
@@ -41,11 +43,11 @@ export default async function SchedulesPage() {
   return (
     <div className={styles.page}>
       <div>
-        <h1 className={styles.title}>Collection Schedule</h1>
+        <h1 className={styles.title}>Schedule</h1>
         {resident.lga && <p className={styles.subtitle}>{resident.lga} · Lagos</p>}
       </div>
 
-      {displaySchedules.length === 0 ? (
+      {schedules.length === 0 ? (
         <div className={styles.emptyState}>
           <div className={styles.emptyIllustration}>
             <div className={styles.emptyBlob1} />

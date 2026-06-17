@@ -20,7 +20,7 @@ export function ComplaintsPageClient({ complaints }: Props) {
   return (
     <>
       <div className={styles.header}>
-        <h1 className={styles.title}>My Reports</h1>
+        <h1 className={styles.title}>Reports</h1>
         <button className={styles.newReportBtn} onClick={() => setShowModal(true)} type="button">
           <Plus size={20} strokeWidth={2.5} />
           File a report

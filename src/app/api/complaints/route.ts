@@ -72,6 +72,17 @@ export async function POST(req: NextRequest) {
 
     logger.info('complaint.created', { complaintId: complaint.id, issueType, lga: resident?.lga });
 
+    // In-app notification — fire and forget, never block the response
+    db.notification.create({
+      data: {
+        residentId: session.residentId,
+        type: 'COMPLAINT_UPDATE',
+        title: 'Complaint Submitted',
+        body: `Your complaint (${ticketId}) has been received and is under review. You'll be notified as it progresses.`,
+        referenceId: complaint.id,
+      },
+    }).catch(() => {});
+
     return NextResponse.json<Success>({ ok: true, data: { id: complaint.id } }, { status: 201 });
   } catch (error) {
     logger.error('complaints.create.failed', { error: String(error) });

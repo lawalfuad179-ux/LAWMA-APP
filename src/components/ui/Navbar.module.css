@@ -168,6 +168,18 @@
   justify-content: center;
 }
 
+.mobileCenterSlotActive::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 20px;
+  height: 3px;
+  border-radius: 3px 3px 0 0;
+  background: var(--color-primary);
+}
+
 .mobileCenterBtn {
   position: absolute;
   left: 50%;

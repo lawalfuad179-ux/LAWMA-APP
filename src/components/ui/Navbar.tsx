@@ -286,7 +286,7 @@ export function Navbar() {
         ))}
 
         {/* Center AI Recycle button */}
-        <div className={styles.mobileCenterSlot}>
+        <div className={`${styles.mobileCenterSlot} ${isActive('/recycling') ? styles.mobileCenterSlotActive : ''}`}>
           <Link
             href="/recycling"
             className={`${styles.mobileCenterBtn} ${isActive('/recycling') ? styles.mobileCenterBtnActive : ''}`}

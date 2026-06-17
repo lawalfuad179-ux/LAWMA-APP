@@ -28,6 +28,10 @@ const PSP_OPERATORS = [
 async function main() {
   console.log('Seeding database...');
 
+  // Clear existing data so re-runs stay clean
+  await prisma.collectionSchedule.deleteMany();
+  await prisma.pspOperator.deleteMany();
+
   // Create PSP operators
   for (const op of PSP_OPERATORS) {
     for (const lga of op.lgas) {
@@ -94,9 +98,63 @@ async function main() {
     },
   });
 
+  // ── Notifications ──────────────────────────────────────────────
+  await prisma.notification.deleteMany({ where: { residentId: resident.id } });
+
+  const notificationTemplates: Array<{ title: string; body: string; type: string }> = [
+    {
+      title: 'Collection Reminder',
+      body: 'Your waste collection is scheduled for tomorrow, Friday. Please place your bins outside by 8:00 AM.',
+      type: 'COLLECTION_REMINDER',
+    },
+    {
+      title: 'Delayed Pickup',
+      body: 'Your scheduled pickup in Surulere has been delayed due to traffic. Our team will arrive within 3 hours.',
+      type: 'DELAYED_PICKUP',
+    },
+    {
+      title: 'Complaint Update',
+      body: 'Your complaint #LW-202606-A3X9 has been reviewed and assigned to a field officer.',
+      type: 'COMPLAINT_UPDATE',
+    },
+    {
+      title: 'Payment Confirmed',
+      body: 'Your waste bill payment of ₦5,000 for June 2026 has been confirmed. Thank you!',
+      type: 'PAYMENT_CONFIRMATION',
+    },
+    {
+      title: 'Announcement',
+      body: 'LAWMA will be conducting a city-wide sanitation exercise on Saturday, June 27. Please cooperate with field officers.',
+      type: 'ANNOUNCEMENT',
+    },
+    {
+      title: 'Recycling Reward',
+      body: 'Congratulations! You earned 50 points for recycling 3 plastic bottles. Keep up the great work!',
+      type: 'RECYCLING_REWARD',
+    },
+  ];
+
+  // Create notifications over the past 6 days — one per type, newest first
+  for (let i = 0; i < notificationTemplates.length; i++) {
+    const createdAt = new Date(now);
+    createdAt.setDate(createdAt.getDate() - i);
+
+    await prisma.notification.create({
+      data: {
+        residentId: resident.id,
+        title: notificationTemplates[i].title,
+        body: notificationTemplates[i].body,
+        type: notificationTemplates[i].type as any,
+        isRead: i >= 3, // first 3 (newest) unread, rest read
+        createdAt,
+      },
+    });
+  }
+
   console.log('Seed complete!');
   console.log(`Created ${PSP_OPERATORS.length} PSP operators with collection schedules.`);
   console.log(`Created test resident "${resident.name}" (${resident.phoneNumber}) with 1 overdue bill.`);
+  console.log(`Created ${notificationTemplates.length} notifications (3 unread, 3 read).`);
 }
 
 main()
