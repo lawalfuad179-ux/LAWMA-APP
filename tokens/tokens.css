@@ -51,6 +51,7 @@
   --color-on-status-error-container: hsl(0, 60%, 28%);
 }
 
+:root {
   /* Warm surfaces */
   --color-surface-warm: #fcfbf8;
 

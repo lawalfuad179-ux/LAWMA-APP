@@ -71,10 +71,18 @@
   font-size: var(--title-small-font-size);
   font-weight: 600;
   color: var(--color-on-surface);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .cardDesc {
   font-size: var(--body-medium-font-size);
   color: var(--color-on-surface-variant);
   line-height: var(--body-medium-line-height);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }

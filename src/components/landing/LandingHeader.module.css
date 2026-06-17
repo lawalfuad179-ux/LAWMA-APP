@@ -38,39 +38,42 @@
 :global(html[data-theme="dark"]) .logoDark  { display: block; }
 
 .nav {
-  display: none;
+  display: flex;
   align-items: center;
   gap: 8px;
 }
 
-@media (min-width: 768px) {
-  .nav {
-    display: flex;
-  }
-}
-
 .btnGhost {
-  display: inline-flex;
+  display: none;
   align-items: center;
-  border: 1.5px solid var(--color-outline-variant);
-  color: var(--color-on-surface);
+  justify-content: center;
+  border: 1.5px solid var(--color-primary);
+  color: var(--color-primary);
   background: transparent;
   border-radius: 8px;
   padding: 8px 20px;
-  font-size: var(--label-large-font-size);
-  font-weight: 600;
+  width: 120px;
+  font-size: var(--body-medium-font-size);
+  font-weight: 500;
   text-decoration: none;
   white-space: nowrap;
   transition: background 0.15s;
 }
 
+@media (min-width: 768px) {
+  .btnGhost {
+    display: inline-flex;
+  }
+}
+
 .btnGhost:hover {
-  background: var(--color-surface-container-low);
+  background: var(--color-surface-container-high);
 }
 
 .btnPrimary {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   background: var(--color-primary);
   color: var(--color-on-primary);
   border: none;

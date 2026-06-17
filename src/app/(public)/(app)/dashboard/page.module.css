@@ -160,6 +160,9 @@
   font-size: var(--title-medium-font-size);
   font-weight: 600;
   color: var(--color-on-surface);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .location {
@@ -381,11 +384,18 @@
   font-weight: 600;
   color: var(--color-on-surface);
   text-transform: capitalize;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .complaintAddress {
   font-size: var(--body-small-font-size);
   color: var(--color-on-surface-variant);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 /* ─── Recycling Tip ─── */
@@ -412,10 +422,18 @@
   font-size: var(--body-medium-font-size);
   font-weight: 700;
   color: var(--color-on-surface);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .tipDesc {
   font-size: var(--body-small-font-size);
   color: var(--color-text-description);
   line-height: var(--body-small-line-height);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }

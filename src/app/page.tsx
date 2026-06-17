@@ -22,21 +22,22 @@ export default function LandingPage() {
 
   return (
     <>
-      <LandingHeader />
       <main className={styles.page}>
 
         {/* ─── 1. Hero ─── */}
         <section className={styles.heroSection}>
           <div className={styles.heroInner}>
-            <div className={`${styles.heroText} ${animIn ? styles.heroTextVisible : ''}`}>
-              <div className={styles.govBadge}>Lagos State Government</div>
-              <h1 className={styles.heroHeadline}>
-                Manage your waste, stay in control.
-              </h1>
-              <p className={styles.heroCopy}>
-                Track waste collection, report sanitation issues, pay bills, and receive
-                LAWMA updates from one simple app.
-              </p>
+            <div className={styles.heroContent}>
+              <div className={`${styles.heroText} ${animIn ? styles.heroTextVisible : ''}`}>
+                <img src="/assets/landing/photos/lagos-state-government.png" alt="Lagos State Government" className={styles.govBadge} />
+                <h1 className={styles.heroHeadline}>
+                  Manage your waste,<br />stay in control.
+                </h1>
+                <p className={styles.heroCopy}>
+                  Track waste collection, report sanitation issues, pay bills, and receive
+                  LAWMA updates from one simple app.
+                </p>
+              </div>
               <div className={styles.heroActions}>
                 <button className={styles.primaryCta} onClick={() => router.push('/login')} type="button">
                   Get started
@@ -45,18 +46,12 @@ export default function LandingPage() {
                   I already have an account
                 </button>
               </div>
+              <div
+                className={`${styles.phoneMockup} ${animIn ? styles.heroVisualVisible : ''}`}
+                role="img"
+                aria-label="LAWMA app dashboard preview on mobile"
+              />
             </div>
-              <div className={`${styles.heroVisual} ${animIn ? styles.heroVisualVisible : ''}`}>
-                <div className={styles.phoneMockup}>
-                  <Image
-                    src="/assets/landing/photos/Hero Section phone mockup.png"
-                    alt="LAWMA app on mobile"
-                    fill
-                    style={{ objectFit: 'cover' }}
-                    priority
-                  />
-                </div>
-              </div>
           </div>
         </section>
 
@@ -104,12 +99,13 @@ export default function LandingPage() {
           <div className={styles.sectionInner}>
             <div className={styles.trustGrid}>
               <div className={styles.trustImgWrap}>
-                <Image
-                  src="/assets/landing/photos/LAWMA trucks.png"
-                  alt="LAWMA waste collection trucks"
-                  fill
-                  style={{ objectFit: 'cover' }}
-                />
+                  <Image
+                    src="/assets/landing/photos/LAWMA trucks.png"
+                    alt="LAWMA waste collection trucks"
+                    fill
+                    sizes="(max-width: 768px) 100vw, 520px"
+                    style={{ objectFit: 'cover' }}
+                  />
               </div>
               <div className={styles.trustContent}>
                 <h2 className={styles.sectionHeading}>Built for Lagos residents.</h2>

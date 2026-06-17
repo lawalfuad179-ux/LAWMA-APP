@@ -13,8 +13,8 @@
 /* ─────────── 1. Hero ─────────── */
 
 .heroSection {
-  background: var(--color-surface-warm);
-  padding: 96px 0;
+  background: color-mix(in srgb, var(--color-primary) 4%, var(--color-surface));
+  padding: 80px 0 64px;
 }
 
 .heroInner {
@@ -25,7 +25,13 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 48px;
+}
+
+.heroContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
 }
 
 .heroText {
@@ -33,8 +39,8 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 16px;
-  max-width: 560px;
+  gap: 14px;
+  max-width: 700px;
   opacity: 0;
   transform: translateY(20px);
   transition: opacity 0.8s ease, transform 0.8s ease;
@@ -46,27 +52,33 @@
 }
 
 .govBadge {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--color-on-surface-variant);
-  text-transform: uppercase;
-  letter-spacing: 2.5px;
+  height: 100px;
+  width: auto;
+  display: block;
 }
 
 .heroHeadline {
-  font-size: var(--display-medium-font-size);
+  font-size: var(--display-large-font-size);
   font-weight: 800;
   color: var(--color-on-surface);
-  line-height: 1.1;
+  line-height: 1.3;
   letter-spacing: -1.5px;
   margin: 0;
+}
+
+@media (max-width: 639px) {
+  .heroHeadline {
+    font-size: var(--display-small-font-size);
+    line-height: 1.3;
+  }
 }
 
 .heroCopy {
   font-size: var(--text-18);
   color: var(--color-on-surface-variant);
   line-height: var(--body-large-line-height);
-  margin: 0;
+  margin: 10px 0 0;
+  max-width: 620px;
 }
 
 .heroActions {
@@ -75,7 +87,8 @@
   flex-wrap: wrap;
   justify-content: center;
   gap: 14px;
-  margin-top: 8px;
+  margin-top: 24px;
+  margin-bottom: 40px;
 }
 
 .primaryCta {
@@ -83,6 +96,7 @@
   align-items: center;
   justify-content: center;
   width: 240px;
+  min-height: 52px;
   padding: 14px 28px;
   background: var(--color-primary);
   color: var(--color-on-primary);
@@ -109,12 +123,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 250px;
+  width: 240px;
+  min-height: 52px;
   padding: 14px 32px;
   background: none;
   border: 1px solid var(--color-primary);
   border-radius: 10px;
-  color: var(--color-on-surface);
+  color: var(--color-primary);
   font-size: var(--body-medium-font-size);
   font-weight: 500;
   cursor: pointer;
@@ -126,10 +141,31 @@
   background: var(--color-surface-container-high);
 }
 
-.heroVisual {
+@media (min-width: 640px) {
+  .heroActions {
+    flex-direction: row;
+    justify-content: center;
+  }
+
+  .primaryCta,
+  .secondaryCta {
+    width: 240px;
+    flex: unset;
+  }
+}
+
+.phoneMockup {
+  width: 320px;
+  height: 420px;
+  flex-shrink: 0;
+  background: url('/assets/landing/photos/hero-image.png') no-repeat center / contain;
   opacity: 0;
   transform: translateY(20px);
-  transition: opacity 0.8s ease 0.2s, transform 0.8s ease 0.2s;
+  transition: opacity 0.8s ease 0.2s, transform 0.8s ease 0.2s, background-size 0.3s ease;
+}
+
+.phoneMockup:hover {
+  transform: scale(1.03);
 }
 
 .heroVisualVisible {
@@ -137,24 +173,13 @@
   transform: translateY(0);
 }
 
-.phoneMockup {
-  width: 320px;
-  height: 560px;
-  border-radius: 24px;
-  overflow: hidden;
-  position: relative;
-  flex-shrink: 0;
-}
+
 
 /* ─────────── 2. Status Flow ─────────── */
 
 .statusSection {
   padding: 80px 0;
-  background: var(--color-surface-warm);
-}
-
-.statusSub {
-  font-size: var(--text-18);
+  background: var(--color-background);
 }
 
 .sectionHeading {
@@ -164,21 +189,22 @@
   line-height: var(--headline-small-line-height);
   letter-spacing: -0.5px;
   margin: 0;
+  text-align: center;
 }
 
 .statusSub {
-  font-size: var(--body-large-font-size);
+  font-size: var(--text-18);
   color: var(--color-on-surface-variant);
   line-height: var(--body-large-line-height);
   max-width: 560px;
-  margin: 12px 0 0;
+  margin: 20px auto 0;
+  text-align: center;
 }
 
 .statusFlow {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 0;
   width: fit-content;
   margin: 40px auto 0;
 }
@@ -188,15 +214,12 @@
   flex-direction: row;
   align-items: center;
   gap: 14px;
-  padding: 16px 0;
+  padding: 14px 0;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.statusConnector {
-  display: block;
-  width: 2px;
-  height: 20px;
-  background: var(--color-report-connector);
-  margin-left: 23px;
+.statusStep:hover {
+  transform: scale(1.03);
 }
 
 .statusIcon {
@@ -217,59 +240,76 @@
 }
 
 .statusLabel {
-  font-size: var(--body-medium-font-size);
+  font-size: 14px;
   color: var(--color-on-surface);
   font-weight: 500;
+  letter-spacing: 0;
 }
 
 .statusLabelActive {
   color: var(--color-primary);
 }
 
+.statusConnector {
+  display: block;
+  width: 0;
+  height: 24px;
+  border-left: 3px dotted var(--color-primary);
+  background: transparent;
+  margin-left: 23px;
+}
+
 @media (min-width: 640px) {
   .statusFlow {
     position: relative;
-    height: 86px;
-    min-width: 590px;
-    flex-direction: unset;
-    align-items: unset;
-    gap: 0;
+    width: 620px;
+    height: 88px;
+    display: block;
+    margin: 40px auto 0;
   }
 
   .statusStep {
     position: absolute;
     top: 0;
+    width: 96px;
+    display: flex;
     flex-direction: column;
     align-items: center;
-    text-align: center;
+    gap: 12px;
     padding: 0;
-    gap: 10px;
+    text-align: center;
   }
 
   .statusStep:nth-child(1) { left: 0; }
-  .statusStep:nth-child(3) { left: 170px; }
-  .statusStep:nth-child(5) { left: 334px; }
-  .statusStep:nth-child(7) { left: 497px; }
+  .statusStep:nth-child(3) { left: 175px; }
+  .statusStep:nth-child(5) { left: 350px; }
+  .statusStep:nth-child(7) { left: 525px; }
 
   .statusConnector {
     position: absolute;
     top: 24px;
-    width: 60px;
-    height: 2px;
-    background: var(--color-report-connector);
+    height: 0;
+    width: 80px;
     margin: 0;
+    border-top: 3px dotted var(--color-primary);
+    background: transparent;
   }
 
-  .statusConnector:nth-child(2) { left: 56px; }
-  .statusConnector:nth-child(4) { left: 226px; }
-  .statusConnector:nth-child(6) { left: 390px; }
+  .statusConnector:nth-child(2) { left: 96px; }
+  .statusConnector:nth-child(4) { left: 271px; }
+  .statusConnector:nth-child(6) { left: 446px; }
+
+  .statusLabel {
+    font-size: 14px;
+  line-height: 1.3;
+  }
 }
 
 /* ─────────── 3. Built for Lagos ─────────── */
 
 .trustSection {
   padding: 80px 0;
-  background: var(--color-surface-warm);
+  background: color-mix(in srgb, var(--color-primary) 4%, var(--color-surface));
 }
 
 .trustGrid {
@@ -297,7 +337,12 @@
 .trustContent {
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
   gap: 24px;
+}
+
+.trustContent .sectionHeading {
+  text-align: left;
 }
 
 .trustList {
@@ -338,9 +383,15 @@
   flex-direction: column;
   gap: 10px;
   padding: 32px 28px;
-  background: var(--color-surface-warm);
+  background: color-mix(in srgb, var(--color-primary) 2%, var(--color-surface));
   border: 1px solid var(--color-outline-variant);
   border-radius: 16px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.step:hover {
+  transform: scale(1.03);
+  box-shadow: 0 8px 24px hsla(0, 0%, 0%, 0.08);
 }
 
 .stepNumber {
@@ -387,7 +438,7 @@
   font-size: var(--display-small-font-size);
   font-weight: 700;
   color: var(--color-inverse-on-surface);
-  line-height: var(--headline-small-line-height);
+  line-height: calc(var(--display-small-font-size) * 1.5);
   letter-spacing: -0.5px;
   margin: 0;
 }
@@ -433,7 +484,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 250px;
+  width: 240px;
   padding: 14px 32px;
   background: none;
   border: 1px solid var(--color-primary);
@@ -453,46 +504,6 @@
 /* ─────────── Responsive: Tablet (>= 640px) ─────────── */
 
 @media (min-width: 640px) {
-  .heroHeadline {
-    font-size: 44px;
-    letter-spacing: -2px;
-  }
-
-  .heroActions {
-    flex-direction: row;
-    justify-content: center;
-  }
-
-  .primaryCta,
-  .secondaryCta {
-    width: auto;
-    min-width: 200px;
-  }
-
-  .statusFlow {
-    flex-direction: row;
-    align-items: center;
-    gap: 0;
-  }
-
-  .statusStep {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    padding: 0;
-    flex: 0 0 auto;
-  }
-
-  .statusConnector {
-    flex: 1;
-    width: auto;
-    height: 2px;
-    margin: 0;
-    margin-bottom: 20px;
-    align-self: flex-start;
-    margin-top: 22px;
-  }
-
   .trustGrid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -509,48 +520,11 @@
     grid-template-columns: repeat(3, 1fr);
     gap: 32px;
   }
-
-  .ctaActions {
-    flex-direction: row;
-    justify-content: center;
-  }
-
-
 }
 
 /* ─────────── Responsive: Desktop (>= 1024px) ─────────── */
 
 @media (min-width: 1024px) {
-  .heroSection {
-    padding: 80px 0;
-  }
-
-  .heroInner {
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    gap: 80px;
-  }
-
-  .heroText {
-    align-items: flex-start;
-    text-align: left;
-    max-width: 520px;
-  }
-
-  .heroHeadline {
-    font-size: 52px;
-    letter-spacing: -2.5px;
-  }
-
-  .heroActions {
-    justify-content: flex-start;
-  }
-
-  .heroImg {
-    max-width: 360px;
-  }
-
   .sectionHeading {
     font-size: var(--display-small-font-size);
     letter-spacing: -1.2px;
