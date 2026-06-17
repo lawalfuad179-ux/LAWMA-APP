@@ -255,15 +255,27 @@ export function Navbar() {
         </div>
       )}
 
-      {/* ─── Mobile Hamburger (top-left) ─── */}
-      <button
-        className={styles.hamburgerBtn}
-        onClick={() => setMenuOpen(true)}
-        type="button"
-        aria-label="Open menu"
-      >
-        <Menu size={22} strokeWidth={1.5} />
-      </button>
+      {/* ─── Mobile Topbar (fixed, full-width) ─── */}
+      <header className={styles.mobileTopbar}>
+        <button
+          className={styles.mobileHamburger}
+          onClick={() => setMenuOpen(true)}
+          type="button"
+          aria-label="Open menu"
+        >
+          <Menu size={22} strokeWidth={1.5} />
+        </button>
+        <Link href="/dashboard" className={styles.mobileTopbarLogo}>
+          <Image src="/logo-light.png" alt="LAWMA" width={90} height={22} className={styles.mobileLogoLight} />
+          <Image src="/logo-dark.png"  alt="LAWMA" width={90} height={22} className={styles.mobileLogoDark} />
+        </Link>
+        <Link href="/notifications" aria-label="Notifications" className={styles.mobileTopbarBell}>
+          <Bell size={22} strokeWidth={1.5} />
+          {unreadCount > 0 && (
+            <span className={styles.mobileTopbarBadge}>{unreadCount > 9 ? '9+' : unreadCount}</span>
+          )}
+        </Link>
+      </header>
 
       {/* ─── Mobile Bottom Nav ─── */}
       <nav className={styles.mobileNav}>

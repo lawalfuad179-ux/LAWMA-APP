@@ -10,32 +10,11 @@
   padding: 0 24px;
 }
 
-.sectionHeading {
-  font-size: var(--headline-small-font-size);
-  font-weight: 700;
-  color: var(--color-on-surface);
-  line-height: var(--headline-small-line-height);
-  letter-spacing: -0.5px;
-}
-
 /* ─────────── 1. Hero ─────────── */
-.heroSection {
-  min-height: 100dvh;
-  display: flex;
-  align-items: center;
-  background: var(--color-background);
-  position: relative;
-  overflow: hidden;
-  padding: 100px 0 60px;
-}
 
-.heroSection::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: var(--color-primary-container);
-  opacity: 0.08;
-  pointer-events: none;
+.heroSection {
+  background: var(--color-surface-warm);
+  padding: 96px 0;
 }
 
 .heroInner {
@@ -47,7 +26,6 @@
   flex-direction: column;
   align-items: center;
   gap: 48px;
-  position: relative;
 }
 
 .heroText {
@@ -56,7 +34,7 @@
   align-items: center;
   text-align: center;
   gap: 16px;
-  max-width: 520px;
+  max-width: 560px;
   opacity: 0;
   transform: translateY(20px);
   transition: opacity 0.8s ease, transform 0.8s ease;
@@ -76,24 +54,27 @@
 }
 
 .heroHeadline {
-  font-size: 36px;
+  font-size: var(--display-medium-font-size);
   font-weight: 800;
   color: var(--color-on-surface);
-  line-height: 1.12;
+  line-height: 1.1;
   letter-spacing: -1.5px;
+  margin: 0;
 }
 
 .heroCopy {
-  font-size: var(--body-large-font-size);
+  font-size: var(--text-18);
   color: var(--color-on-surface-variant);
   line-height: var(--body-large-line-height);
+  margin: 0;
 }
 
 .heroActions {
   display: flex;
-  flex-direction: column;
-  gap: 12px;
-  width: 100%;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 14px;
   margin-top: 8px;
 }
 
@@ -101,13 +82,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
-  min-height: 52px;
-  padding: 16px 32px;
+  width: 240px;
+  padding: 14px 28px;
   background: var(--color-primary);
   color: var(--color-on-primary);
   border: none;
-  border-radius: 14px;
+  border-radius: 10px;
   font-size: var(--title-small-font-size);
   font-weight: 600;
   cursor: pointer;
@@ -129,12 +109,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
-  min-height: 44px;
-  padding: 12px;
+  width: 250px;
+  padding: 14px 32px;
   background: none;
-  border: 1px solid var(--color-outline-variant);
-  border-radius: 12px;
+  border: 1px solid var(--color-primary);
+  border-radius: 10px;
   color: var(--color-on-surface);
   font-size: var(--body-medium-font-size);
   font-weight: 500;
@@ -147,7 +126,6 @@
   background: var(--color-surface-container-high);
 }
 
-/* ─── Phone Mockup ─── */
 .heroVisual {
   opacity: 0;
   transform: translateY(20px);
@@ -159,62 +137,161 @@
   transform: translateY(0);
 }
 
-.phoneFrame {
-  width: 240px;
-  height: 480px;
-  background: var(--color-surface);
-  border: 3px solid var(--color-outline-variant);
-  border-radius: 32px;
-  position: relative;
+.phoneMockup {
+  width: 320px;
+  height: 560px;
+  border-radius: 24px;
   overflow: hidden;
-  box-shadow: 0 24px 48px hsla(0, 0%, 0%, 0.12);
+  position: relative;
+  flex-shrink: 0;
 }
 
-.phoneNotch {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 80px;
+/* ─────────── 2. Status Flow ─────────── */
+
+.statusSection {
+  padding: 80px 0;
+  background: var(--color-surface-warm);
+}
+
+.statusSub {
+  font-size: var(--text-18);
+}
+
+.sectionHeading {
+  font-size: var(--headline-small-font-size);
+  font-weight: 700;
+  color: var(--color-on-surface);
+  line-height: var(--headline-small-line-height);
+  letter-spacing: -0.5px;
+  margin: 0;
+}
+
+.statusSub {
+  font-size: var(--body-large-font-size);
+  color: var(--color-on-surface-variant);
+  line-height: var(--body-large-line-height);
+  max-width: 560px;
+  margin: 12px 0 0;
+}
+
+.statusFlow {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
+  width: fit-content;
+  margin: 40px auto 0;
+}
+
+.statusStep {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 0;
+}
+
+.statusConnector {
+  display: block;
+  width: 2px;
   height: 20px;
-  background: var(--color-outline-variant);
-  border-radius: 0 0 12px 12px;
-  z-index: 2;
+  background: var(--color-report-connector);
+  margin-left: 23px;
 }
 
-.phoneScreenImg {
-  position: absolute;
-  inset: 0;
+.statusIcon {
+  width: 48px;
+  height: 48px;
+  border-radius: 999px;
+  background: var(--color-report-icon-bg);
+  color: var(--color-report-icon-line);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
-/* ─────────── 2. Trust Section ─────────── */
+.statusIconActive {
+  background: var(--color-report-icon-bg-active);
+  color: var(--color-report-icon-line-active);
+}
+
+.statusLabel {
+  font-size: var(--body-medium-font-size);
+  color: var(--color-on-surface);
+  font-weight: 500;
+}
+
+.statusLabelActive {
+  color: var(--color-primary);
+}
+
+@media (min-width: 640px) {
+  .statusFlow {
+    position: relative;
+    height: 86px;
+    min-width: 590px;
+    flex-direction: unset;
+    align-items: unset;
+    gap: 0;
+  }
+
+  .statusStep {
+    position: absolute;
+    top: 0;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 0;
+    gap: 10px;
+  }
+
+  .statusStep:nth-child(1) { left: 0; }
+  .statusStep:nth-child(3) { left: 170px; }
+  .statusStep:nth-child(5) { left: 334px; }
+  .statusStep:nth-child(7) { left: 497px; }
+
+  .statusConnector {
+    position: absolute;
+    top: 24px;
+    width: 60px;
+    height: 2px;
+    background: var(--color-report-connector);
+    margin: 0;
+  }
+
+  .statusConnector:nth-child(2) { left: 56px; }
+  .statusConnector:nth-child(4) { left: 226px; }
+  .statusConnector:nth-child(6) { left: 390px; }
+}
+
+/* ─────────── 3. Built for Lagos ─────────── */
+
 .trustSection {
   padding: 80px 0;
-  background: var(--color-surface-container-low);
+  background: var(--color-surface-warm);
 }
 
 .trustGrid {
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: 40px;
 }
 
 .trustImgWrap {
-  position: relative;
   width: 100%;
-  height: 220px;
+  aspect-ratio: 520 / 420;
+  position: relative;
   border-radius: 16px;
   overflow: hidden;
-  border: 1px solid var(--color-outline-variant);
 }
 
-.trustImgWrap2 {
-  position: relative;
-  width: 100%;
-  height: 180px;
-  border-radius: 16px;
-  overflow: hidden;
-  border: 1px solid var(--color-outline-variant);
+@media (min-width: 768px) {
+  .trustImgWrap {
+    width: 520px;
+    height: 420px;
+    flex-shrink: 0;
+  }
 }
 
 .trustContent {
@@ -228,353 +305,237 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+  padding: 0;
+  margin: 0;
 }
 
 .trustItem {
   display: flex;
   align-items: center;
   gap: 12px;
-  font-size: var(--body-large-font-size);
+  font-size: var(--text-15);
   color: var(--color-on-surface);
   font-weight: 500;
   line-height: var(--body-large-line-height);
 }
 
-/* ─── Image wrappers for feature showcase & confidence ─── */
-.mockupImgWrap {
-  position: relative;
-  width: 100%;
-  height: 200px;
-  border-radius: 14px;
-  overflow: hidden;
-  border: 1px solid var(--color-outline-variant);
-  box-shadow: 0 4px 16px hsla(0, 0%, 0%, 0.06);
-}
-
-.showcasePhotoWrap {
-  position: relative;
-  width: 100%;
-  height: 200px;
-  border-radius: 14px;
-  overflow: hidden;
-  border: 1px solid var(--color-outline-variant);
-}
-
-/* ─────────── 3. Feature Showcase ─────────── */
-.featuresSection {
-  padding: 80px 0;
-  background: var(--color-background);
-}
-
-.showcaseGrid {
-  display: flex;
-  flex-direction: column;
-  gap: 48px;
-  margin-top: 40px;
-}
-
-.showcaseBlock {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.showcaseText {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.showcaseTitle {
-  font-size: var(--title-medium-font-size);
-  font-weight: 600;
-  color: var(--color-on-surface);
-  line-height: var(--title-medium-line-height);
-}
-
-.showcaseDesc {
-  font-size: var(--body-medium-font-size);
-  color: var(--color-on-surface-variant);
-  line-height: var(--body-medium-line-height);
-}
-
-.showcasePhoto {
-  width: 100%;
-  height: 200px;
-}
-
 /* ─────────── 4. How It Works ─────────── */
+
 .howSection {
   padding: 80px 0;
-  background: var(--color-surface-container-low);
+  background: var(--color-background);
 }
 
 .stepsGrid {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 16px;
   margin-top: 40px;
 }
 
 .step {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 24px;
-  background: var(--color-surface);
+  gap: 10px;
+  padding: 32px 28px;
+  background: var(--color-surface-warm);
   border: 1px solid var(--color-outline-variant);
-  border-radius: 14px;
+  border-radius: 16px;
 }
 
 .stepNumber {
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--color-primary-container);
-  color: var(--color-primary);
-  font-size: var(--title-small-font-size);
+  font-size: var(--headline-medium-font-size);
   font-weight: 700;
-  border-radius: 8px;
+  color: var(--color-primary);
+  line-height: 1;
 }
 
 .stepTitle {
-  font-size: var(--title-small-font-size);
+  font-size: var(--title-medium-font-size);
   font-weight: 600;
   color: var(--color-on-surface);
   line-height: var(--title-small-line-height);
+  margin: 0;
 }
 
 .stepDesc {
-  font-size: var(--body-medium-font-size);
+  font-size: var(--text-15);
   color: var(--color-on-surface-variant);
   line-height: var(--body-medium-line-height);
+  margin: 0;
 }
 
-.stepArrow {
-  display: none;
-  align-items: center;
-  justify-content: center;
-  padding: 4px 0;
-}
+/* ─────────── 5. CTA Footer ─────────── */
 
-/* ─────────── 5. Reporting Confidence ─────────── */
-.confidenceSection {
-  padding: 80px 0;
-  background: var(--color-background);
-}
-
-.confidenceGrid {
-  display: flex;
-  flex-direction: column;
-  gap: 32px;
-}
-
-.confidencePhoto {
-  width: 100%;
-  height: 240px;
-}
-
-.confidenceImgWrap {
-  position: relative;
-  width: 100%;
-  height: 240px;
-  border-radius: 16px;
-  overflow: hidden;
-  border: 1px solid var(--color-outline-variant);
-}
-
-.confidenceContent {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.confidenceCopy {
-  font-size: var(--body-large-font-size);
-  color: var(--color-on-surface-variant);
-  line-height: var(--body-large-line-height);
-}
-
-.timeline {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-top: 8px;
-}
-
-.timelineStep {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-
-.timelineDot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  border: 2px solid var(--color-outline-variant);
-  background: var(--color-surface);
-  flex-shrink: 0;
-}
-
-.timelineDotActive {
-  background: var(--color-primary);
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 4px hsla(24, 98%, 50%, 0.15);
-}
-
-.timelineLabel {
-  font-size: var(--body-large-font-size);
-  color: var(--color-on-surface);
-  font-weight: 500;
-}
-
-/* ─────────── 6. Final CTA ─────────── */
 .ctaSection {
   padding: 100px 0;
-  position: relative;
-  overflow: hidden;
-  background: var(--color-surface-container-high);
-}
-
-.ctaOverlay {
-  position: absolute;
-  inset: 0;
-  background: var(--color-primary-container);
-  opacity: 0.08;
-  pointer-events: none;
+  background: var(--color-cta-dark-bg);
+  text-align: center;
 }
 
 .ctaInner {
-  position: relative;
   max-width: 600px;
   margin: 0 auto;
   padding: 0 24px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  text-align: center;
-  gap: 28px;
+  gap: 16px;
 }
 
 .ctaHeadline {
-  font-size: var(--headline-small-font-size);
+  font-size: var(--display-small-font-size);
   font-weight: 700;
-  color: var(--color-on-surface);
+  color: var(--color-inverse-on-surface);
   line-height: var(--headline-small-line-height);
   letter-spacing: -0.5px;
+  margin: 0;
+}
+
+.ctaSub {
+  font-size: var(--body-medium-font-size);
+  color: var(--color-cta-dark-subtitle);
+  opacity: 1;
+  margin: 0;
 }
 
 .ctaActions {
   display: flex;
-  flex-direction: column;
-  gap: 12px;
-  width: 100%;
-  max-width: 400px;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 12px;
+}
+
+.ctaPrimary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 240px;
+  padding: 14px 28px;
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  border: none;
+  border-radius: 10px;
+  font-size: var(--title-small-font-size);
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ctaPrimary:hover {
+  opacity: 0.88;
+}
+
+.ctaSecondary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 250px;
+  padding: 14px 32px;
+  background: none;
+  border: 1px solid var(--color-primary);
+  border-radius: 10px;
+  color: var(--color-primary);
+  font-size: var(--body-medium-font-size);
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ctaSecondary:hover {
+  opacity: 0.7;
 }
 
 /* ─────────── Responsive: Tablet (>= 640px) ─────────── */
+
 @media (min-width: 640px) {
   .heroHeadline {
     font-size: 44px;
     letter-spacing: -2px;
   }
 
+  .heroActions {
+    flex-direction: row;
+    justify-content: center;
+  }
+
+  .primaryCta,
+  .secondaryCta {
+    width: auto;
+    min-width: 200px;
+  }
+
+  .statusFlow {
+    flex-direction: row;
+    align-items: center;
+    gap: 0;
+  }
+
+  .statusStep {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 0;
+    flex: 0 0 auto;
+  }
+
+  .statusConnector {
+    flex: 1;
+    width: auto;
+    height: 2px;
+    margin: 0;
+    margin-bottom: 20px;
+    align-self: flex-start;
+    margin-top: 22px;
+  }
+
   .trustGrid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 32px;
+    gap: 48px;
+    align-items: center;
   }
 
   .trustImgWrap {
-    height: 300px;
-  }
-
-  .trustImgWrap2 {
-    height: 200px;
-    grid-column: 1 / -1;
-  }
-
-  .trustContent {
-    justify-content: center;
+    height: 320px;
   }
 
   .stepsGrid {
     display: grid;
-    grid-template-columns: 1fr auto 1fr auto 1fr;
-    align-items: start;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
   }
 
-  .stepArrow {
-    display: flex;
-    padding: 32px 8px 0;
-  }
-
-  .step {
-    gap: 12px;
-  }
-
-  .showcaseBlock {
+  .ctaActions {
     flex-direction: row;
-    align-items: center;
-    gap: 40px;
+    justify-content: center;
   }
 
-  .showcaseBlock:nth-child(even) {
-    flex-direction: row-reverse;
-  }
 
-  .showcaseText {
-    flex: 1;
-  }
-
-  .mockupImgWrap, .showcasePhotoWrap {
-    width: 280px;
-    flex-shrink: 0;
-  }
-
-  .confidenceGrid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    align-items: center;
-    gap: 48px;
-  }
-
-  .confidenceImgWrap {
-    height: 300px;
-  }
-
-  .heroActions, .ctaActions {
-    flex-direction: row;
-  }
-
-  .heroHeadline {
-    max-width: 520px;
-  }
 }
 
 /* ─────────── Responsive: Desktop (>= 1024px) ─────────── */
+
 @media (min-width: 1024px) {
+  .heroSection {
+    padding: 80px 0;
+  }
+
   .heroInner {
     flex-direction: row;
     justify-content: space-between;
-    gap: 64px;
+    align-items: center;
+    gap: 80px;
   }
 
   .heroText {
     align-items: flex-start;
     text-align: left;
-    max-width: 480px;
-  }
-
-  .heroActions {
-    justify-content: flex-start;
-  }
-
-  .primaryCta, .secondaryCta {
-    width: auto;
+    max-width: 520px;
   }
 
   .heroHeadline {
@@ -582,44 +543,17 @@
     letter-spacing: -2.5px;
   }
 
+  .heroActions {
+    justify-content: flex-start;
+  }
+
+  .heroImg {
+    max-width: 360px;
+  }
+
   .sectionHeading {
     font-size: var(--display-small-font-size);
     letter-spacing: -1.2px;
-  }
-
-  .trustGrid {
-    grid-template-columns: 1fr 1fr 1fr;
-  }
-
-  .trustImgWrap {
-    height: 400px;
-    grid-row: 1 / 3;
-  }
-
-  .trustImgWrap2 {
-    height: 180px;
-    grid-column: auto;
-  }
-
-  .trustContent {
-    padding: 0 16px;
-  }
-
-  .showcaseBlock {
-    gap: 64px;
-  }
-
-  .mockupImgWrap, .showcasePhotoWrap {
-    width: 340px;
-    height: 240px;
-  }
-
-  .confidenceImgWrap {
-    height: 360px;
-  }
-
-  .ctaSection {
-    padding: 140px 0;
   }
 
   .ctaHeadline {
@@ -627,19 +561,7 @@
     letter-spacing: -1.2px;
   }
 
-  .phoneFrame {
-    width: 280px;
-    height: 540px;
-  }
-}
-
-/* ─────────── Responsive: Large Desktop (>= 1280px) ─────────── */
-@media (min-width: 1280px) {
-  .heroHeadline {
-    font-size: 60px;
-  }
-
-  .heroText {
-    max-width: 540px;
+  .ctaSection {
+    padding: 140px 0;
   }
 }

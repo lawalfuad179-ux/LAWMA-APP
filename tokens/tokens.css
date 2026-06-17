@@ -51,6 +51,45 @@
   --color-on-status-error-container: hsl(0, 60%, 28%);
 }
 
+  /* Warm surfaces */
+  --color-surface-warm: #fcfbf8;
+
+  /* CTA footer */
+  --color-cta-dark-bg: #1c1c1e;
+  --color-cta-dark-subtitle: #99a1ab;
+
+  /* Activity feed badge colours */
+  --color-activity-review-bg: #ffedd4;
+  --color-activity-review-text: #f54900;
+  --color-activity-submitted-bg: #f9efdc;
+  --color-activity-submitted-text: #57310f;
+  --color-activity-confirmed-bg: #dff7e8;
+  --color-activity-confirmed-text: #149954;
+
+  /* Sidebar active state */
+  --color-sidebar-active-bg: #fff4ec;
+
+  /* Text colours */
+  --color-text-secondary: #6b7280;
+  --color-text-action: #364153;
+  --color-text-description: #4a5565;
+
+  /* Stat / recycling tip card surface */
+  --color-surface-stat: #f7f7f7;
+
+  /* Report lifecycle */
+  --color-report-icon-bg: #fff3e8;
+  --color-report-icon-bg-active: #f97316;
+  --color-report-icon-line: #1f2937;
+  --color-report-icon-line-active: #ffffff;
+  --color-report-connector: #d9dde3;
+
+  /* Custom type tokens */
+  --text-18: 18px;
+  --text-15: 15px;
+  --text-13: 13px;
+}
+
 [data-theme="dark"] {
   --color-primary: hsl(24, 98%, 50%);
   --color-on-primary: hsl(21, 100%, 17%);
@@ -100,6 +139,39 @@
   --color-status-error: hsl(0, 60%, 68%);
   --color-status-error-container: hsl(0, 40%, 18%);
   --color-on-status-error-container: hsl(0, 60%, 82%);
+
+  /* Warm surfaces */
+  --color-surface-warm: hsl(0, 0%, 8%);
+
+  /* CTA footer */
+  --color-cta-dark-bg: hsl(0, 0%, 6%);
+  --color-cta-dark-subtitle: hsl(210, 10%, 55%);
+
+  /* Activity feed badge colours */
+  --color-activity-review-bg: hsl(28, 60%, 16%);
+  --color-activity-review-text: hsl(20, 90%, 70%);
+  --color-activity-submitted-bg: hsl(35, 40%, 14%);
+  --color-activity-submitted-text: hsl(35, 60%, 75%);
+  --color-activity-confirmed-bg: hsl(142, 40%, 14%);
+  --color-activity-confirmed-text: hsl(142, 50%, 65%);
+
+  /* Sidebar active state */
+  --color-sidebar-active-bg: hsl(22, 100%, 16%);
+
+  /* Text colours */
+  --color-text-secondary: hsl(220, 8%, 60%);
+  --color-text-action: hsl(220, 15%, 75%);
+  --color-text-description: hsl(220, 10%, 65%);
+
+  /* Stat / recycling tip card surface */
+  --color-surface-stat: hsl(0, 0%, 14%);
+
+  /* Report lifecycle */
+  --color-report-icon-bg: hsl(24, 60%, 13%);
+  --color-report-icon-bg-active: #f97316;
+  --color-report-icon-line: hsl(220, 12%, 84%);
+  --color-report-icon-line-active: #ffffff;
+  --color-report-connector: hsl(220, 10%, 28%);
 }
 
 :root {
