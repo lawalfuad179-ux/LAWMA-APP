@@ -15,6 +15,39 @@ function VerifyContent() {
 
   const [status, setStatus] = useState<'verifying' | 'success' | 'failed'>('verifying');
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const retriesRef = useRef(0);
+  const MAX_RETRIES = 10;
+
+  async function checkStatus() {
+    if (!txRef) return;
+    try {
+      const params = new URLSearchParams({ tx_ref: txRef });
+      if (transactionId) params.set('transaction_id', transactionId);
+
+      const res = await fetch(`/api/payments/status?${params}`);
+      const data = await res.json();
+
+      if (data.status === 'SUCCESSFUL') {
+        setStatus('success');
+      } else if (data.status === 'FAILED') {
+        setStatus('failed');
+      } else {
+        retriesRef.current += 1;
+        if (retriesRef.current >= MAX_RETRIES) {
+          setStatus('failed');
+        } else {
+          timerRef.current = setTimeout(checkStatus, 3000);
+        }
+      }
+    } catch {
+      retriesRef.current += 1;
+      if (retriesRef.current >= MAX_RETRIES) {
+        setStatus('failed');
+      } else {
+        timerRef.current = setTimeout(checkStatus, 3000);
+      }
+    }
+  }
 
   useEffect(() => {
     if (!txRef) {
@@ -22,34 +55,6 @@ function VerifyContent() {
       return;
     }
 
-    // Flutterwave already told us it failed/was cancelled
-    if (flwStatus && flwStatus !== 'successful') {
-      setStatus('failed');
-      return;
-    }
-
-    const checkStatus = async () => {
-      try {
-        const params = new URLSearchParams({ tx_ref: txRef });
-        if (transactionId) params.set('transaction_id', transactionId);
-
-        const res = await fetch(`/api/payments/status?${params}`);
-        const data = await res.json();
-
-        if (data.status === 'SUCCESSFUL') {
-          setStatus('success');
-        } else if (data.status === 'FAILED') {
-          setStatus('failed');
-        } else {
-          // Still pending — retry
-          timerRef.current = setTimeout(checkStatus, 3000);
-        }
-      } catch {
-        timerRef.current = setTimeout(checkStatus, 3000);
-      }
-    };
-
-    // Check immediately on mount (no initial delay)
     checkStatus();
 
     return () => {
@@ -83,9 +88,14 @@ function VerifyContent() {
           <div className={styles.cross}>✕</div>
           <h1 className={styles.title}>Verification Failed</h1>
           <p className={styles.subtitle}>Could not verify your payment. Please check your payment history or try again.</p>
-          <Button size="lg" variant="secondary" onClick={() => router.push('/payments')}>
-            View Bills
-          </Button>
+          <div className={styles.failedActions}>
+            <Button size="lg" onClick={() => { retriesRef.current = 0; setStatus('verifying'); checkStatus(); }}>
+              Check Again
+            </Button>
+            <Button size="lg" variant="secondary" onClick={() => router.push('/payments')}>
+              View Bills
+            </Button>
+          </div>
         </>
       )}
     </div>

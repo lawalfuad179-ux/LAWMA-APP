@@ -71,7 +71,7 @@ export default async function PaymentsPage() {
                     Due {new Date(bill.dueDate).toLocaleDateString('en-NG', { day: 'numeric', month: 'short', year: 'numeric' })}
                   </div>
                 </div>
-                {bill.status === 'PENDING' && (
+                {(bill.status === 'PENDING' || bill.status === 'OVERDUE') && (
                   <PayNowButton billId={bill.id} label={`Pay Now — ${formatKobo(bill.amountKobo)}`} />
                 )}
               </Card>

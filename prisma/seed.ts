@@ -59,8 +59,44 @@ async function main() {
     }
   }
 
+  // ── Test resident & bills ──────────────────────────────────────
+  const TEST_PHONE = '08012345678';
+
+  const resident = await prisma.resident.upsert({
+    where: { phoneNumber: TEST_PHONE },
+    update: {},
+    create: {
+      phoneNumber: TEST_PHONE,
+      name: 'Fuad Lawal',
+      address: '42 Akerele Street, Surulere',
+      lga: 'Surulere',
+    },
+  });
+
+  // Remove previous test bills so re-runs stay clean
+  await prisma.bill.deleteMany({ where: { residentId: resident.id } });
+
+  const now = new Date();
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
+  const overdueDue = new Date(now);
+  overdueDue.setDate(overdueDue.getDate() - 7);
+
+  await prisma.bill.create({
+    data: {
+      residentId: resident.id,
+      amountKobo: 500000, // ₦5,000
+      dueDate: overdueDue,
+      periodStart: monthStart,
+      periodEnd: monthEnd,
+      status: 'OVERDUE',
+    },
+  });
+
   console.log('Seed complete!');
   console.log(`Created ${PSP_OPERATORS.length} PSP operators with collection schedules.`);
+  console.log(`Created test resident "${resident.name}" (${resident.phoneNumber}) with 1 overdue bill.`);
 }
 
 main()

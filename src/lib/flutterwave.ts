@@ -9,6 +9,7 @@ type CreatePaymentLinkParams = {
   billId: string;
   residentId: string;
   paymentId: string;
+  meta?: Record<string, string>;
 };
 
 type CreatePaymentLinkResult = {
@@ -24,16 +25,17 @@ type CreatePaymentLinkResult = {
  * Converts internal kobo amounts to naira for the Flutterwave API boundary.
  */
 export async function createPaymentLink(params: CreatePaymentLinkParams): Promise<CreatePaymentLinkResult> {
-  const {
-    txRef,
-    amountKobo,
-    customerEmail,
-    customerPhone,
-    customerName,
-    billId,
-    residentId,
-    paymentId,
-  } = params;
+    const {
+      txRef,
+      amountKobo,
+      customerEmail,
+      customerPhone,
+      customerName,
+      billId,
+      residentId,
+      paymentId,
+      meta,
+    } = params;
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
 
@@ -63,6 +65,7 @@ export async function createPaymentLink(params: CreatePaymentLinkParams): Promis
           bill_id: billId,
           resident_id: residentId,
           payment_id: paymentId,
+          ...(meta ?? {}),
         },
       }),
     });

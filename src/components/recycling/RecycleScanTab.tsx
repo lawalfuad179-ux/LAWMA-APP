@@ -1,7 +1,7 @@
 'use client';
 
-import { useRef, useState } from 'react';
-import { Camera, CheckCircle, Leaf, Trash2, AlertCircle, Star, RotateCcw, Upload } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { Camera, CheckCircle, Leaf, Trash2, AlertCircle, Star, RotateCcw, Upload, ArrowLeft } from 'lucide-react';
 
 import { Button } from '@/components/ui/Button';
 import type { RecycleAiReport, WasteItem } from '@/lib/ai';
@@ -9,6 +9,7 @@ import styles from './RecycleScanTab.module.css';
 
 type Phase =
   | { kind: 'idle' }
+  | { kind: 'camera' }
   | { kind: 'previewing'; file: File; previewUrl: string }
   | { kind: 'scanning' }
   | { kind: 'report'; imageUrl: string; report: RecycleAiReport }
@@ -26,11 +27,29 @@ const CATEGORY_EMOJI: Record<string, string> = {
 };
 
 export function RecycleScanTab() {
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const uploadInputRef = useRef<HTMLInputElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+
   const [phase, setPhase] = useState<Phase>({ kind: 'idle' });
   const [error, setError] = useState<string | null>(null);
   const [cameraError, setCameraError] = useState<string | null>(null);
+
+  // Attach stream to video element when camera phase is active
+  useEffect(() => {
+    if (phase.kind === 'camera' && videoRef.current && streamRef.current) {
+      videoRef.current.srcObject = streamRef.current;
+      videoRef.current.play().catch(() => {});
+    }
+  }, [phase.kind]);
+
+  // Stop stream on unmount
+  useEffect(() => {
+    return () => {
+      streamRef.current?.getTracks().forEach((t) => t.stop());
+    };
+  }, []);
 
   function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -39,6 +58,44 @@ export function RecycleScanTab() {
     setCameraError(null);
     const previewUrl = URL.createObjectURL(file);
     setPhase({ kind: 'previewing', file, previewUrl });
+  }
+
+  async function handleCameraClick() {
+    setCameraError(null);
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 } },
+      });
+      streamRef.current = stream;
+      setPhase({ kind: 'camera' });
+    } catch {
+      setCameraError('Camera permission denied. Please allow camera access in your browser settings.');
+    }
+  }
+
+  function handleCameraClose() {
+    streamRef.current?.getTracks().forEach((t) => t.stop());
+    streamRef.current = null;
+    setPhase({ kind: 'idle' });
+  }
+
+  function handleCapture() {
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    if (!video || !canvas) return;
+
+    canvas.width = video.videoWidth || 1280;
+    canvas.height = video.videoHeight || 720;
+    canvas.getContext('2d')?.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    canvas.toBlob((blob) => {
+      if (!blob) return;
+      const file = new File([blob], `capture-${Date.now()}.jpg`, { type: 'image/jpeg' });
+      const previewUrl = URL.createObjectURL(file);
+      streamRef.current?.getTracks().forEach((t) => t.stop());
+      streamRef.current = null;
+      setPhase({ kind: 'previewing', file, previewUrl });
+    }, 'image/jpeg', 0.92);
   }
 
   async function handleScan() {
@@ -82,19 +139,7 @@ export function RecycleScanTab() {
     setPhase({ kind: 'done', pointsEarned: json.data.pointsEarned, newBalance: json.data.newBalance });
   }
 
-  async function handleCameraClick() {
-    setCameraError(null);
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-      stream.getTracks().forEach(track => track.stop());
-      fileInputRef.current?.click();
-    } catch {
-      setCameraError('Camera permission denied. Please allow camera access in your browser settings.');
-    }
-  }
-
   function handleReset() {
-    if (fileInputRef.current) fileInputRef.current.value = '';
     if (uploadInputRef.current) uploadInputRef.current.value = '';
     setPhase({ kind: 'idle' });
     setError(null);
@@ -103,6 +148,33 @@ export function RecycleScanTab() {
 
   return (
     <div className={styles.root}>
+      {/* Hidden canvas for capturing frames */}
+      <canvas ref={canvasRef} className={styles.hiddenInput} />
+
+      {/* ── Camera overlay ── */}
+      {phase.kind === 'camera' && (
+        <div className={styles.cameraOverlay}>
+          <video
+            ref={videoRef}
+            className={styles.cameraVideo}
+            playsInline
+            muted
+            autoPlay
+          />
+          {/* Back button */}
+          <button className={styles.cameraBack} onClick={handleCameraClose} type="button" aria-label="Close camera">
+            <ArrowLeft size={20} strokeWidth={2} />
+            <span>Back</span>
+          </button>
+          {/* Capture button */}
+          <div className={styles.cameraBar}>
+            <button className={styles.captureBtn} onClick={handleCapture} type="button" aria-label="Take photo">
+              <Camera size={28} strokeWidth={1.8} />
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* ── Idle ── */}
       {phase.kind === 'idle' && (
         <div className={styles.idle}>
@@ -115,14 +187,6 @@ export function RecycleScanTab() {
             <Star size={14} />
             <span>Earn up to <strong>10–35 pts</strong> per scan</span>
           </div>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/jpeg,image/png,image/webp,image/heic"
-            className={styles.hiddenInput}
-            onChange={handleFileSelect}
-            capture="environment"
-          />
           <input
             ref={uploadInputRef}
             type="file"
@@ -141,10 +205,10 @@ export function RecycleScanTab() {
             <span className={styles.uploadAreaText}>Upload from device</span>
           </button>
           <div className={styles.uploadActions}>
-            <Button onClick={handleCameraClick}>
-              <Camera size={16} />
-              Take Photo
-            </Button>
+            <button className={styles.cameraBtn} onClick={handleCameraClick} type="button">
+              <Camera size={18} strokeWidth={1.8} />
+              <span>Take Photo</span>
+            </button>
           </div>
           {cameraError && <p className={styles.errorMsg}><AlertCircle size={14} />{cameraError}</p>}
           {error && <p className={styles.errorMsg}><AlertCircle size={14} />{error}</p>}

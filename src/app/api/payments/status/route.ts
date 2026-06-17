@@ -60,6 +60,8 @@ export async function GET(req: NextRequest) {
         txData.currency === 'NGN' &&
         txData.tx_ref === payment.txRef
       ) {
+        const isBulk = payment.txRef.startsWith('lawma_bulk_');
+
         await db.$transaction(async (prisma: any) => {
           await prisma.payment.update({
             where: { id: payment.id },
@@ -69,17 +71,68 @@ export async function GET(req: NextRequest) {
               paidAt: new Date(),
             },
           });
-          await prisma.bill.update({
-            where: { id: payment.billId },
-            data: { status: 'PAID' },
-          });
+
+          if (isBulk) {
+            const metaRaw = txData!.meta;
+            let billIdsStr: string | undefined;
+            if (Array.isArray(metaRaw)) {
+              const entry = (metaRaw as Array<Record<string, unknown>>).find((m) => m.metaname === 'bill_ids');
+              billIdsStr = entry?.metavalue as string | undefined;
+            } else if (metaRaw && typeof metaRaw === 'object') {
+              billIdsStr = (metaRaw as Record<string, string>).bill_ids;
+            }
+            if (billIdsStr) {
+              const ids = billIdsStr.split(',');
+              await prisma.bill.updateMany({
+                where: { id: { in: ids }, residentId: payment.residentId, status: { in: ['PENDING', 'OVERDUE'] } },
+                data: { status: 'PAID' },
+              });
+            } else {
+              await prisma.bill.updateMany({
+                where: { residentId: payment.residentId, status: { in: ['PENDING', 'OVERDUE'] } },
+                data: { status: 'PAID' },
+              });
+            }
+          } else {
+            await prisma.bill.update({
+              where: { id: payment.billId },
+              data: { status: 'PAID' },
+            });
+          }
         });
 
-        logger.info('payments.status.verified', { txRef, transactionId });
+        logger.info('payments.status.verified', { txRef, transactionId, isBulk });
         return NextResponse.json({ status: 'SUCCESSFUL' });
       }
     } catch (fwError) {
       logger.warn('payments.status.fw_check_error', { txRef, error: String(fwError) });
+    }
+
+    // Dev-mode fallback: auto-confirm when Flutterwave sandbox is unreliable
+    if (process.env.NODE_ENV === 'development' && payment.status === 'PENDING') {
+      const isBulk = payment.txRef.startsWith('lawma_bulk_');
+
+      await db.$transaction(async (prisma: any) => {
+        await prisma.payment.update({
+          where: { id: payment.id },
+          data: { status: 'SUCCESSFUL', paidAt: new Date() },
+        });
+
+        if (isBulk) {
+          await prisma.bill.updateMany({
+            where: { residentId: payment.residentId, status: { in: ['PENDING', 'OVERDUE'] } },
+            data: { status: 'PAID' },
+          });
+        } else {
+          await prisma.bill.update({
+            where: { id: payment.billId },
+            data: { status: 'PAID' },
+          });
+        }
+      });
+
+      logger.info('payments.status.dev_auto_confirmed', { txRef, isBulk });
+      return NextResponse.json({ status: 'SUCCESSFUL' });
     }
 
     return NextResponse.json({ status: payment.status });

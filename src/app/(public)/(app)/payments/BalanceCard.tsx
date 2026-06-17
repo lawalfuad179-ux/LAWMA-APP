@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Eye, EyeOff, TriangleAlert } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
+import { PayAllButton } from './PayAllButton';
 import styles from './BalanceCard.module.css';
 
 type Props = {
@@ -17,6 +18,7 @@ function formatKobo(amountKobo: number) {
 
 export function BalanceCard({ totalKobo, pendingCount, overdueCount }: Props) {
   const [showAmount, setShowAmount] = useState(true);
+  const hasOutstanding = pendingCount > 0 || overdueCount > 0;
 
   return (
     <Card className={styles.card}>
@@ -34,7 +36,7 @@ export function BalanceCard({ totalKobo, pendingCount, overdueCount }: Props) {
           {showAmount ? <EyeOff size={20} strokeWidth={1.5} /> : <Eye size={20} strokeWidth={1.5} />}
         </button>
       </div>
-      {pendingCount > 0 || overdueCount > 0 ? (
+      {hasOutstanding ? (
         <span className={styles.meta}>
           {overdueCount > 0 ? (
             <><TriangleAlert size={12} strokeWidth={1.5} /> {overdueCount} overdue, {pendingCount} pending</>
@@ -42,6 +44,11 @@ export function BalanceCard({ totalKobo, pendingCount, overdueCount }: Props) {
             <>{pendingCount} pending {pendingCount === 1 ? 'bill' : 'bills'}</>
           )}
         </span>
+      ) : null}
+      {hasOutstanding ? (
+        <div className={styles.payAllSection}>
+          <PayAllButton label={`Pay All — ${formatKobo(totalKobo)}`} />
+        </div>
       ) : null}
     </Card>
   );

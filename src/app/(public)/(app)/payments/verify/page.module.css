@@ -64,3 +64,11 @@
   font-size: var(--body-medium-font-size);
   color: var(--color-on-surface-variant);
 }
+
+.failedActions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  margin-top: 4px;
+}
