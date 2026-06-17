@@ -116,10 +116,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 8px;
   min-height: 52px;
   padding: 14px 40px;
   background: var(--color-primary);
   color: var(--color-on-primary);
+  border: none;
   border-radius: 12px;
   font-size: var(--body-large-font-size);
   font-weight: 600;

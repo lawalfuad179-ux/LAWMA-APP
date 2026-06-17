@@ -8,10 +8,10 @@ export async function GET() {
 
   const resident = await db.resident.findUnique({
     where: { id: session.residentId },
-    select: { name: true, avatarUrl: true },
+    select: { name: true, avatarUrl: true, address: true, lga: true },
   });
 
   if (!resident) return NextResponse.json({ ok: false }, { status: 404 });
 
-  return NextResponse.json({ ok: true, name: resident.name, avatarUrl: resident.avatarUrl });
+  return NextResponse.json({ ok: true, name: resident.name, avatarUrl: resident.avatarUrl, address: resident.address, lga: resident.lga });
 }

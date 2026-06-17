@@ -14,15 +14,56 @@
   text-align: center;
 }
 
-.scanIllustration {
-  width: 90px;
-  height: 90px;
+.uploadArea {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  background: none;
+  border: 2px dashed var(--color-outline-variant);
   border-radius: 24px;
-  background: var(--color-primary-container);
+  padding: 36px 48px;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  width: 100%;
+  max-width: 320px;
+}
+
+.uploadArea:hover {
+  border-color: var(--color-primary);
+  background: color-mix(in srgb, var(--color-primary) 3%, var(--color-surface));
+}
+
+.scanIllustration {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--color-primary) 8%, var(--color-surface));
   color: var(--color-primary);
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.uploadArea:hover .scanIllustration {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  transform: scale(1.05);
+}
+
+.uploadAreaText {
+  font-size: var(--body-medium-font-size);
+  color: var(--color-on-surface-variant);
+  font-weight: 500;
+}
+
+.uploadActions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 320px;
 }
 
 .idleTitle {
@@ -54,12 +95,7 @@
   display: none;
 }
 
-.uploadActions {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  justify-content: center;
-}
+
 
 .errorMsg {
   display: flex;

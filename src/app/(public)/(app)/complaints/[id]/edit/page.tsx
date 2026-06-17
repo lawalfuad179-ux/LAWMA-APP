@@ -24,12 +24,15 @@ export default async function EditComplaintPage({ params }: Props) {
 
   return (
     <div className={styles.page}>
-      <Link href={`/complaints/${id}`} className={styles.backBtn}>
-        <ArrowLeft size={18} strokeWidth={1.5} />
-        <span>Back</span>
-      </Link>
-      <h1 className={styles.title}>Edit Report</h1>
+      <div>
+        <Link href={`/complaints/${id}`} className={styles.backBtn}>
+          <ArrowLeft size={18} strokeWidth={1.5} />
+          <span>Back</span>
+        </Link>
+        <h1 className={styles.title}>Edit Report</h1>
+      </div>
 
+      <div className={styles.formCard}>
       <EditComplaintForm
         complaintId={complaint.id}
         initialIssueType={complaint.issueType}
@@ -37,6 +40,7 @@ export default async function EditComplaintPage({ params }: Props) {
         initialAddress={complaint.address}
         initialDescription={complaint.description || ''}
       />
+      </div>
     </div>
   );
 }

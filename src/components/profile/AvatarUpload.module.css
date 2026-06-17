@@ -3,7 +3,7 @@
   width: 52px;
   height: 52px;
   border-radius: 14px;
-  background: var(--color-primary-container);
+  background: color-mix(in srgb, var(--color-primary) 5%, var(--color-surface));
   color: var(--color-primary);
   display: flex;
   align-items: center;

@@ -125,8 +125,12 @@ export default function ReportComplaintPage() {
 
   return (
     <div className={styles.page}>
-      <h1 className={styles.title}>Report an Issue</h1>
+      <div className={styles.pageHeader}>
+        <h1 className={styles.title}>Report an Issue</h1>
+        <p className={styles.subtitle}>Describe the problem and we&apos;ll get it sorted.</p>
+      </div>
 
+      <div className={styles.formCard}>
       <form onSubmit={handleSubmit} className={styles.form}>
         <Select
           label="Issue Type"
@@ -224,6 +228,7 @@ export default function ReportComplaintPage() {
           Submit Report
         </Button>
       </form>
+      </div>
     </div>
   );
 }

@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import { Camera, Upload, CheckCircle, Leaf, Trash2, AlertCircle, Star, RotateCcw } from 'lucide-react';
+import { Camera, CheckCircle, Leaf, Trash2, AlertCircle, Star, RotateCcw, Upload } from 'lucide-react';
 
 import { Button } from '@/components/ui/Button';
 import type { RecycleAiReport, WasteItem } from '@/lib/ai';
@@ -27,13 +27,16 @@ const CATEGORY_EMOJI: Record<string, string> = {
 
 export function RecycleScanTab() {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const uploadInputRef = useRef<HTMLInputElement>(null);
   const [phase, setPhase] = useState<Phase>({ kind: 'idle' });
   const [error, setError] = useState<string | null>(null);
+  const [cameraError, setCameraError] = useState<string | null>(null);
 
   function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
     setError(null);
+    setCameraError(null);
     const previewUrl = URL.createObjectURL(file);
     setPhase({ kind: 'previewing', file, previewUrl });
   }
@@ -79,10 +82,23 @@ export function RecycleScanTab() {
     setPhase({ kind: 'done', pointsEarned: json.data.pointsEarned, newBalance: json.data.newBalance });
   }
 
+  async function handleCameraClick() {
+    setCameraError(null);
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+      stream.getTracks().forEach(track => track.stop());
+      fileInputRef.current?.click();
+    } catch {
+      setCameraError('Camera permission denied. Please allow camera access in your browser settings.');
+    }
+  }
+
   function handleReset() {
     if (fileInputRef.current) fileInputRef.current.value = '';
+    if (uploadInputRef.current) uploadInputRef.current.value = '';
     setPhase({ kind: 'idle' });
     setError(null);
+    setCameraError(null);
   }
 
   return (
@@ -90,9 +106,6 @@ export function RecycleScanTab() {
       {/* ── Idle ── */}
       {phase.kind === 'idle' && (
         <div className={styles.idle}>
-          <div className={styles.scanIllustration}>
-            <Camera size={48} strokeWidth={1} />
-          </div>
           <h2 className={styles.idleTitle}>Scan Your Waste</h2>
           <p className={styles.idleDesc}>
             Take a photo of your trash and our AI will tell you what can be recycled and how.
@@ -110,25 +123,30 @@ export function RecycleScanTab() {
             onChange={handleFileSelect}
             capture="environment"
           />
+          <input
+            ref={uploadInputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp,image/heic"
+            className={styles.hiddenInput}
+            onChange={handleFileSelect}
+          />
+          <button
+            className={styles.uploadArea}
+            onClick={() => uploadInputRef.current?.click()}
+            type="button"
+          >
+            <div className={styles.scanIllustration}>
+              <Upload size={48} strokeWidth={1} />
+            </div>
+            <span className={styles.uploadAreaText}>Upload from device</span>
+          </button>
           <div className={styles.uploadActions}>
-            <Button onClick={() => fileInputRef.current?.click()}>
+            <Button onClick={handleCameraClick}>
               <Camera size={16} />
               Take Photo
             </Button>
-            <Button
-              variant="secondary"
-              onClick={() => {
-                if (fileInputRef.current) {
-                  fileInputRef.current.removeAttribute('capture');
-                  fileInputRef.current.click();
-                  fileInputRef.current.setAttribute('capture', 'environment');
-                }
-              }}
-            >
-              <Upload size={16} />
-              Upload Image
-            </Button>
           </div>
+          {cameraError && <p className={styles.errorMsg}><AlertCircle size={14} />{cameraError}</p>}
           {error && <p className={styles.errorMsg}><AlertCircle size={14} />{error}</p>}
         </div>
       )}

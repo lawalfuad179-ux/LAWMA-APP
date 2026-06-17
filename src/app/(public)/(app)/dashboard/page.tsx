@@ -107,22 +107,8 @@ export default async function DashboardPage() {
 
   return (
     <div className={styles.dashboardPage}>
-      {/* Desktop topbar — hidden on mobile (mobileTopbar in Navbar handles that) */}
-      <div className={styles.dashboardTopbar}>
-        <div>
-          <h1 className={styles.greeting}>{greeting}, {firstName}</h1>
-          {resident.lga && <p className={styles.locationText}>{resident.lga} · Lagos</p>}
-        </div>
-        <Link href="/notifications" className={styles.bellButton} aria-label="Notifications">
-          <Bell size={20} strokeWidth={1.5} />
-          {unreadCount > 0 && (
-            <span className={styles.topbarBadge}>{unreadCount > 9 ? '9+' : unreadCount}</span>
-          )}
-        </Link>
-      </div>
-
       <div className={styles.dashboardContent}>
-        {/* Mobile user row — visible only on mobile */}
+        {/* User greeting row — visible on all screen sizes */}
         <div className={styles.mobileUserRow}>
           <div className={styles.mobileUserAvatar}>
             {resident.avatarUrl
@@ -134,6 +120,12 @@ export default async function DashboardPage() {
             <h1 className={styles.mobileGreeting}>{greeting}, {firstName}</h1>
             {resident.lga && <p className={styles.mobileLocation}>{resident.lga} · Lagos</p>}
           </div>
+          <Link href="/notifications" className={styles.userRowBell} aria-label="Notifications">
+            <Bell size={20} strokeWidth={1.5} />
+            {unreadCount > 0 && (
+              <span className={styles.userRowBadge}>{unreadCount > 9 ? '9+' : unreadCount}</span>
+            )}
+          </Link>
         </div>
         {/* Collection Schedule */}
         <div className={styles.dashboardSection}>
@@ -183,22 +175,26 @@ export default async function DashboardPage() {
 
             {/* Right: Quick action + stat cards */}
             <div className={styles.quickGrid}>
-              <Link href="/complaints/report" className={styles.quickActionCard}>
-                <AlertCircle size={24} strokeWidth={1.5} />
-                Report Issue
-              </Link>
-              <Link href="/payments" className={styles.quickActionCard}>
-                <CreditCard size={24} strokeWidth={1.5} />
-                Pay Bill
-              </Link>
-              <Link href="/complaints" className={styles.statCard}>
-                <span className={styles.statValue}>{activeComplaintsCount}</span>
-                <span className={styles.statLabel}>Active {activeComplaintsCount === 1 ? 'complaint' : 'complaints'}</span>
-              </Link>
-              <Link href="/payments" className={styles.statCard}>
-                <span className={styles.statValue}>{overdueBillsCount}</span>
-                <span className={styles.statLabel}>Overdue {overdueBillsCount === 1 ? 'bill' : 'bills'}</span>
-              </Link>
+              <div className={styles.fillContainer}>
+                <Link href="/complaints/report" className={styles.quickActionCard}>
+                  <AlertCircle size={24} strokeWidth={1.5} />
+                  Report Issue
+                </Link>
+                <Link href="/payments" className={styles.quickActionCard}>
+                  <CreditCard size={24} strokeWidth={1.5} />
+                  Pay Bill
+                </Link>
+              </div>
+              <div className={styles.fillContainer}>
+                <Link href="/complaints" className={styles.statCard}>
+                  <span className={styles.statValue}>{activeComplaintsCount}</span>
+                  <span className={styles.statLabel}>Active {activeComplaintsCount === 1 ? 'complaint' : 'complaints'}</span>
+                </Link>
+                <Link href="/payments" className={styles.statCard}>
+                  <span className={styles.statValue}>{overdueBillsCount}</span>
+                  <span className={styles.statLabel}>Overdue {overdueBillsCount === 1 ? 'bill' : 'bills'}</span>
+                </Link>
+              </div>
             </div>
           </div>
         </div>

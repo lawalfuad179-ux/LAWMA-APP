@@ -9,17 +9,16 @@ import {
   CalendarDays,
   AlertCircle,
   CreditCard,
-  Leaf,
   Bell,
   User,
-  Sun,
-  Moon,
   LogOut,
   ChevronLeft,
   ChevronRight,
   Menu,
   X,
+  ChevronUp,
 } from 'lucide-react';
+import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { AiRecycleIcon } from '@/components/ui/icons/AiRecycleIcon';
 import styles from './Navbar.module.css';
 
@@ -29,7 +28,7 @@ const sidebarItems = [
   { href: '/schedules', label: 'Schedule',  Icon: CalendarDays },
   { href: '/complaints',label: 'Report',    Icon: AlertCircle },
   { href: '/payments',  label: 'Payments',  Icon: CreditCard },
-  { href: '/recycling', label: 'Recycling', Icon: Leaf },
+  { href: '/recycling', label: 'Recycling', Icon: ({ size }: { size?: number }) => <AiRecycleIcon size={size || 22} color="currentColor" /> },
 ];
 
 // Mobile bottom nav: 4 items + center AI Recycle button
@@ -53,10 +52,11 @@ export function Navbar() {
   const [loggingOut, setLoggingOut] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [dark, setDark] = useState(false);
   const [profileName, setProfileName] = useState('');
   const [profileAvatar, setProfileAvatar] = useState<string | null>(null);
   const [profileLocation, setProfileLocation] = useState('');
+  const [showLogoutPopup, setShowLogoutPopup] = useState(false);
+  const logoutPopupRef = useRef<HTMLDivElement>(null);
   const confirmModalRef = useRef<HTMLDivElement>(null);
   const sheetRef = useRef<HTMLDivElement>(null);
 
@@ -67,7 +67,7 @@ export function Navbar() {
       .catch(() => {});
     fetch('/api/profile/me')
       .then((r) => r.json())
-      .then((d) => { if (d.ok) { setProfileName(d.name || ''); setProfileAvatar(d.avatarUrl || null); setProfileLocation(d.address || d.lga || ''); } })
+      .then((d) => { if (d.ok) { setProfileName(d.name || ''); setProfileAvatar(d.avatarUrl || null); const loc = d.address || (d.lga ? `${d.lga} · Lagos` : ''); setProfileLocation(loc || 'Not set yet'); } })
       .catch(() => {});
   }, []);
 
@@ -76,11 +76,6 @@ export function Navbar() {
     const isCollapsed = stored === 'true';
     setCollapsed(isCollapsed);
     document.documentElement.style.setProperty('--sidebar-w', isCollapsed ? SIDEBAR_W_COLLAPSED : SIDEBAR_W_EXPANDED);
-  }, []);
-
-  useEffect(() => {
-    const storedTheme = localStorage.getItem('lawma-theme');
-    setDark(storedTheme === 'dark');
   }, []);
 
   // Close hamburger sheet when route changes
@@ -135,12 +130,16 @@ export function Navbar() {
     document.documentElement.style.setProperty('--sidebar-w', next ? SIDEBAR_W_COLLAPSED : SIDEBAR_W_EXPANDED);
   }, [collapsed]);
 
-  const toggleTheme = useCallback(() => {
-    const next = !dark;
-    setDark(next);
-    document.documentElement.setAttribute('data-theme', next ? 'dark' : 'light');
-    localStorage.setItem('lawma-theme', next ? 'dark' : 'light');
-  }, [dark]);
+  useEffect(() => {
+    if (!showLogoutPopup) return;
+    function onDown(e: MouseEvent) {
+      if (logoutPopupRef.current && !logoutPopupRef.current.contains(e.target as Node)) {
+        setShowLogoutPopup(false);
+      }
+    }
+    document.addEventListener('mousedown', onDown);
+    return () => document.removeEventListener('mousedown', onDown);
+  }, [showLogoutPopup]);
 
   const handleLogout = useCallback(async () => {
     setLoggingOut(true);
@@ -193,7 +192,12 @@ export function Navbar() {
         </nav>
 
         {/* Sidebar bottom profile */}
-        <Link href="/profile" className={styles.sidebarProfile}>
+        <div className={styles.sidebarProfileWrapper}>
+          <button
+            className={styles.sidebarProfile}
+            onClick={() => setShowLogoutPopup((v) => !v)}
+            type="button"
+          >
           <div className={styles.sidebarProfileAvatar}>
             {profileAvatar ? (
               <img src={profileAvatar} alt="" />
@@ -203,9 +207,28 @@ export function Navbar() {
           </div>
           <div className={styles.sidebarProfileText}>
             <div className={styles.sidebarProfileName}>{profileName || 'Resident'}</div>
-            <div className={styles.sidebarProfileLocation}>{profileLocation || 'Lagos'}</div>
+            <div className={styles.sidebarProfileLocation}>{profileLocation}</div>
           </div>
-        </Link>
+          <ChevronUp size={14} strokeWidth={1.5} className={styles.profileChevron} />
+          </button>
+
+          {showLogoutPopup && (
+            <div ref={logoutPopupRef} className={styles.logoutPopup}>
+              <Link href="/profile" className={styles.logoutPopupItem}>
+                <User size={16} strokeWidth={1.5} />
+                Account
+              </Link>
+              <button
+                className={`${styles.logoutPopupItem} ${styles.logoutPopupDanger}`}
+                onClick={() => { setShowLogoutPopup(false); setShowConfirm(true); }}
+                type="button"
+              >
+                <LogOut size={16} strokeWidth={1.5} />
+                Sign out
+              </button>
+            </div>
+          )}
+        </div>
       </aside>
 
       {/* ─── Logout Confirmation Modal ─── */}
@@ -269,7 +292,7 @@ export function Navbar() {
             className={`${styles.mobileCenterBtn} ${isActive('/recycling') ? styles.mobileCenterBtnActive : ''}`}
             aria-label="Scan & Recycle"
           >
-            <AiRecycleIcon size={26} color="white" />
+            <AiRecycleIcon size={26} />
           </Link>
         </div>
 
@@ -335,12 +358,9 @@ export function Navbar() {
 
             <div className={styles.sheetDivider} />
 
-            <button className={styles.sheetItem} onClick={toggleTheme} type="button" aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'}>
-              <span className={styles.sheetItemIcon}>
-                {dark ? <Sun size={20} strokeWidth={1.5} /> : <Moon size={20} strokeWidth={1.5} />}
-              </span>
-              <span className={styles.sheetItemLabel}>{dark ? 'Light mode' : 'Dark mode'}</span>
-            </button>
+            <div className={styles.sheetItem}>
+              <ThemeToggle />
+            </div>
           </div>
         </div>
       )}

@@ -112,8 +112,10 @@ export default function NotificationPreferencesPage() {
 
           <section className={styles.section}>
             <div className={styles.sectionHeader}>
-              <Mail size={16} strokeWidth={1.5} />
-              <h2 className={styles.sectionTitle}>Email Notifications</h2>
+              <div className={styles.sectionEyebrow}>
+                <Mail size={15} strokeWidth={1.5} />
+                <span>Email Notifications</span>
+              </div>
             </div>
             <div className={styles.toggleList}>
               <Toggle
@@ -145,8 +147,10 @@ export default function NotificationPreferencesPage() {
 
           <section className={styles.section}>
             <div className={styles.sectionHeader}>
-              <MessageSquare size={16} strokeWidth={1.5} />
-              <h2 className={styles.sectionTitle}>SMS Notifications</h2>
+              <div className={styles.sectionEyebrow}>
+                <MessageSquare size={15} strokeWidth={1.5} />
+                <span>SMS Notifications</span>
+              </div>
             </div>
             <div className={styles.toggleList}>
               <Toggle

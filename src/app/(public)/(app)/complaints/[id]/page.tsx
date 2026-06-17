@@ -45,8 +45,10 @@ export default async function ComplaintDetailPage({ params }: Props) {
 
       <div className={styles.section}>
         <div className={styles.sectionHeader}>
-          <Tag size={16} strokeWidth={1.5} />
-          <span className={styles.sectionTitle}>Details</span>
+          <div className={styles.sectionEyebrow}>
+            <Tag size={15} strokeWidth={1.5} />
+            <span>Details</span>
+          </div>
         </div>
         <Card className={styles.sectionCard}>
           <div className={styles.row}>
@@ -92,8 +94,10 @@ export default async function ComplaintDetailPage({ params }: Props) {
       {complaint.images.length > 0 && (
         <div className={styles.section}>
           <div className={styles.sectionHeader}>
-            <ImageIcon size={16} strokeWidth={1.5} />
-            <span className={styles.sectionTitle}>Photos</span>
+            <div className={styles.sectionEyebrow}>
+              <ImageIcon size={15} strokeWidth={1.5} />
+              <span>Photos</span>
+            </div>
           </div>
           <Card className={styles.sectionCard}>
             <div className={styles.images}>
@@ -107,8 +111,10 @@ export default async function ComplaintDetailPage({ params }: Props) {
 
       <div className={styles.section}>
         <div className={styles.sectionHeader}>
-          <Clock size={16} strokeWidth={1.5} />
-          <span className={styles.sectionTitle}>Status Timeline</span>
+          <div className={styles.sectionEyebrow}>
+            <Clock size={15} strokeWidth={1.5} />
+            <span>Status Timeline</span>
+          </div>
         </div>
         <Card className={styles.sectionCard}>
           <StatusTimeline steps={steps} currentKey={complaint.status} />

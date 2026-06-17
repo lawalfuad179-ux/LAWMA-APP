@@ -11,6 +11,9 @@
   border-radius: 14px;
   padding: 4px;
   gap: 2px;
+  position: sticky;
+  top: 64px;
+  z-index: 10;
 }
 
 .tabBtn {
@@ -39,6 +42,12 @@
 
 .tabBtn:hover:not(.active) {
   background: var(--color-surface-container-high);
+}
+
+@media (max-width: 767px) {
+  .tabBar {
+    top: calc(80px + 12px);
+  }
 }
 
 .panel {

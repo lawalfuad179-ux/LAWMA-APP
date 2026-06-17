@@ -41,9 +41,15 @@ export function RecycleHistory() {
 
   if (activities.length === 0) {
     return (
-      <div className={styles.empty}>
-        <Leaf size={32} strokeWidth={1.5} className={styles.emptyIcon} />
-        <p className={styles.emptyTitle}>No scans yet</p>
+      <div className={styles.emptyState}>
+        <div className={styles.emptyIllustration}>
+          <div className={styles.emptyBlob1} />
+          <div className={styles.emptyBlob2} />
+          <div className={styles.emptyCard}>
+            <Clock size={36} strokeWidth={1.2} className={styles.emptyCardIcon} />
+          </div>
+        </div>
+        <h2 className={styles.emptyTitle}>No scans yet</h2>
         <p className={styles.emptyDesc}>Scan your first bag of trash to start earning recycling points.</p>
       </div>
     );

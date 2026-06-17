@@ -7,7 +7,13 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 20px 24px;
+  padding: 44px 24px 20px;
+}
+
+@media (min-width: 768px) {
+  .header {
+    padding: 20px 80px;
+  }
 }
 
 @media (min-width: 768px) {

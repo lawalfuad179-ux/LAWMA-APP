@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation';
 
 import { getSession } from '@/lib/auth';
 import { db } from '@/lib/db';
-import { ComplaintList } from '@/components/complaints/ComplaintList';
+import { ComplaintsPageClient } from '@/components/complaints/ComplaintsPageClient';
 import styles from './page.module.css';
 
 type ComplaintListItem = {
@@ -20,8 +20,7 @@ export default async function ComplaintsPage() {
 
   return (
     <div className={styles.page}>
-      <h1 className={styles.title}>My Reports</h1>
-      <ComplaintList complaints={complaints} />
+      <ComplaintsPageClient complaints={complaints} />
     </div>
   );
 }

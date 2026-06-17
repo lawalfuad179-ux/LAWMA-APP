@@ -1,12 +1,12 @@
 .page {
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  padding: 24px;
+  gap: 24px;
+  padding: 24px 16px;
 }
 
-.title {
-  font-size: var(--headline-small-font-size);
-  font-weight: 600;
-  color: var(--color-on-surface);
+@media (min-width: 640px) {
+  .page {
+    padding: 32px 40px;
+  }
 }

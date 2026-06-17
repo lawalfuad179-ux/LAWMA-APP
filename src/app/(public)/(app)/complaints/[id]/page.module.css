@@ -1,26 +1,32 @@
 .page {
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  padding: 24px;
+  gap: 24px;
+  padding: 24px 16px;
+}
+
+@media (min-width: 640px) {
+  .page {
+    padding: 32px 40px;
+  }
 }
 
 .header {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
 }
 
 .backBtn {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 6px;
   text-decoration: none;
   color: var(--color-on-surface-variant);
   font-size: var(--body-medium-font-size);
-  margin-bottom: 4px;
   width: fit-content;
   transition: color 0.15s;
+  margin-bottom: 2px;
 }
 
 .backBtn:hover {
@@ -29,13 +35,15 @@
 
 .title {
   font-size: var(--headline-small-font-size);
-  font-weight: 600;
+  font-weight: 700;
+  letter-spacing: -0.3px;
   color: var(--color-on-surface);
+  margin: 0;
 }
 
 .ticketId {
   font-size: var(--label-large-font-size);
-  font-weight: 500;
+  font-weight: 600;
   color: var(--color-primary);
   font-family: monospace;
   letter-spacing: 0.5px;
@@ -46,14 +54,24 @@
 .section {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .sectionHeader {
   display: flex;
   align-items: center;
-  gap: 6px;
-  color: var(--color-on-surface-variant);
+  justify-content: space-between;
+}
+
+.sectionEyebrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--text-13);
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
 }
 
 .sectionTitle {

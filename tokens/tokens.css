@@ -83,6 +83,7 @@
   --color-report-icon-bg-active: #f97316;
   --color-report-icon-line: #1f2937;
   --color-report-icon-line-active: #ffffff;
+  --color-recycle-icon-on-primary: #ffffff;
   --color-report-connector: #d9dde3;
 
   /* Custom type tokens */
@@ -172,6 +173,7 @@
   --color-report-icon-bg-active: #f97316;
   --color-report-icon-line: hsl(220, 12%, 84%);
   --color-report-icon-line-active: #ffffff;
+  --color-recycle-icon-on-primary: #ffffff;
   --color-report-connector: hsl(220, 10%, 28%);
 }
 

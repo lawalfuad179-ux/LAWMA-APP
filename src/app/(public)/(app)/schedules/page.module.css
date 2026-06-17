@@ -1,14 +1,28 @@
 .page {
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  padding: 24px;
+  gap: 28px;
+  padding: 24px 16px;
+}
+
+@media (min-width: 640px) {
+  .page {
+    padding: 32px 40px;
+  }
 }
 
 .title {
   font-size: var(--headline-small-font-size);
-  font-weight: 600;
+  font-weight: 700;
+  letter-spacing: -0.3px;
   color: var(--color-on-surface);
+  margin: 0;
+}
+
+.subtitle {
+  font-size: var(--body-medium-font-size);
+  color: var(--color-text-secondary);
+  margin: 4px 0 0;
 }
 
 /* ── Sections ── */
@@ -16,16 +30,28 @@
 .section {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .sectionHeader {
   display: flex;
   align-items: center;
-  gap: 6px;
-  color: var(--color-on-surface-variant);
+  justify-content: space-between;
+  margin-bottom: 2px;
 }
 
+.sectionEyebrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--text-13);
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+}
+
+/* keep old sectionTitle for backwards compat */
 .sectionTitle {
   font-size: 11px;
   font-weight: 600;
@@ -42,7 +68,8 @@
   justify-content: center;
   padding: 20px 16px;
   background: var(--color-surface-container-low);
-  border-radius: 12px;
+  border: 1px solid var(--color-outline-variant);
+  border-radius: 14px;
 }
 
 .noTodayText {
@@ -55,16 +82,17 @@
 .todayCard {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
   background: var(--color-primary-container);
-  border-color: transparent;
-  box-shadow: 0 4px 16px hsla(24, 98%, 50%, 0.14);
+  border-color: transparent !important;
+  padding: 24px;
+  box-shadow: 0 4px 20px hsla(24, 98%, 50%, 0.18);
   transition: transform 0.15s, box-shadow 0.2s;
 }
 
 .todayCard:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 20px hsla(24, 98%, 50%, 0.18);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px hsla(24, 98%, 50%, 0.24);
 }
 
 .todayHeader {
@@ -80,49 +108,66 @@
   color: var(--color-on-primary);
   font-size: 10px;
   font-weight: 700;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.6px;
   text-transform: uppercase;
-  padding: 3px 10px;
+  padding: 4px 12px;
   border-radius: 100px;
-  animation: pulse 2s ease-in-out infinite;
+  animation: pulse 2.4s ease-in-out infinite;
 }
 
 @keyframes pulse {
   0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-primary) 40%, transparent); }
-  50% { box-shadow: 0 0 0 6px color-mix(in srgb, var(--color-primary) 0%, transparent); }
+  50% { box-shadow: 0 0 0 7px color-mix(in srgb, var(--color-primary) 0%, transparent); }
 }
 
 .todayTime {
   font-size: var(--headline-small-font-size);
   font-weight: 700;
   color: var(--color-on-surface);
-  letter-spacing: var(--headline-small-letter-spacing);
+  letter-spacing: -0.2px;
 }
 
 /* ── Upcoming Cards ── */
 
+.cardGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+@media (min-width: 768px) {
+  .cardGrid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+}
+
 .card {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  box-shadow: 0 1px 3px hsla(0, 0%, 0%, 0.04);
+  gap: 8px;
+  padding: 20px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-outline-variant) !important;
+  border-radius: 14px !important;
+  box-shadow: 0 1px 4px hsla(0, 0%, 0%, 0.04);
   transition: transform 0.15s, box-shadow 0.2s;
 }
 
 .card:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px hsla(0, 0%, 0%, 0.06);
+  box-shadow: 0 4px 14px hsla(0, 0%, 0%, 0.07);
 }
 
 .cardNext {
-  box-shadow: 0 2px 8px hsla(24, 98%, 50%, 0.1);
-  background: color-mix(in srgb, var(--color-primary) 3%, var(--color-surface));
-  transition: transform 0.15s, box-shadow 0.2s;
+  background: color-mix(in srgb, var(--color-primary) 4%, var(--color-surface));
+  border-color: color-mix(in srgb, var(--color-primary) 30%, var(--color-outline-variant)) !important;
+  box-shadow: 0 2px 10px hsla(24, 98%, 50%, 0.10);
 }
 
 .cardNext:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 16px hsla(24, 98%, 50%, 0.16);
+  box-shadow: 0 6px 18px hsla(24, 98%, 50%, 0.18);
 }
 
 .cardRow {

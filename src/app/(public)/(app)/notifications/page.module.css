@@ -1,66 +1,45 @@
 .page {
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  padding: 24px;
+  gap: 24px;
+  padding: 24px 16px;
+}
+
+@media (min-width: 640px) {
+  .page {
+    padding: 32px 40px;
+  }
 }
 
 .header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.headerLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .title {
   font-size: var(--headline-small-font-size);
-  font-weight: 600;
+  font-weight: 700;
+  letter-spacing: -0.3px;
   color: var(--color-on-surface);
+  margin: 0;
 }
 
 .unreadBadge {
   font-size: var(--label-small-font-size);
-  font-weight: 600;
+  font-weight: 700;
   color: var(--color-primary);
   background: var(--color-primary-container);
-  padding: 4px 10px;
-  border-radius: 20px;
-}
-
-.list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.item {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.unread {
-  border-left: 3px solid var(--color-primary);
-}
-
-.itemTop {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.type {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--color-on-surface-variant);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--color-primary);
+  padding: 4px 12px;
+  border-radius: 100px;
+  flex-shrink: 0;
 }
 
 .itemTitle {

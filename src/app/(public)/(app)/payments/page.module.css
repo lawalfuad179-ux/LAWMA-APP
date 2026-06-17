@@ -1,14 +1,22 @@
 .page {
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  padding: 24px;
+  gap: 28px;
+  padding: 24px 16px;
+}
+
+@media (min-width: 640px) {
+  .page {
+    padding: 32px 40px;
+  }
 }
 
 .title {
   font-size: var(--headline-small-font-size);
-  font-weight: 600;
+  font-weight: 700;
+  letter-spacing: -0.3px;
   color: var(--color-on-surface);
+  margin: 0;
 }
 
 /* ─── Section ─── */
@@ -16,14 +24,24 @@
 .section {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 14px;
 }
 
 .sectionHeader {
   display: flex;
   align-items: center;
-  gap: 6px;
-  color: var(--color-on-surface-variant);
+  justify-content: space-between;
+}
+
+.sectionEyebrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--text-13);
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
 }
 
 .sectionTitle {
@@ -39,24 +57,33 @@
 .list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
 .billCard {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
+  padding: 20px !important;
+  border-radius: 14px !important;
+  transition: box-shadow 0.15s, transform 0.15s;
+}
+
+.billCard:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px hsla(0, 0%, 0%, 0.06);
 }
 
 .billTop {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 10px;
 }
 
 .billPeriod {
   font-size: var(--body-medium-font-size);
-  font-weight: 500;
+  font-weight: 600;
   color: var(--color-on-surface);
 }
 
@@ -68,8 +95,9 @@
 
 .billAmount {
   font-size: var(--title-medium-font-size);
-  font-weight: 600;
+  font-weight: 700;
   color: var(--color-on-surface);
+  letter-spacing: -0.2px;
 }
 
 .billDue {
@@ -78,7 +106,7 @@
 }
 
 .payForm {
-  margin-top: 4px;
+  margin-top: 2px;
 }
 
 /* ─── Empty State ─── */

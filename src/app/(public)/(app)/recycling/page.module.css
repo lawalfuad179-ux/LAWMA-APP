@@ -1,8 +1,14 @@
 .page {
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  padding: 24px;
+  gap: 24px;
+  padding: 24px 16px;
+}
+
+@media (min-width: 640px) {
+  .page {
+    padding: 32px 40px;
+  }
 }
 
 .header {
@@ -11,15 +17,24 @@
   gap: 4px;
 }
 
+@media (min-width: 768px) {
+  .header {
+    display: none;
+  }
+}
+
 .title {
   font-size: var(--headline-small-font-size);
-  font-weight: 600;
+  font-weight: 700;
+  letter-spacing: -0.3px;
   color: var(--color-on-surface);
+  margin: 0;
 }
 
 .subtitle {
   font-size: var(--body-medium-font-size);
-  color: var(--color-on-surface-variant);
+  color: var(--color-text-secondary);
+  margin: 0;
 }
 
 /* ─── Section ─── */
@@ -27,14 +42,24 @@
 .section {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .sectionHeader {
   display: flex;
   align-items: center;
-  gap: 6px;
-  color: var(--color-on-surface-variant);
+  justify-content: space-between;
+}
+
+.sectionEyebrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--text-13);
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
 }
 
 .sectionTitle {
@@ -49,6 +74,59 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
+}
+
+/* ─── Scan & Earn reward cards ─── */
+
+.rewardCards {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.rewardCard {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 18px !important;
+  background: var(--color-surface-container);
+}
+
+.rewardHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.rewardIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: hsl(24, 98%, 96%);
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.rewardTitle {
+  font-size: var(--title-small-font-size);
+  font-weight: 700;
+  color: var(--color-on-surface);
+  margin: 0;
+}
+
+.rewardDesc {
+  font-size: var(--body-medium-font-size);
+  color: var(--color-on-surface-variant);
+  line-height: var(--body-medium-line-height);
+  margin: 0;
+}
+
+.rewardDesc strong {
+  color: var(--color-primary);
+  font-weight: 700;
 }
 
 /* ─── Grid ─── */

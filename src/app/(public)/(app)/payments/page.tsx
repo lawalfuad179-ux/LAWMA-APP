@@ -5,8 +5,8 @@ import { getSession } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
-import { Button } from '@/components/ui/Button';
 import { BalanceCard } from './BalanceCard';
+import { PayNowButton } from './PayNowButton';
 import { BILL_STATUS_LABELS } from '@/constants';
 import styles from './page.module.css';
 
@@ -43,8 +43,10 @@ export default async function PaymentsPage() {
       {bills.length > 0 ? (
         <div className={styles.section}>
           <div className={styles.sectionHeader}>
-            <Receipt size={16} strokeWidth={1.5} />
-            <span className={styles.sectionTitle}>Bill History</span>
+            <div className={styles.sectionEyebrow}>
+              <Receipt size={15} strokeWidth={1.5} />
+              <span>Bill History</span>
+            </div>
           </div>
           <div className={styles.list}>
             {bills.map((bill) => (
@@ -70,10 +72,7 @@ export default async function PaymentsPage() {
                   </div>
                 </div>
                 {bill.status === 'PENDING' && (
-                  <form action="/api/payments/initialize" method="POST" className={styles.payForm}>
-                    <input type="hidden" name="billId" value={bill.id} />
-                    <Button size="sm">Pay Now — {formatKobo(bill.amountKobo)}</Button>
-                  </form>
+                  <PayNowButton billId={bill.id} label={`Pay Now — ${formatKobo(bill.amountKobo)}`} />
                 )}
               </Card>
             ))}

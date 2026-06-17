@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { Plus } from 'lucide-react';
 import { SwipeableComplaintCard } from './SwipeableComplaintCard';
 import styles from './ComplaintList.module.css';
 
@@ -16,9 +17,10 @@ type ComplaintData = {
 
 type Props = {
   complaints: ComplaintData[];
+  onNewReport: () => void;
 };
 
-export function ComplaintList({ complaints: initial }: Props) {
+export function ComplaintList({ complaints: initial, onNewReport }: Props) {
   const [complaints, setComplaints] = useState(initial);
 
   const handleDelete = (id: string) => {
@@ -52,9 +54,10 @@ export function ComplaintList({ complaints: initial }: Props) {
         <p className={styles.emptySubtext}>
           Spotted an issue in your neighbourhood? File a report and we&apos;ll get it sorted.
         </p>
-        <Link href="/complaints/report" className={styles.emptyAction}>
+        <button onClick={onNewReport} className={styles.emptyAction}>
+          <Plus size={20} strokeWidth={2.5} />
           File a report
-        </Link>
+        </button>
       </div>
     );
   }

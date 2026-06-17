@@ -40,7 +40,10 @@ export default async function SchedulesPage() {
 
   return (
     <div className={styles.page}>
-      <h1 className={styles.title}>Collection Schedule</h1>
+      <div>
+        <h1 className={styles.title}>Collection Schedule</h1>
+        {resident.lga && <p className={styles.subtitle}>{resident.lga} · Lagos</p>}
+      </div>
 
       {displaySchedules.length === 0 ? (
         <div className={styles.emptyState}>
@@ -74,8 +77,10 @@ export default async function SchedulesPage() {
           {todaySchedules.length > 0 ? (
             <section className={styles.section}>
               <div className={styles.sectionHeader}>
-                <Sparkles size={16} strokeWidth={1.5} />
-                <span className={styles.sectionTitle}>Today</span>
+                <div className={styles.sectionEyebrow}>
+                  <Sparkles size={15} strokeWidth={1.5} />
+                  <span>Today</span>
+                </div>
               </div>
               {todaySchedules.map((s) => (
                 <Card key={s.id} className={styles.todayCard}>
@@ -109,9 +114,12 @@ export default async function SchedulesPage() {
           {upcomingSchedules.length > 0 && (
             <section className={styles.section}>
               <div className={styles.sectionHeader}>
-                <CalendarDays size={16} strokeWidth={1.5} />
-                <span className={styles.sectionTitle}>Later This Week</span>
+                <div className={styles.sectionEyebrow}>
+                  <CalendarDays size={15} strokeWidth={1.5} />
+                  <span>Later This Week</span>
+                </div>
               </div>
+              <div className={styles.cardGrid}>
               {upcomingSchedules.map((s) => {
                 const isNext = nextPickup?.id === s.id;
                 return (
@@ -146,6 +154,7 @@ export default async function SchedulesPage() {
                   </Card>
                 );
               })}
+              </div>
             </section>
           )}
         </>
