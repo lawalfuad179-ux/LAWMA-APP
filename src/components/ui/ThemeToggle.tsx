@@ -24,13 +24,21 @@ export function ThemeToggle({ className }: { className?: string }) {
 
   return (
     <button
-      className={`${styles.toggle}${className ? ` ${className}` : ''}`}
+      type="button"
+      className={`${styles.themeSwitch}${className ? ` ${className}` : ''}`}
+      data-theme-state={dark ? 'dark' : 'light'}
       onClick={toggle}
+      role="switch"
+      aria-checked={dark}
       aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'}
     >
-      {dark
-        ? <Moon size={18} strokeWidth={1.5} className={styles.icon} />
-        : <Sun  size={18} strokeWidth={1.5} className={styles.icon} />}
+      <span className={styles.themeSwitchThumb} aria-hidden="true" />
+      <span className={`${styles.themeSwitchOption} ${styles.themeSwitchOptionLight}`}>
+        <Sun size={17} strokeWidth={2.25} aria-hidden="true" />
+      </span>
+      <span className={`${styles.themeSwitchOption} ${styles.themeSwitchOptionDark}`}>
+        <Moon size={17} strokeWidth={2.25} aria-hidden="true" />
+      </span>
     </button>
   );
 }

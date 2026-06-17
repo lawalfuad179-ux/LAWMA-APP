@@ -22,6 +22,7 @@ export default function LandingPage() {
 
   return (
     <>
+      <LandingHeader />
       <main className={styles.page}>
 
         {/* ─── 1. Hero ─── */}

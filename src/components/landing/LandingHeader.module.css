@@ -40,7 +40,13 @@
 .nav {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
+}
+
+@media (min-width: 768px) {
+  .nav {
+    gap: 16px;
+  }
 }
 
 .btnGhost {
@@ -90,3 +96,5 @@
 .btnPrimary:hover {
   opacity: 0.88;
 }
+
+
