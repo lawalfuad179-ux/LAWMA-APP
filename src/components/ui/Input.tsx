@@ -9,6 +9,7 @@ type InputProps = React.InputHTMLAttributes<HTMLInputElement> & {
   error?: string;
   helpText?: string;
   icon?: React.ReactNode;
+  fieldState?: 'success' | 'error' | null;
 };
 
 export function Input({
@@ -18,6 +19,7 @@ export function Input({
   icon,
   id,
   className,
+  fieldState,
   ...props
 }: InputProps) {
   const inputId = id || label.toLowerCase().replace(/\s+/g, '-');
@@ -37,7 +39,8 @@ export function Input({
           id={inputId}
           className={[
             styles.input,
-            error ? styles.inputError : '',
+            error || fieldState === 'error' ? styles.inputError : '',
+            fieldState === 'success' ? styles.inputSuccess : '',
             isPassword ? styles.inputPassword : '',
             icon ? styles.inputWithIcon : '',
           ].filter(Boolean).join(' ')}

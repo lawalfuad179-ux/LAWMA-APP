@@ -71,6 +71,15 @@
   box-shadow: 0 0 0 3px hsla(0, 54%, 41%, 0.12);
 }
 
+.inputSuccess {
+  border-color: var(--color-status-success);
+}
+
+.inputSuccess:focus {
+  border-color: var(--color-status-success);
+  box-shadow: 0 0 0 3px hsla(142, 60%, 40%, 0.12);
+}
+
 .eyeBtn {
   position: absolute;
   right: 8px;

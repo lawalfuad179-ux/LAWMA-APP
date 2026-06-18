@@ -20,13 +20,23 @@ export function PasswordSection({ hasPassword: initialHasPassword }: Props) {
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [currentPasswordState, setCurrentPasswordState] = useState<'error' | null>(null);
   const [inlineError, setInlineError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  // Real-time confirm field state: green if matches, red if non-empty and doesn't match
+  const confirmFieldState =
+    confirmPassword.length === 0
+      ? null
+      : confirmPassword === newPassword
+        ? 'success' as const
+        : 'error' as const;
 
   function reset() {
     setCurrentPassword('');
     setNewPassword('');
     setConfirmPassword('');
+    setCurrentPasswordState(null);
     setInlineError('');
   }
 
@@ -60,7 +70,7 @@ export function PasswordSection({ hasPassword: initialHasPassword }: Props) {
 
       if (!data.ok) {
         if (data.error?.code === 'wrong_password') {
-          setInlineError('Current password is incorrect.');
+          setCurrentPasswordState('error');
         } else {
           toast(data.error?.message || 'Something went wrong.', 'error');
         }
@@ -97,8 +107,11 @@ export function PasswordSection({ hasPassword: initialHasPassword }: Props) {
           label="Current Password"
           type="password"
           value={currentPassword}
-          onChange={(e) => { setCurrentPassword(e.target.value); setInlineError(''); }}
-          error={inlineError && inlineError === 'Current password is incorrect.' ? inlineError : ''}
+          onChange={(e) => {
+            setCurrentPassword(e.target.value);
+            setCurrentPasswordState(null);
+          }}
+          fieldState={currentPasswordState}
           autoComplete="current-password"
         />
       )}
@@ -119,7 +132,8 @@ export function PasswordSection({ hasPassword: initialHasPassword }: Props) {
         type="password"
         value={confirmPassword}
         onChange={(e) => { setConfirmPassword(e.target.value); setInlineError(''); }}
-        error={inlineError && inlineError !== 'Current password is incorrect.' ? inlineError : ''}
+        fieldState={confirmFieldState}
+        error={inlineError}
         autoComplete="new-password"
       />
 
