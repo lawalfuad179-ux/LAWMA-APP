@@ -1,8 +1,15 @@
+import * as dotenv from 'dotenv';
+import { resolve } from 'path';
+dotenv.config({ path: resolve(__dirname, '../.env') });
+
 import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 
+const connectionString = process.env.DATABASE_URL_UNPOOLED ?? process.env.DATABASE_URL;
+if (!connectionString) throw new Error('DATABASE_URL is not set');
+
 const prisma = new PrismaClient({
-  adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }),
+  adapter: new PrismaPg({ connectionString }),
 });
 
 const LGAS = [
@@ -63,43 +70,48 @@ async function main() {
     }
   }
 
-  // ── Test resident & bills ──────────────────────────────────────
-  const TEST_PHONE = '08012345678';
-
-  const resident = await prisma.resident.upsert({
-    where: { phoneNumber: TEST_PHONE },
-    update: {},
-    create: {
-      phoneNumber: TEST_PHONE,
-      name: 'Fuad Lawal',
-      address: '42 Akerele Street, Surulere',
-      lga: 'Surulere',
-    },
-  });
-
-  // Remove previous test bills so re-runs stay clean
-  await prisma.bill.deleteMany({ where: { residentId: resident.id } });
-
+  // ── Bills for all residents ───────────────────────────────────
   const now = new Date();
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
   const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-
   const overdueDue = new Date(now);
   overdueDue.setDate(overdueDue.getDate() - 7);
+  const pendingDue = new Date(now);
+  pendingDue.setDate(pendingDue.getDate() + 14);
 
-  await prisma.bill.create({
-    data: {
-      residentId: resident.id,
-      amountKobo: 500000, // ₦5,000
-      dueDate: overdueDue,
-      periodStart: monthStart,
-      periodEnd: monthEnd,
-      status: 'OVERDUE',
-    },
+  const allResidents = await prisma.resident.findMany({
+    include: { bills: { where: { status: { in: ['PENDING', 'OVERDUE'] } } } },
   });
 
-  // ── Notifications ──────────────────────────────────────────────
-  await prisma.notification.deleteMany({ where: { residentId: resident.id } });
+  for (const resident of allResidents) {
+    if (resident.bills.length > 0) continue;
+
+    await prisma.bill.createMany({
+      data: [
+        {
+          residentId: resident.id,
+          amountKobo: 500000,
+          dueDate: overdueDue,
+          periodStart: monthStart,
+          periodEnd: monthEnd,
+          status: 'OVERDUE',
+        },
+        {
+          residentId: resident.id,
+          amountKobo: 350000,
+          dueDate: pendingDue,
+          periodStart: monthStart,
+          periodEnd: monthEnd,
+          status: 'PENDING',
+        },
+      ],
+    });
+    console.log(`  Created bills for ${resident.name || resident.phoneNumber || resident.email}`);
+  }
+
+  // ── Notifications for first resident ─────────────────────────
+  const firstResident = allResidents[0];
+  await prisma.notification.deleteMany({ where: { residentId: firstResident.id } });
 
   const notificationTemplates: Array<{ title: string; body: string; type: string }> = [
     {
@@ -141,11 +153,11 @@ async function main() {
 
     await prisma.notification.create({
       data: {
-        residentId: resident.id,
+        residentId: firstResident.id,
         title: notificationTemplates[i].title,
         body: notificationTemplates[i].body,
         type: notificationTemplates[i].type as any,
-        isRead: i >= 3, // first 3 (newest) unread, rest read
+        isRead: i >= 3,
         createdAt,
       },
     });
@@ -153,8 +165,8 @@ async function main() {
 
   console.log('Seed complete!');
   console.log(`Created ${PSP_OPERATORS.length} PSP operators with collection schedules.`);
-  console.log(`Created test resident "${resident.name}" (${resident.phoneNumber}) with 1 overdue bill.`);
-  console.log(`Created ${notificationTemplates.length} notifications (3 unread, 3 read).`);
+  console.log(`Created bills for ${allResidents.length} resident(s).`);
+  console.log(`Created ${notificationTemplates.length} notifications (3 unread, 3 read) for ${firstResident.name || firstResident.phoneNumber}.`);
 }
 
 main()

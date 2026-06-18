@@ -267,6 +267,8 @@ model RecycleActivity {
   pointsEarned Int                   @default(0) @map("points_earned")
   status       RecycleActivityStatus @default(PENDING) @map("status")
   confirmedAt  DateTime?             @map("confirmed_at")
+  imageHash    String?               @map("image_hash")
+  contentHash  String?               @map("content_hash")
   createdAt    DateTime              @default(now()) @map("created_at")
   updatedAt    DateTime              @updatedAt @map("updated_at")
 
@@ -274,6 +276,9 @@ model RecycleActivity {
 
   @@index([residentId])
   @@index([residentId, status])
+  @@index([residentId, status, confirmedAt])
+  @@index([residentId, imageHash])
+  @@index([residentId, contentHash])
   @@map("recycle_activities")
 }
 

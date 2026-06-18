@@ -13,6 +13,8 @@
   align-items: center;
   gap: 14px;
   margin-bottom: 24px;
+  text-decoration: none;
+  color: inherit;
 }
 
 .mobileUserAvatar {
@@ -60,45 +62,6 @@
   margin: 0;
 }
 
-/* Bell button in the user row — hidden on mobile (mobile topbar has it) */
-.userRowBell {
-  display: none;
-  position: relative;
-  width: 44px;
-  height: 44px;
-  border: 1px solid var(--color-outline-variant);
-  border-radius: 12px;
-  background: var(--color-surface);
-  color: var(--color-on-surface-variant);
-  align-items: center;
-  justify-content: center;
-  text-decoration: none;
-  flex-shrink: 0;
-  transition: background 0.15s;
-}
-
-.userRowBell:hover {
-  background: var(--color-surface-container-high);
-}
-
-.userRowBadge {
-  position: absolute;
-  top: 6px;
-  right: 6px;
-  min-width: 16px;
-  height: 16px;
-  padding: 0 4px;
-  background: var(--color-primary);
-  color: var(--color-on-primary);
-  border-radius: 8px;
-  font-size: 10px;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  pointer-events: none;
-}
-
 @media (min-width: 768px) {
   .mobileUserAvatar {
     width: 62px;
@@ -109,9 +72,6 @@
   }
   .mobileGreeting {
     font-size: var(--title-large-font-size);
-  }
-  .userRowBell {
-    display: flex;
   }
 }
 

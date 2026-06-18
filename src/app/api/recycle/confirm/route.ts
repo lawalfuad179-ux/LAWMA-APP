@@ -5,10 +5,12 @@ import { getSession } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { calcPointsForScan } from '@/lib/rewards';
 import { logger } from '@/lib/logger';
+import { buildContentHash, runScanGuard } from '@/lib/recycle-guard';
 import type { RecycleAiReport } from '@/lib/ai';
 
 const schema = z.object({
   imageUrl: z.string().url(),
+  imageHash: z.string().optional(),
   report: z.object({
     items: z.array(z.object({
       name: z.string(),
@@ -40,7 +42,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json<Failure>({ ok: false, error: { code: 'invalid_input', message: 'Invalid report data.' } }, { status: 400 });
     }
 
-    const { imageUrl, report } = parsed.data;
+    const { imageUrl, imageHash, report } = parsed.data;
+    const contentHash = buildContentHash(report as RecycleAiReport);
+
+    // Run all 5 abuse-protection layers before touching the DB transaction
+    const guardError = await runScanGuard(session.residentId, imageUrl, imageHash, contentHash);
+    if (guardError) {
+      const status = guardError.code === 'cooldown_active' || guardError.code === 'daily_limit_reached' ? 429 : 409;
+      return NextResponse.json<Failure>({ ok: false, error: guardError }, { status });
+    }
 
     const existingCount = await db.recycleActivity.count({ where: { residentId: session.residentId } });
     const isFirstScan = existingCount === 0;
@@ -51,6 +61,8 @@ export async function POST(req: NextRequest) {
         data: {
           residentId: session.residentId,
           imageUrl,
+          imageHash: imageHash ?? null,
+          contentHash,
           aiReport: report as object,
           pointsEarned,
           status: 'CONFIRMED',

@@ -13,7 +13,7 @@ type Phase =
   | { kind: 'camera' }
   | { kind: 'previewing'; file: File; previewUrl: string }
   | { kind: 'scanning' }
-  | { kind: 'report'; imageUrl: string; report: RecycleAiReport }
+  | { kind: 'report'; imageUrl: string; report: RecycleAiReport; imageHash?: string }
   | { kind: 'confirming' }
   | { kind: 'done'; pointsEarned: number; newBalance: number };
 
@@ -148,7 +148,7 @@ export function RecycleScanTab() {
       return;
     }
 
-    setPhase({ kind: 'report', imageUrl: json.data.imageUrl, report: json.data.report });
+    setPhase({ kind: 'report', imageUrl: json.data.imageUrl, report: json.data.report, imageHash: json.data.imageHash });
   }
 
   async function handleConfirm() {
@@ -159,12 +159,20 @@ export function RecycleScanTab() {
     const res = await fetch('/api/recycle/confirm', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ imageUrl: phase.imageUrl, report: phase.report }),
+      body: JSON.stringify({ imageUrl: phase.imageUrl, report: phase.report, imageHash: phase.imageHash }),
     });
     const json = await res.json();
 
     if (!json.ok) {
-      setError(json.error?.message ?? 'Could not confirm. Please try again.');
+      const code: string = json.error?.code ?? '';
+      const friendlyMessages: Record<string, string> = {
+        already_confirmed:  'This scan has already been claimed.',
+        duplicate_image:    'This photo was already used recently. Take a new one.',
+        duplicate_content:  'These same items were already scanned today.',
+        cooldown_active:    json.error?.message ?? 'Please wait a few minutes before your next scan.',
+        daily_limit_reached: json.error?.message ?? "You've reached today's scan limit. Try again tomorrow.",
+      };
+      setError(friendlyMessages[code] ?? json.error?.message ?? 'Could not confirm. Please try again.');
       setPhase({ kind: 'idle' });
       return;
     }

@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { AlertCircle, CreditCard, CalendarDays, Leaf, Bell, ArrowRight } from 'lucide-react';
+import { AlertCircle, CreditCard, CalendarDays, Leaf, ArrowRight } from 'lucide-react';
 
 import { getSession } from '@/lib/auth';
 import { db } from '@/lib/db';
@@ -109,7 +109,7 @@ export default async function DashboardPage() {
     <div className={styles.dashboardPage}>
       <div className={styles.dashboardContent}>
         {/* User greeting row — visible on all screen sizes */}
-        <div className={styles.mobileUserRow}>
+        <Link href="/profile" className={styles.mobileUserRow}>
           <div className={styles.mobileUserAvatar}>
             {resident.avatarUrl
               ? <img src={resident.avatarUrl} alt="" className={styles.mobileUserAvatarImg} />
@@ -120,13 +120,7 @@ export default async function DashboardPage() {
             <h1 className={styles.mobileGreeting}>{greeting}, {firstName}</h1>
             {resident.lga && <p className={styles.mobileLocation}>{resident.lga} · Lagos</p>}
           </div>
-          <Link href="/notifications" className={styles.userRowBell} aria-label="Notifications">
-            <Bell size={20} strokeWidth={1.5} />
-            {unreadCount > 0 && (
-              <span className={styles.userRowBadge}>{unreadCount > 9 ? '9+' : unreadCount}</span>
-            )}
-          </Link>
-        </div>
+        </Link>
         {/* Collection Schedule */}
         <div className={styles.dashboardSection}>
           <div className={styles.sectionHeader}>
