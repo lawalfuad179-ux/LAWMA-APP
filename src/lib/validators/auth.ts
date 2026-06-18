@@ -1,5 +1,13 @@
 import { z } from 'zod';
 
+const strictPassword = z
+  .string()
+  .min(8, 'Use at least 8 characters.')
+  .regex(/[A-Z]/, 'Use at least one uppercase letter.')
+  .regex(/[a-z]/, 'Use at least one lowercase letter.')
+  .regex(/[0-9]/, 'Use at least one number.')
+  .regex(/[^a-zA-Z0-9]/, 'Use at least one special character.');
+
 export const signUpSchema = z.object({
   name: z.string().min(2, 'Enter your full name.').max(100),
   email: z.string().email('Enter a valid email address.').max(200),
@@ -8,20 +16,22 @@ export const signUpSchema = z.object({
     .min(10, 'Enter a valid Nigerian phone number.')
     .max(15)
     .regex(/^(\+?234|0)[0-9]{10}$/, 'Enter a valid Nigerian phone number.'),
-  password: z
-    .string()
-    .min(8, 'Use at least 8 characters.')
-    .regex(/[a-zA-Z]/, 'Use at least one letter.')
-    .regex(/[0-9]/, 'Use at least one number.'),
+  password: strictPassword,
 });
 
 export const signInSchema = z.object({
-  phoneNumber: z
-    .string()
-    .min(10, 'Enter a valid Nigerian phone number.')
-    .max(15)
-    .regex(/^(\+?234|0)[0-9]{10}$/, 'Enter a valid Nigerian phone number.'),
+  phoneNumber: z.string().optional(),
+  email: z.string().optional(),
   password: z.string().min(1, 'Enter your password.'),
+}).refine((d) => d.phoneNumber || d.email, { message: 'Phone number or email is required.' });
+
+export const setPasswordSchema = z.object({
+  password: strictPassword,
+});
+
+export const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1, 'Enter your current password.'),
+  newPassword: strictPassword,
 });
 
 export const forgotPasswordSchema = z.object({

@@ -11,11 +11,12 @@ import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { LAGOS_LGAS } from '@/constants';
 import { validateEmailOrPhone, passwordRules, getPasswordErrors, type FieldErrors } from '@/lib/validators/validation';
 import { OtpInput } from '@/components/ui/OtpInput';
+import { PasswordRulesChecklist } from '@/components/ui/PasswordRulesChecklist';
 
 import { completeOnboarding } from '../onboarding/actions';
 import styles from './page.module.css';
 
-type Step = 'phone' | 'otp' | 'profile' | 'reset';
+type Step = 'phone' | 'otp' | 'profile' | 'reset' | 'password-signin' | 'password-signup';
 type Mode = 'signin' | 'signup';
 
 function AuthContent() {
@@ -40,6 +41,9 @@ function AuthContent() {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [resetSent, setResetSent] = useState(false);
+  // Password signup: separate phone/email fields so user can fill whichever is missing
+  const [signupPhone, setSignupPhone] = useState('');
+  const [signupEmail, setSignupEmail] = useState('');
   const [identifierTouched, setIdentifierTouched] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [passwordChecks, setPasswordChecks] = useState<Record<string, boolean>>({});
@@ -84,6 +88,18 @@ function AuthContent() {
     verifyInFlight.current = false;
     setTimeout(() => {
       if (to === 'phone') { setCode(''); setIdentifierTouched(false); }
+      if (to === 'password-signup') {
+        setSignupPhone(normalizePhone(phone) || '');
+        setSignupEmail(email.trim().toLowerCase() || '');
+        setName('');
+        setNewPassword('');
+        setConfirmPassword('');
+        setFieldErrors({});
+      }
+      if (to === 'password-signin') {
+        setNewPassword('');
+        setFieldErrors({});
+      }
       setStep(to);
       setError('');
       setTransition('enter');
@@ -329,6 +345,20 @@ function AuthContent() {
               <p className={styles.subtitle}>Set up your account for waste collection services.</p>
             </div>
           )}
+
+          {step === 'password-signin' && (
+            <div className={styles.header}>
+              <h1 className={styles.title}>Sign in with password</h1>
+              <p className={styles.subtitle}>Enter your password to continue.</p>
+            </div>
+          )}
+
+          {step === 'password-signup' && (
+            <div className={styles.header}>
+              <h1 className={styles.title}>Create account</h1>
+              <p className={styles.subtitle}>Fill in your details and choose a password.</p>
+            </div>
+          )}
         </div>
 
 
@@ -426,6 +456,15 @@ function AuthContent() {
             <Button type="submit" size="lg" isLoading={loading}>
               Verify
             </Button>
+            <button
+              type="button"
+              className={styles.modeToggle}
+              onClick={() => switchStep(mode === 'signup' ? 'password-signup' : 'password-signin')}
+            >
+              <span className={styles.modeToggleBold}>
+                {mode === 'signup' ? 'Create account with password instead' : 'Use password instead'}
+              </span>
+            </button>
           </form>
         )}
 
@@ -471,6 +510,168 @@ function AuthContent() {
             <Button type="submit" size="lg" isLoading={loading}>
               Complete Setup
             </Button>
+          </form>
+        )}
+
+        {step === 'password-signin' && (
+          <form
+            onSubmit={async (e) => {
+              e.preventDefault();
+              setError('');
+              const pwd = newPassword;
+              if (!pwd) { setError('Enter your password.'); return; }
+              const cleanedPhone = normalizePhone(phone);
+              const cleanedEmail = email.trim().toLowerCase();
+              setLoading(true);
+              try {
+                const res = await fetch('/api/auth/signin', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(
+                    cleanedEmail && !cleanedPhone
+                      ? { email: cleanedEmail, password: pwd }
+                      : { phoneNumber: cleanedPhone, password: pwd }
+                  ),
+                });
+                const data = await res.json();
+                if (!data.ok) {
+                  if (data.error?.code === 'no_password') {
+                    setError('No password set for this account.');
+                  } else {
+                    setError(data.error?.message || 'Sign in failed.');
+                  }
+                  return;
+                }
+                router.push('/dashboard');
+              } catch {
+                setError('Network error. Please check your connection.');
+              } finally {
+                setLoading(false);
+              }
+            }}
+            className={styles.form}
+          >
+            <Input
+              label="Password"
+              type="password"
+              placeholder="Your password"
+              value={newPassword}
+              onChange={(e) => { setNewPassword(e.target.value); setError(''); }}
+              error={error}
+              icon={<Lock size={16} strokeWidth={1.5} />}
+              autoFocus
+              autoComplete="current-password"
+            />
+            <button className={styles.forgotLink} onClick={() => { switchStep('reset'); }} type="button">
+              Forgot password?
+            </button>
+            <Button type="submit" size="lg" isLoading={loading}>
+              Sign In
+            </Button>
+            <button className={styles.modeToggle} onClick={() => switchStep('otp')} type="button">
+              <span className={styles.modeToggleBold}>← Back to OTP verification</span>
+            </button>
+          </form>
+        )}
+
+        {step === 'password-signup' && (
+          <form
+            onSubmit={async (e) => {
+              e.preventDefault();
+              setError('');
+              if (!name.trim()) { setError('Enter your full name.'); return; }
+              if (!signupEmail) { setError('Enter your email address.'); return; }
+              if (!signupPhone) { setError('Enter your phone number.'); return; }
+              const passwordErrors = getPasswordErrors(newPassword);
+              if (passwordErrors.length > 0) { setError(passwordErrors[0]); return; }
+              if (newPassword !== confirmPassword) { setError('Passwords do not match.'); return; }
+              setLoading(true);
+              try {
+                const res = await fetch('/api/auth/signup', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    name: name.trim(),
+                    email: signupEmail,
+                    phoneNumber: signupPhone,
+                    password: newPassword,
+                  }),
+                });
+                const data = await res.json();
+                if (!data.ok) {
+                  setError(data.error?.message || 'Sign up failed.');
+                  return;
+                }
+                router.push('/onboarding');
+              } catch {
+                setError('Network error. Please check your connection.');
+              } finally {
+                setLoading(false);
+              }
+            }}
+            className={styles.form}
+          >
+            <Input
+              label="Full Name"
+              placeholder="Your full name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              icon={<User size={16} strokeWidth={1.5} />}
+              autoFocus
+              autoComplete="name"
+            />
+            <Input
+              label="Email Address"
+              type="email"
+              inputMode="email"
+              placeholder="you@example.com"
+              value={signupEmail}
+              onChange={(e) => setSignupEmail(e.target.value.trim().toLowerCase())}
+              icon={<Mail size={16} strokeWidth={1.5} />}
+              autoComplete="email"
+            />
+            <Input
+              label="Phone Number"
+              type="tel"
+              inputMode="tel"
+              placeholder="080 1234 5678"
+              value={signupPhone}
+              onChange={(e) => setSignupPhone(e.target.value)}
+              icon={<Phone size={16} strokeWidth={1.5} />}
+              autoComplete="tel"
+            />
+            <div>
+              <Input
+                label="Password"
+                type="password"
+                placeholder="At least 8 characters"
+                value={newPassword}
+                onChange={(e) => { setNewPassword(e.target.value); validateField('newPassword', e.target.value); }}
+                error={fieldErrors.newPassword}
+                icon={<Lock size={16} strokeWidth={1.5} />}
+                autoComplete="new-password"
+              />
+              <PasswordRulesChecklist password={newPassword} />
+            </div>
+            <Input
+              label="Confirm Password"
+              type="password"
+              placeholder="Re-enter your password"
+              value={confirmPassword}
+              onChange={(e) => { setConfirmPassword(e.target.value); validateField('confirmPassword', e.target.value); }}
+              error={fieldErrors.confirmPassword || (error && !fieldErrors.newPassword ? error : '')}
+              icon={<Lock size={16} strokeWidth={1.5} />}
+              autoComplete="new-password"
+            />
+            {error && !fieldErrors.confirmPassword && !fieldErrors.newPassword && (
+              <p style={{ fontSize: 'var(--body-small-font-size)', color: 'var(--color-error)', margin: 0 }} role="alert">{error}</p>
+            )}
+            <Button type="submit" size="lg" isLoading={loading}>
+              Create Account
+            </Button>
+            <button className={styles.modeToggle} onClick={() => switchStep('otp')} type="button">
+              <span className={styles.modeToggleBold}>← Back to OTP verification</span>
+            </button>
           </form>
         )}
 

@@ -17,28 +17,36 @@ export async function POST(req: NextRequest) {
 
     if (!parsed.success) {
       return NextResponse.json<Failure>(
-        { ok: false, error: { code: 'invalid_input', message: 'Check your phone number and password.' } },
+        { ok: false, error: { code: 'invalid_input', message: parsed.error.issues[0]?.message || 'Check your credentials.' } },
         { status: 400 },
       );
     }
 
-    const { phoneNumber, password } = parsed.data;
-    const normalizedPhone = normalizePhone(phoneNumber);
+    const { phoneNumber, email, password } = parsed.data;
 
-    const resident = await db.resident.findUnique({ where: { phoneNumber: normalizedPhone } });
+    const resident = phoneNumber
+      ? await db.resident.findUnique({ where: { phoneNumber: normalizePhone(phoneNumber) } })
+      : await db.resident.findUnique({ where: { email: email!.toLowerCase().trim() } });
 
-    if (!resident || !resident.passwordHash) {
+    if (!resident) {
       return NextResponse.json<Failure>(
-        { ok: false, error: { code: 'invalid_credentials', message: 'We could not sign you in. Check your phone number and password.' } },
+        { ok: false, error: { code: 'invalid_credentials', message: 'No account found with those credentials.' } },
+        { status: 401 },
+      );
+    }
+
+    if (!resident.passwordHash) {
+      return NextResponse.json<Failure>(
+        { ok: false, error: { code: 'no_password', message: 'No password set for this account. Use OTP to sign in, or create a password from your profile.' } },
         { status: 401 },
       );
     }
 
     const valid = await bcrypt.compare(password, resident.passwordHash);
     if (!valid) {
-      track('login_failed', { phoneNumber: normalizedPhone });
+      track('login_failed', { residentId: resident.id });
       return NextResponse.json<Failure>(
-        { ok: false, error: { code: 'invalid_credentials', message: 'We could not sign you in. Check your phone number and password.' } },
+        { ok: false, error: { code: 'invalid_credentials', message: 'Incorrect password. Try again or use OTP to sign in.' } },
         { status: 401 },
       );
     }

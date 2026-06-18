@@ -1,13 +1,19 @@
 import { logger } from '@/lib/logger';
 
-/**
- * Sends an OTP code via SMS.
- * In development, the OTP is logged to the server console.
- * In production, this should integrate with a real SMS provider (e.g. Termii, Twilio).
- */
+function getAtCredentials() {
+  const apiKey = process.env.AFRICASTALKING_API_KEY;
+  const username = process.env.AFRICASTALKING_USERNAME || 'sandbox';
+  const from = process.env.AFRICASTALKING_FROM;
+  if (!apiKey) {
+    throw new Error('AFRICASTALKING_API_KEY is not configured.');
+  }
+  return { apiKey, username, from };
+}
+
 export async function sendOtpSms(phoneNumber: string, code: string): Promise<boolean> {
-  if (process.env.NODE_ENV !== 'production') {
-    // Development mock: log to console instead of sending real SMS
+  const isDev = process.env.NODE_ENV !== 'production' || process.env.AFRICASTALKING_API_KEY === 'sandbox';
+
+  if (isDev) {
     logger.info('sms.otp.mock_sent', {
       phoneNumber,
       code,
@@ -16,18 +22,42 @@ export async function sendOtpSms(phoneNumber: string, code: string): Promise<boo
     return true;
   }
 
-  // Production: integrate with SMS provider here
-  // For now, mock success
-  logger.info('sms.otp.sent', { phoneNumber });
-  return true;
+  try {
+    const { apiKey, username, from } = getAtCredentials();
+    const encoded = new URLSearchParams({
+      username,
+      to: phoneNumber,
+      message: `Your LAWMA OTP is ${code}. Valid for 5 minutes.`,
+    });
+    if (from) encoded.set('from', from);
+
+    const res = await fetch('https://api.africastalking.com/version1/messaging', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded',
+        apiKey,
+      },
+      body: encoded,
+    });
+
+    const data = await res.json();
+    if (data.SMSMessageData?.Recipients?.[0]?.status === 'Success') {
+      logger.info('sms.otp.sent', { phoneNumber, messageId: data.SMSMessageData.Recipients[0].messageId });
+      return true;
+    }
+
+    logger.error('sms.otp.failed', { phoneNumber, response: data });
+    return false;
+  } catch (error) {
+    logger.error('sms.otp.error', { phoneNumber, error: String(error) });
+    return false;
+  }
 }
 
-/**
- * Generates a 6-digit OTP code using crypto-safe random numbers.
- */
 export function generateOtpCode(): string {
   const array = new Uint32Array(1);
-  // Use crypto.getRandomValues in browser or simple random for server
-  const code = Math.floor(100000 + Math.random() * 900000);
-  return code.toString().slice(0, 6);
+  crypto.getRandomValues(array);
+  const code = (100000 + (array[0] % 900000)).toString();
+  return code.slice(0, 6);
 }
