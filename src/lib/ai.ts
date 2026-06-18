@@ -54,7 +54,7 @@ function getClient() {
 
 export async function analyzeWasteImage(imageUrl: string): Promise<RecycleAiReport> {
   const client = getClient();
-  const model = process.env.DEEPSEEK_VISION_MODEL || 'deepseek-vision';
+  const model = process.env.DEEPSEEK_VISION_MODEL || 'deepseek-v4-pro';
 
   const imgResp = await fetch(imageUrl);
   const buffer = Buffer.from(await imgResp.arrayBuffer());

@@ -2,7 +2,6 @@ import { Leaf, Home, Store, Building2, Ban, ScanLine, Gift, Coins, BadgePercent 
 
 import { Card } from '@/components/ui/Card';
 import { RecycleTabs } from '@/components/recycling/RecycleTabs';
-import { RecyclingPageHeader } from '@/components/recycling/RecyclingPageHeader';
 import { RECYCLING_TIPS } from '@/constants';
 import styles from './page.module.css';
 
@@ -100,15 +99,12 @@ function GuideContent() {
 
 export default function RecyclingPage() {
   return (
-    <>
-      <RecyclingPageHeader />
-      <div className={styles.page}>
-        <div className={styles.header}>
-          <h1 className={styles.title}>Recycling</h1>
-        </div>
-
-        <RecycleTabs guideContent={<GuideContent />} />
+    <div className={styles.page}>
+      <div className={styles.header}>
+        <h1 className={styles.title}>Recycling</h1>
       </div>
-    </>
+
+      <RecycleTabs guideContent={<GuideContent />} />
+    </div>
   );
 }
