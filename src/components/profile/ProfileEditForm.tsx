@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Pencil, X, Check } from 'lucide-react';
+import { Pencil, X } from 'lucide-react';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Button } from '@/components/ui/Button';
@@ -14,6 +14,7 @@ import {
   validatePhone,
   maskIdentifier,
 } from '@/lib/validators/validation';
+import { useToast } from '@/context/ToastContext';
 import styles from './ProfileEditForm.module.css';
 
 type Props = {
@@ -46,9 +47,9 @@ export function ProfileEditForm({
   const [email, setEmail] = useState(initialEmail);
   const [phone, setPhone] = useState(initialPhone);
 
+  const toast = useToast();
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState(false);
 
   const [nameTouched, setNameTouched] = useState(false);
   const [addressTouched, setAddressTouched] = useState(false);
@@ -103,14 +104,14 @@ export function ProfileEditForm({
       const data = await res.json();
       if (!data.ok) {
         setOtpModal(null);
-        setError(data.error?.message || 'Failed to send verification code.');
+        toast(data.error?.message || 'Failed to send verification code.', 'error');
         return;
       }
       setOtpModal((m) => m ? { ...m, sending: false } : null);
       setOtpCountdown(60);
     } catch {
       setOtpModal(null);
-      setError('Network error. Please try again.');
+      toast('Network error. Please try again.', 'error');
     }
   }
 
@@ -124,14 +125,13 @@ export function ProfileEditForm({
       });
       const data = await res.json();
       if (!data.ok) {
-        setError(data.error || 'Failed to save changes.');
+        toast(data.error || 'Failed to save changes.', 'error');
         return;
       }
-      setSuccess(true);
+      toast('Profile updated successfully.', 'success');
       setEditing(false);
-      setTimeout(() => setSuccess(false), 3000);
     } catch {
-      setError('Network error. Please try again.');
+      toast('Network error. Please try again.', 'error');
     } finally {
       setSaving(false);
     }
@@ -201,12 +201,6 @@ export function ProfileEditForm({
   if (!editing) {
     return (
       <div className={styles.viewRoot}>
-        {success && (
-          <div className={styles.successBanner}>
-            <Check size={16} strokeWidth={2} />
-            Profile updated successfully.
-          </div>
-        )}
         <div className={styles.row}>
           <span className={styles.label}>Name</span>
           <span className={styles.value}>{name || 'Not set'}</span>

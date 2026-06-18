@@ -93,7 +93,7 @@
 .todayHeader {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
 }
 
 .todayPill {
@@ -162,12 +162,12 @@
 .cardRow {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
 }
 
 .dayName {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 8px;
   font-size: var(--title-small-font-size);
   font-weight: 700;

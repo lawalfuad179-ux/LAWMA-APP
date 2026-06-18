@@ -1,38 +1,54 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { CheckCircle, XCircle, AlertCircle, Info, X } from 'lucide-react';
+
+import type { ToastVariant } from '@/context/ToastContext';
 import styles from './Toast.module.css';
 
-type ToastVariant = 'info' | 'success' | 'error';
+const ICONS: Record<ToastVariant, React.ElementType> = {
+  success: CheckCircle,
+  error: XCircle,
+  warning: AlertCircle,
+  info: Info,
+};
 
-type ToastProps = {
+type Props = {
   message: string;
   variant?: ToastVariant;
   onClose: () => void;
   duration?: number;
 };
 
-export function Toast({ message, variant = 'info', onClose, duration = 4000 }: ToastProps) {
+export function Toast({ message, variant = 'info', onClose, duration = 4000 }: Props) {
   const [visible, setVisible] = useState(false);
+  const Icon = ICONS[variant];
 
   useEffect(() => {
     requestAnimationFrame(() => setVisible(true));
     const timer = setTimeout(() => {
       setVisible(false);
-      setTimeout(onClose, 300);
+      setTimeout(onClose, 280);
     }, duration);
     return () => clearTimeout(timer);
   }, [duration, onClose]);
 
-  const classes = [styles.root, styles[variant], visible ? styles.visible : '']
-    .filter(Boolean)
-    .join(' ');
+  function dismiss() {
+    setVisible(false);
+    setTimeout(onClose, 280);
+  }
 
   return (
-    <div className={classes} role="alert">
-      <span>{message}</span>
-      <button className={styles.close} onClick={() => { setVisible(false); setTimeout(onClose, 300); }} aria-label="Close">
-        ✕
+    <div
+      className={[styles.root, styles[variant], visible ? styles.visible : ''].filter(Boolean).join(' ')}
+      role="alert"
+      aria-live="polite"
+      style={{ pointerEvents: 'all' }}
+    >
+      <Icon size={17} strokeWidth={2} className={styles.icon} aria-hidden />
+      <span className={styles.message}>{message}</span>
+      <button className={styles.close} onClick={dismiss} aria-label="Dismiss notification">
+        <X size={13} strokeWidth={2.5} />
       </button>
     </div>
   );

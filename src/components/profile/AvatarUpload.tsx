@@ -4,6 +4,7 @@ import { useRef, useState, useCallback } from 'react';
 import Cropper, { Area } from 'react-easy-crop';
 import { Camera, X } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+import { useToast } from '@/context/ToastContext';
 import styles from './AvatarUpload.module.css';
 
 type Props = {
@@ -12,6 +13,7 @@ type Props = {
 };
 
 export function AvatarUpload({ name, avatarUrl: initialUrl }: Props) {
+  const toast = useToast();
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [url, setUrl] = useState(initialUrl);
@@ -77,7 +79,10 @@ export function AvatarUpload({ name, avatarUrl: initialUrl }: Props) {
 
         const res = await fetch('/api/upload', { method: 'POST', body: fd });
         const data = await res.json();
-        if (!data.ok) return;
+        if (!data.ok) {
+          toast('Photo upload failed. Please try again.', 'error');
+          return;
+        }
 
         const updateRes = await fetch('/api/profile/update', {
           method: 'PATCH',
@@ -88,8 +93,12 @@ export function AvatarUpload({ name, avatarUrl: initialUrl }: Props) {
         if (updateData.ok) {
           setUrl(data.url);
           setCacheKey((c) => c + 1);
+          toast('Profile photo updated.', 'success');
+        } else {
+          toast('Photo uploaded but could not be saved. Try again.', 'warning');
         }
       } catch {
+        toast('Network error. Please try again.', 'error');
       } finally {
         setUploading(false);
       }

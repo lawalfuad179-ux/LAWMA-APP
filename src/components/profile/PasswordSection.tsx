@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { PasswordRulesChecklist } from '@/components/ui/PasswordRulesChecklist';
 import { getPasswordErrors } from '@/lib/validators/validation';
+import { useToast } from '@/context/ToastContext';
 import styles from './PasswordSection.module.css';
 
 type Props = {
@@ -14,33 +15,32 @@ type Props = {
 };
 
 export function PasswordSection({ hasPassword: initialHasPassword }: Props) {
+  const toast = useToast();
   const [hasPassword, setHasPassword] = useState(initialHasPassword);
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [inlineError, setInlineError] = useState('');
   const [loading, setLoading] = useState(false);
 
   function reset() {
     setCurrentPassword('');
     setNewPassword('');
     setConfirmPassword('');
-    setError('');
+    setInlineError('');
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setError('');
-    setSuccess('');
+    setInlineError('');
 
     const passwordErrors = getPasswordErrors(newPassword);
     if (passwordErrors.length > 0) {
-      setError(passwordErrors[0]);
+      setInlineError(passwordErrors[0]);
       return;
     }
     if (newPassword !== confirmPassword) {
-      setError('Passwords do not match.');
+      setInlineError('Passwords do not match.');
       return;
     }
 
@@ -59,15 +59,22 @@ export function PasswordSection({ hasPassword: initialHasPassword }: Props) {
       const data = await res.json();
 
       if (!data.ok) {
-        setError(data.error?.message || 'Something went wrong.');
+        if (data.error?.code === 'wrong_password') {
+          setInlineError('Current password is incorrect.');
+        } else {
+          toast(data.error?.message || 'Something went wrong.', 'error');
+        }
         return;
       }
 
-      setSuccess(hasPassword ? 'Password updated successfully.' : 'Password created successfully.');
+      toast(
+        hasPassword ? 'Password updated successfully.' : 'Password created successfully.',
+        'success',
+      );
       if (!hasPassword) setHasPassword(true);
       reset();
     } catch {
-      setError('Network error. Please try again.');
+      toast('Network error. Please try again.', 'error');
     } finally {
       setLoading(false);
     }
@@ -90,7 +97,8 @@ export function PasswordSection({ hasPassword: initialHasPassword }: Props) {
           label="Current Password"
           type="password"
           value={currentPassword}
-          onChange={(e) => setCurrentPassword(e.target.value)}
+          onChange={(e) => { setCurrentPassword(e.target.value); setInlineError(''); }}
+          error={inlineError && inlineError === 'Current password is incorrect.' ? inlineError : ''}
           autoComplete="current-password"
         />
       )}
@@ -100,7 +108,7 @@ export function PasswordSection({ hasPassword: initialHasPassword }: Props) {
           label="New Password"
           type="password"
           value={newPassword}
-          onChange={(e) => { setNewPassword(e.target.value); setError(''); }}
+          onChange={(e) => { setNewPassword(e.target.value); setInlineError(''); }}
           autoComplete="new-password"
         />
         <PasswordRulesChecklist password={newPassword} />
@@ -110,12 +118,10 @@ export function PasswordSection({ hasPassword: initialHasPassword }: Props) {
         label="Confirm New Password"
         type="password"
         value={confirmPassword}
-        onChange={(e) => { setConfirmPassword(e.target.value); setError(''); }}
+        onChange={(e) => { setConfirmPassword(e.target.value); setInlineError(''); }}
+        error={inlineError && inlineError !== 'Current password is incorrect.' ? inlineError : ''}
         autoComplete="new-password"
       />
-
-      {error && <p className={styles.error} role="alert">{error}</p>}
-      {success && <p className={styles.success} role="status">{success}</p>}
 
       <Button type="submit" size="md" isLoading={loading}>
         {hasPassword ? 'Update Password' : 'Create Password'}

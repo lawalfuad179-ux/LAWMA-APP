@@ -438,7 +438,7 @@
 
 .itemName {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 6px;
   font-size: var(--body-medium-font-size);
   font-weight: 600;
