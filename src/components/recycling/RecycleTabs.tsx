@@ -14,7 +14,7 @@ type RecycleTabsProps = {
 };
 
 export function RecycleTabs({ guideContent }: RecycleTabsProps) {
-  const [tab, setTab] = useState<Tab>('guide');
+  const [tab, setTab] = useState<Tab>('scan');
 
   return (
     <div className={styles.root}>

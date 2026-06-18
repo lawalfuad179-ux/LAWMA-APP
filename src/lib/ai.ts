@@ -54,7 +54,12 @@ function getClient() {
 
 export async function analyzeWasteImage(imageUrl: string): Promise<RecycleAiReport> {
   const client = getClient();
-  const model = process.env.DEEPSEEK_VISION_MODEL || 'deepseek-chat';
+  const model = process.env.DEEPSEEK_VISION_MODEL || 'deepseek-vision';
+
+  const imgResp = await fetch(imageUrl);
+  const buffer = Buffer.from(await imgResp.arrayBuffer());
+  const mime = imgResp.headers.get('content-type') || 'image/jpeg';
+  const dataUri = `data:${mime};base64,${buffer.toString('base64')}`;
 
   const response = await client.chat.completions.create({
     model,
@@ -63,10 +68,7 @@ export async function analyzeWasteImage(imageUrl: string): Promise<RecycleAiRepo
       { role: 'system', content: SYSTEM_PROMPT },
       {
         role: 'user',
-        content: [
-          { type: 'image_url', image_url: { url: imageUrl } },
-          { type: 'text', text: USER_PROMPT },
-        ],
+        content: `[image](${dataUri})\n\n${USER_PROMPT}`,
       },
     ],
   });

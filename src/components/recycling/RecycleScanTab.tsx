@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { Camera, CheckCircle, Leaf, Trash2, AlertCircle, Star, RotateCcw, Upload, ArrowLeft } from 'lucide-react';
+import { Camera, CheckCircle, Leaf, Trash2, AlertCircle, Star, RotateCcw, Upload, ArrowLeft, Zap, RefreshCw } from 'lucide-react';
 
 import { Button } from '@/components/ui/Button';
 import type { RecycleAiReport, WasteItem } from '@/lib/ai';
@@ -35,6 +35,8 @@ export function RecycleScanTab() {
   const [phase, setPhase] = useState<Phase>({ kind: 'idle' });
   const [error, setError] = useState<string | null>(null);
   const [cameraError, setCameraError] = useState<string | null>(null);
+  const [facingMode, setFacingMode] = useState<'environment' | 'user'>('environment');
+  const [flashOn, setFlashOn] = useState(false);
 
   // Attach stream to video element when camera phase is active
   useEffect(() => {
@@ -60,17 +62,47 @@ export function RecycleScanTab() {
     setPhase({ kind: 'previewing', file, previewUrl });
   }
 
-  async function handleCameraClick() {
+  async function startCamera(mode: 'environment' | 'user') {
     setCameraError(null);
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 } },
+        video: { facingMode: mode, width: { ideal: 1920 }, height: { ideal: 1080 } },
       });
       streamRef.current = stream;
+      setFacingMode(mode);
+      setFlashOn(false);
       setPhase({ kind: 'camera' });
     } catch {
       setCameraError('Camera permission denied. Please allow camera access in your browser settings.');
     }
+  }
+
+  async function handleCameraClick() {
+    await startCamera('environment');
+  }
+
+  async function handleSwitchCamera() {
+    const newMode = facingMode === 'environment' ? 'user' : 'environment';
+    streamRef.current?.getTracks().forEach((t) => t.stop());
+    streamRef.current = null;
+    await startCamera(newMode);
+  }
+
+  async function handleToggleFlash() {
+    if (!streamRef.current) return;
+    const track = streamRef.current.getVideoTracks()[0];
+    if (!track || !('applyConstraints' in track)) return;
+    const capabilities = track.getCapabilities?.() as { torch?: boolean } | undefined;
+    if (!capabilities || !capabilities.torch) return;
+    const next = !flashOn;
+    try {
+      await track.applyConstraints({ advanced: [{ torch: next } as any] });
+      setFlashOn(next);
+    } catch {}
+  }
+
+  function handleUploadFromCamera() {
+    uploadInputRef.current?.click();
   }
 
   function handleCameraClose() {
@@ -161,15 +193,30 @@ export function RecycleScanTab() {
             muted
             autoPlay
           />
-          {/* Back button */}
+          {/* Back button (top left) */}
           <button className={styles.cameraBack} onClick={handleCameraClose} type="button" aria-label="Close camera">
             <ArrowLeft size={20} strokeWidth={2} />
             <span>Back</span>
           </button>
-          {/* Capture button */}
+          {/* Flash button (top right) */}
+          <button
+            className={`${styles.cameraFlashBtn} ${flashOn ? styles.cameraFlashBtnOn : ''}`}
+            onClick={handleToggleFlash}
+            type="button"
+            aria-label={flashOn ? 'Turn flash off' : 'Turn flash on'}
+          >
+            <Zap size={20} strokeWidth={1.8} />
+          </button>
+          {/* Bottom bar: upload | capture | switch */}
           <div className={styles.cameraBar}>
+            <button className={styles.cameraSideBtn} onClick={handleUploadFromCamera} type="button" aria-label="Upload from device">
+              <Upload size={22} strokeWidth={1.8} />
+            </button>
             <button className={styles.captureBtn} onClick={handleCapture} type="button" aria-label="Take photo">
               <Camera size={28} strokeWidth={1.8} />
+            </button>
+            <button className={styles.cameraSideBtn} onClick={handleSwitchCamera} type="button" aria-label="Switch camera">
+              <RefreshCw size={22} strokeWidth={1.8} />
             </button>
           </div>
         </div>

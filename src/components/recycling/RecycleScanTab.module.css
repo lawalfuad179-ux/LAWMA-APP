@@ -144,17 +144,74 @@
   opacity: 0.8;
 }
 
-/* Bottom bar with capture button */
+/* Flash toggle button (top right) */
+.cameraFlashBtn {
+  position: absolute;
+  top: env(safe-area-inset-top, 0px);
+  right: 0;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 16px;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  border-radius: 50%;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: background 0.15s, color 0.15s;
+}
+
+.cameraFlashBtn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.cameraFlashBtnOn {
+  background: rgba(255, 200, 0, 0.35);
+  color: #ffd700;
+}
+
+/* Bottom bar with capture button + side buttons */
 .cameraBar {
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
-  padding: 36px 0 calc(env(safe-area-inset-bottom, 0px) + 36px);
+  padding: 36px 48px calc(env(safe-area-inset-bottom, 0px) + 36px);
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 32px;
   background: linear-gradient(to top, rgba(0, 0, 0, 0.55), transparent);
+}
+
+/* Side buttons (upload / switch camera) */
+.cameraSideBtn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: background 0.15s, transform 0.12s;
+  flex-shrink: 0;
+}
+
+.cameraSideBtn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.cameraSideBtn:active {
+  transform: scale(0.9);
 }
 
 /* Round camera capture button */
