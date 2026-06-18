@@ -1,9 +1,10 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { Camera, CheckCircle, Leaf, Trash2, AlertCircle, Star, RotateCcw, Upload, ArrowLeft, Zap, RefreshCw } from 'lucide-react';
+import { Camera, CheckCircle, Trash2, AlertCircle, Star, RotateCcw, Upload, ArrowLeft, Zap, RefreshCw } from 'lucide-react';
 
 import { Button } from '@/components/ui/Button';
+import { AiRecycleIcon } from '@/components/ui/icons/AiRecycleIcon';
 import type { RecycleAiReport, WasteItem } from '@/lib/ai';
 import styles from './RecycleScanTab.module.css';
 
@@ -277,7 +278,7 @@ export function RecycleScanTab() {
       {phase.kind === 'scanning' && (
         <div className={styles.scanning}>
           <div className={styles.scanningPulse}>
-            <Leaf size={36} strokeWidth={1.5} />
+            <AiRecycleIcon size={36} />
           </div>
           <p className={styles.scanningText}>Analyzing your waste…</p>
           <p className={styles.scanningSubtext}>The AI is classifying your items</p>
@@ -331,7 +332,7 @@ export function RecycleScanTab() {
           )}
 
           <div className={styles.reportImpact}>
-            <Leaf size={14} />
+              <AiRecycleIcon size={14} />
             <span>{phase.report.environmentalImpact}</span>
           </div>
 

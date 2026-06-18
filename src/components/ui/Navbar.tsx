@@ -26,9 +26,9 @@ import styles from './Navbar.module.css';
 const sidebarItems = [
   { href: '/dashboard', label: 'Home',      Icon: Home },
   { href: '/schedules', label: 'Schedule',  Icon: CalendarDays },
-  { href: '/complaints',label: 'Report',    Icon: AlertCircle },
-  { href: '/payments',  label: 'Payments',  Icon: CreditCard },
   { href: '/recycling', label: 'Recycling', Icon: ({ size }: { size?: number }) => <AiRecycleIcon size={size || 22} color="currentColor" /> },
+  { href: '/payments',  label: 'Payments',  Icon: CreditCard },
+  { href: '/complaints',label: 'Report',    Icon: AlertCircle },
 ];
 
 // Mobile bottom nav: 4 items + center AI Recycle button
