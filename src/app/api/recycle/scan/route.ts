@@ -1,5 +1,6 @@
+import { writeFile, mkdir } from 'node:fs/promises';
+import path from 'node:path';
 import { NextRequest, NextResponse } from 'next/server';
-import { put } from '@vercel/blob';
 
 import { getSession } from '@/lib/auth';
 import { analyzeWasteImage } from '@/lib/ai';
@@ -34,16 +35,30 @@ export async function POST(req: NextRequest) {
       return NextResponse.json<Failure>({ ok: false, error: { code: 'invalid_type', message: 'Only JPG, PNG, WebP, or HEIC images are accepted.' } }, { status: 400 });
     }
 
-    const blob = await put(`recycle/${session.residentId}/${Date.now()}-${file.name}`, file, {
-      access: 'public',
-      addRandomSuffix: true,
-    });
+    let imageUrl: string;
 
-    const report = await analyzeWasteImage(blob.url);
+    if (process.env.BLOB_READ_WRITE_TOKEN) {
+      const { put } = await import('@vercel/blob');
+      const blob = await put(`recycle/${session.residentId}/${Date.now()}-${file.name}`, file, {
+        access: 'public',
+        addRandomSuffix: true,
+      });
+      imageUrl = blob.url;
+    } else {
+      const ext = file.name.split('.').pop() || 'jpg';
+      const fileName = `${session.residentId}-${Date.now()}.${ext}`;
+      const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'recycle');
+      await mkdir(uploadDir, { recursive: true });
+      const buffer = Buffer.from(await file.arrayBuffer());
+      await writeFile(path.join(uploadDir, fileName), buffer);
+      imageUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/uploads/recycle/${fileName}`;
+    }
+
+    const report = await analyzeWasteImage(imageUrl);
 
     logger.info('recycle.scan.completed', { residentId: session.residentId, recyclableCount: report.recyclableCount });
 
-    return NextResponse.json<Success>({ ok: true, data: { imageUrl: blob.url, report } });
+    return NextResponse.json<Success>({ ok: true, data: { imageUrl, report } });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Something went wrong.';
     logger.error('recycle.scan.failed', { error: String(error) });

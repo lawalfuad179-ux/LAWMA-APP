@@ -169,8 +169,8 @@ export function Navbar() {
 
         <div className={styles.sidebarTop}>
           <Link href="/dashboard" className={styles.sidebarBrand}>
-            <Image src="/logo-light.png" alt="LAWMA" width={150} height={28} className={styles.sidebarLogoLight} style={{ width: 'auto', height: 28 }} />
-            <Image src="/logo-dark.png"  alt="LAWMA" width={150} height={28} className={styles.sidebarLogoDark} style={{ width: 'auto', height: 28 }} />
+            <Image src="/logo-light.png" alt="LAWMA" width={150} height={28} className={styles.sidebarLogoLight} />
+            <Image src="/logo-dark.png"  alt="LAWMA" width={150} height={28} className={styles.sidebarLogoDark} />
             <Image src="/favicon.png"    alt=""       width={28}  height={28} className={styles.sidebarFavicon} aria-hidden="true" />
           </Link>
         </div>
@@ -265,8 +265,8 @@ export function Navbar() {
           <Menu size={22} strokeWidth={1.5} />
         </button>
         <Link href="/dashboard" className={styles.mobileTopbarLogo}>
-          <Image src="/logo-light.png" alt="LAWMA" width={90} height={22} className={styles.mobileLogoLight} style={{ width: 'auto', height: 22 }} />
-          <Image src="/logo-dark.png"  alt="LAWMA" width={90} height={22} className={styles.mobileLogoDark} style={{ width: 'auto', height: 22 }} />
+          <Image src="/logo-light.png" alt="LAWMA" width={90} height={22} className={styles.mobileLogoLight} />
+          <Image src="/logo-dark.png"  alt="LAWMA" width={90} height={22} className={styles.mobileLogoDark} />
         </Link>
         <Link href="/notifications" aria-label="Notifications" className={styles.mobileTopbarBell}>
           <Bell size={22} strokeWidth={1.5} />
