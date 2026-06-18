@@ -56,7 +56,7 @@ function getClient() {
 
 export async function analyzeWasteImage(imageUrl: string): Promise<RecycleAiReport> {
   const client = getClient();
-  const model = process.env.DEEPSEEK_VISION_MODEL || 'deepseek-v4-flash';
+  const model = process.env.DEEPSEEK_VISION_MODEL || 'deepseek-chat';
 
   const imgResp = await fetch(imageUrl);
   const buffer = Buffer.from(await imgResp.arrayBuffer());
@@ -71,7 +71,7 @@ export async function analyzeWasteImage(imageUrl: string): Promise<RecycleAiRepo
         { role: 'system', content: SYSTEM_PROMPT },
         {
           role: 'user',
-          content: `[image](${dataUri})\n\n${USER_PROMPT}`,
+          content: `Image data: ${dataUri}\n\n${USER_PROMPT}`,
         },
       ],
     });
@@ -83,24 +83,40 @@ export async function analyzeWasteImage(imageUrl: string): Promise<RecycleAiRepo
     return JSON.parse(jsonMatch[0]) as RecycleAiReport;
   } catch (err) {
     logger.error('ai.analyze_waste.failed', { error: String(err) });
-    return getFallbackReport(imageUrl);
+
+    const msg = err instanceof Error ? err.message : '';
+    if (msg.includes('Invalid URL') || msg.includes('API key') || msg.includes('Incorrect API')) {
+      throw err;
+    }
+
+    return getFallbackReport();
   }
 }
 
-function getFallbackReport(_imageUrl: string): RecycleAiReport {
+function getFallbackReport(): RecycleAiReport {
   return {
     items: [
-      { name: 'Plastic bottle', recyclable: true, category: 'plastic', instruction: 'Rinse, crush, and drop at the nearest Wecyclers collection point.' },
-      { name: 'Aluminium can', recyclable: true, category: 'metal', instruction: 'Rinse, crush, and drop at the nearest Wecyclers collection point.' },
-      { name: 'Paper/cardboard', recyclable: true, category: 'paper', instruction: 'Keep dry and bundle separately for PSP collection.' },
+      {
+        name: 'Unidentified item',
+        recyclable: false,
+        category: 'non-recyclable',
+        instruction: 'Place in your general waste black bag for PSP collection.',
+      },
+      {
+        name: 'Unknown material',
+        recyclable: true,
+        category: 'plastic',
+        instruction: 'If recyclable, rinse and drop at a Wecyclers collection point. Otherwise, dispose with general waste.',
+      },
     ],
-    summary: 'Common recyclable household items identified.',
-    recyclableCount: 3,
-    nonRecyclableCount: 0,
-    environmentalImpact: 'Recycling these items saves approximately 2.5 kg of CO₂ emissions.',
+    summary: 'We could not fully analyse the image. The items detected may include non-recyclable or mixed materials.',
+    recyclableCount: 1,
+    nonRecyclableCount: 1,
+    environmentalImpact: 'Proper waste sorting helps Lagos reduce landfill pressure.',
     tips: [
-      'Rinse containers before recycling to avoid contamination.',
-      'Separate paper and cardboard from other recyclables.',
+      'Ensure good lighting when taking photos for better AI analysis.',
+      'When in doubt, place questionable items in general waste.',
+      'Rinse all containers before disposal to reduce contamination.',
     ],
   };
 }

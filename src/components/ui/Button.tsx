@@ -46,7 +46,7 @@ export function Button({
       {isLoading ? (
         <span className={styles.spinner} aria-label="Loading" />
       ) : null}
-      <span className={isLoading ? styles.hiddenText : ''}>{children}</span>
+      <span className={`${styles.content} ${isLoading ? styles.hiddenText : ''}`}>{children}</span>
     </button>
   );
 }

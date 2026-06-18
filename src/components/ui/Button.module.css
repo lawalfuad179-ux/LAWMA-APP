@@ -111,6 +111,12 @@
   position: absolute;
 }
 
+.content {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .hiddenText {
   visibility: hidden;
 }

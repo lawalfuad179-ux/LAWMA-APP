@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { Camera, CheckCircle, Trash2, AlertCircle, Star, RotateCcw, Upload, ArrowLeft, Zap, RefreshCw } from 'lucide-react';
+import { Camera, CheckCircle, Trash2, AlertCircle, Star, RotateCcw, Upload, ArrowLeft, Zap, RefreshCw, ScanLine } from 'lucide-react';
 
 import { Button } from '@/components/ui/Button';
 import { AiRecycleIcon } from '@/components/ui/icons/AiRecycleIcon';
@@ -268,8 +268,8 @@ export function RecycleScanTab() {
         <div className={styles.preview}>
           <img src={phase.previewUrl} alt="Selected waste" className={styles.previewImg} />
           <div className={styles.previewActions}>
-            <Button onClick={handleScan}>Analyze with AI</Button>
-            <Button variant="secondary" onClick={handleReset}><RotateCcw size={14} /> Retake</Button>
+            <Button onClick={handleScan}><ScanLine size={16} /><span>Analyze with AI</span></Button>
+            <Button variant="secondary" onClick={handleReset}><RotateCcw size={16} /><span>Retake</span></Button>
           </div>
         </div>
       )}
@@ -338,11 +338,10 @@ export function RecycleScanTab() {
 
           <div className={styles.reportActions}>
             <Button onClick={handleConfirm}>
-              <CheckCircle size={16} />
-              Confirm & Earn Points
+              <CheckCircle size={16} /><span>Earn Points</span>
             </Button>
             <Button variant="secondary" onClick={handleReset}>
-              <RotateCcw size={14} /> Rescan
+              <RotateCcw size={16} /><span>Rescan</span>
             </Button>
           </div>
         </div>
