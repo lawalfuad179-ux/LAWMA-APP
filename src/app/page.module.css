@@ -416,6 +416,15 @@
   margin: 0;
 }
 
+.stepReward {
+  background: color-mix(in srgb, var(--color-primary) 8%, var(--color-surface));
+  border-color: color-mix(in srgb, var(--color-primary) 30%, transparent);
+}
+
+.stepReward .stepNumber {
+  color: var(--color-primary);
+}
+
 /* ─────────── 5. CTA Footer ─────────── */
 
 .ctaSection {
@@ -517,14 +526,19 @@
 
   .stepsGrid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 32px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
   }
 }
 
 /* ─────────── Responsive: Desktop (>= 1024px) ─────────── */
 
 @media (min-width: 1024px) {
+  .stepsGrid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+  }
+
   .sectionHeading {
     font-size: var(--display-small-font-size);
     letter-spacing: -1.2px;

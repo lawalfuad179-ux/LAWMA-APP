@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { Camera, CheckCircle, Trash2, AlertCircle, Star, RotateCcw, Upload, ArrowLeft, Zap, RefreshCw, ScanLine } from 'lucide-react';
+import { Camera, AlertCircle, RotateCcw, Upload, ArrowLeft, Zap, RefreshCw, ScanLine } from 'lucide-react';
 
 import { Button } from '@/components/ui/Button';
 import { AiRecycleIcon } from '@/components/ui/icons/AiRecycleIcon';
@@ -13,9 +13,7 @@ type Phase =
   | { kind: 'camera' }
   | { kind: 'previewing'; file: File; previewUrl: string }
   | { kind: 'scanning' }
-  | { kind: 'report'; imageUrl: string; report: RecycleAiReport; imageHash?: string }
-  | { kind: 'confirming' }
-  | { kind: 'done'; pointsEarned: number; newBalance: number };
+  | { kind: 'report'; imageUrl: string; report: RecycleAiReport };
 
 const CATEGORY_EMOJI: Record<string, string> = {
   plastic: '♻️',
@@ -39,7 +37,6 @@ export function RecycleScanTab() {
   const [facingMode, setFacingMode] = useState<'environment' | 'user'>('environment');
   const [flashOn, setFlashOn] = useState(false);
 
-  // Attach stream to video element when camera phase is active
   useEffect(() => {
     if (phase.kind === 'camera' && videoRef.current && streamRef.current) {
       videoRef.current.srcObject = streamRef.current;
@@ -47,7 +44,6 @@ export function RecycleScanTab() {
     }
   }, [phase.kind]);
 
-  // Stop stream on unmount
   useEffect(() => {
     return () => {
       streamRef.current?.getTracks().forEach((t) => t.stop());
@@ -143,41 +139,18 @@ export function RecycleScanTab() {
     const json = await res.json();
 
     if (!json.ok) {
-      setError(json.error?.message ?? 'Scan failed. Please try again.');
-      setPhase({ kind: 'idle' });
-      return;
-    }
-
-    setPhase({ kind: 'report', imageUrl: json.data.imageUrl, report: json.data.report, imageHash: json.data.imageHash });
-  }
-
-  async function handleConfirm() {
-    if (phase.kind !== 'report') return;
-    setError(null);
-    setPhase({ kind: 'confirming' });
-
-    const res = await fetch('/api/recycle/confirm', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ imageUrl: phase.imageUrl, report: phase.report, imageHash: phase.imageHash }),
-    });
-    const json = await res.json();
-
-    if (!json.ok) {
-      const code: string = json.error?.code ?? '';
-      const friendlyMessages: Record<string, string> = {
-        already_confirmed:  'This scan has already been claimed.',
-        duplicate_image:    'This photo was already used recently. Take a new one.',
-        duplicate_content:  'These same items were already scanned today.',
-        cooldown_active:    json.error?.message ?? 'Please wait a few minutes before your next scan.',
-        daily_limit_reached: json.error?.message ?? "You've reached today's scan limit. Try again tomorrow.",
+      const scanErrorMessages: Record<string, string> = {
+        no_waste_detected: 'No waste detected. Make sure the photo clearly shows trash items in good lighting.',
+        file_too_large: 'Image is too large. Please use a photo under 10 MB.',
+        invalid_type: 'Unsupported file type. Use JPG, PNG, or WebP.',
       };
-      setError(friendlyMessages[code] ?? json.error?.message ?? 'Could not confirm. Please try again.');
+      const code: string = json.error?.code ?? '';
+      setError(scanErrorMessages[code] ?? json.error?.message ?? 'Scan failed. Please try again.');
       setPhase({ kind: 'idle' });
       return;
     }
 
-    setPhase({ kind: 'done', pointsEarned: json.data.pointsEarned, newBalance: json.data.newBalance });
+    setPhase({ kind: 'report', imageUrl: json.data.imageUrl, report: json.data.report });
   }
 
   function handleReset() {
@@ -189,25 +162,16 @@ export function RecycleScanTab() {
 
   return (
     <div className={styles.root}>
-      {/* Hidden canvas for capturing frames */}
       <canvas ref={canvasRef} className={styles.hiddenInput} />
 
       {/* ── Camera overlay ── */}
       {phase.kind === 'camera' && (
         <div className={styles.cameraOverlay}>
-          <video
-            ref={videoRef}
-            className={styles.cameraVideo}
-            playsInline
-            muted
-            autoPlay
-          />
-          {/* Back button (top left) */}
+          <video ref={videoRef} className={styles.cameraVideo} playsInline muted autoPlay />
           <button className={styles.cameraBack} onClick={handleCameraClose} type="button" aria-label="Close camera">
             <ArrowLeft size={20} strokeWidth={2} />
             <span>Back</span>
           </button>
-          {/* Flash button (top right) */}
           <button
             className={`${styles.cameraFlashBtn} ${flashOn ? styles.cameraFlashBtnOn : ''}`}
             onClick={handleToggleFlash}
@@ -216,7 +180,6 @@ export function RecycleScanTab() {
           >
             <Zap size={20} strokeWidth={1.8} />
           </button>
-          {/* Bottom bar: upload | capture | switch */}
           <div className={styles.cameraBar}>
             <button className={styles.cameraSideBtn} onClick={handleUploadFromCamera} type="button" aria-label="Upload from device">
               <Upload size={22} strokeWidth={1.8} />
@@ -236,13 +199,8 @@ export function RecycleScanTab() {
         <div className={styles.idle}>
           <h2 className={styles.idleTitle}>Scan Your Waste</h2>
           <p className={styles.idleDesc}>
-            Take a photo of your trash and our AI will tell you what can be recycled and how.
-            Earn points for every confirmed scan — redeemable as bill discounts.
+            Take a photo of your trash and our AI will identify what can be recycled and how to dispose of it properly.
           </p>
-          <div className={styles.earnBanner}>
-            <Star size={14} />
-            <span>Earn up to <strong>10–35 pts</strong> per scan</span>
-          </div>
           <input
             ref={uploadInputRef}
             type="file"
@@ -339,45 +297,17 @@ export function RecycleScanTab() {
             </div>
           )}
 
-          <div className={styles.reportImpact}>
+          {phase.report.environmentalImpact && (
+            <div className={styles.reportImpact}>
               <AiRecycleIcon size={14} />
-            <span>{phase.report.environmentalImpact}</span>
-          </div>
+              <span>{phase.report.environmentalImpact}</span>
+            </div>
+          )}
 
           <div className={styles.reportActions}>
-            <Button onClick={handleConfirm}>
-              <CheckCircle size={16} /><span>Earn Points</span>
+            <Button onClick={handleReset}>
+              <RotateCcw size={16} /><span>Scan Another</span>
             </Button>
-            <Button variant="secondary" onClick={handleReset}>
-              <RotateCcw size={16} /><span>Rescan</span>
-            </Button>
-          </div>
-        </div>
-      )}
-
-      {/* ── Confirming ── */}
-      {phase.kind === 'confirming' && (
-        <div className={styles.scanning}>
-          <div className={styles.scanningPulse}>
-            <CheckCircle size={36} strokeWidth={1.5} />
-          </div>
-          <p className={styles.scanningText}>Saving your activity…</p>
-        </div>
-      )}
-
-      {/* ── Done ── */}
-      {phase.kind === 'done' && (
-        <div className={styles.done}>
-          <div className={styles.doneIcon}>
-            <Star size={48} strokeWidth={1.5} />
-          </div>
-          <h2 className={styles.doneTitle}>+{phase.pointsEarned} Points Earned!</h2>
-          <p className={styles.doneDesc}>
-            Great work! Your balance is now <strong>{phase.newBalance} pts</strong>.
-            <br />Every 100 points = ₦100 off your bill.
-          </p>
-          <div className={styles.doneActions}>
-            <Button onClick={handleReset}>Scan Another</Button>
           </div>
         </div>
       )}

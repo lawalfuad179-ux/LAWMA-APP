@@ -1,4 +1,4 @@
-import OpenAI from 'openai';
+import Anthropic from '@anthropic-ai/sdk';
 
 import { logger } from '@/lib/logger';
 
@@ -16,18 +16,29 @@ export type RecycleAiReport = {
   nonRecyclableCount: number;
   environmentalImpact: string;
   tips: string[];
+  imageValid: boolean;
 };
 
 const SYSTEM_PROMPT = `You are a waste classification AI for LAWMA (Lagos Waste Management Authority), Nigeria.
-Analyze images of household or street waste and return a structured JSON response.
-Be specific to Lagos recycling infrastructure: PSP operators collect general waste,
-Wecyclers and similar NGOs handle recyclables (plastics, paper, metals, glass).
-Organic waste can be composted. E-waste should go to certified drop-off points.
-Respond ONLY with valid JSON, no markdown or explanation.`;
+Your job is to analyze photos of household or street waste and return structured JSON.
 
-const USER_PROMPT = `Analyze this image of waste/trash items.
+CRITICAL RULES — follow these without exception:
+1. If the image is blank, black, dark, blurry, corrupted, or does not clearly show physical waste or trash items, you MUST return imageValid: false with an empty items array. Do NOT invent items.
+2. If the image shows a scene with no waste (empty room, clear surface, person, landscape, text, solid color), return imageValid: false with empty items.
+3. Only classify items you can clearly and unambiguously identify in the photo. Never guess or hallucinate.
+4. Be specific to Lagos recycling infrastructure: PSP operators collect general waste, Wecyclers and similar NGOs handle recyclables (plastics, paper, metals, glass). Organic waste can be composted. E-waste should go to certified drop-off points.
+
+Respond ONLY with valid JSON. No markdown fences, no explanation text.`;
+
+const USER_PROMPT = `Look at this image carefully.
+
+First, decide: does this image clearly show physical waste or trash items?
+- If NO (blank, dark, blurry, no waste visible): return imageValid: false, empty items array.
+- If YES: classify each visible waste item.
+
 Return JSON with exactly this shape:
 {
+  "imageValid": true,
   "items": [
     {
       "name": "Item name",
@@ -36,87 +47,88 @@ Return JSON with exactly this shape:
       "instruction": "Specific action: rinse and take to Wecyclers / compost / place in black bag etc."
     }
   ],
-  "summary": "One sentence overview of what's in the image",
+  "summary": "One sentence overview of what is in the image",
   "recyclableCount": 3,
   "nonRecyclableCount": 2,
   "environmentalImpact": "Positive impact statement if these items are recycled correctly",
   "tips": ["Short actionable tip 1", "Short actionable tip 2"]
+}
+
+For a blank, dark, or non-waste image return exactly:
+{
+  "imageValid": false,
+  "items": [],
+  "summary": "No waste detected in this image.",
+  "recyclableCount": 0,
+  "nonRecyclableCount": 0,
+  "environmentalImpact": "",
+  "tips": []
 }`;
 
-function getClient() {
-  const apiKey = process.env.DEEPSEEK_API_KEY;
-  if (!apiKey || apiKey === 'your_deepseek_api_key_here') {
-    throw new Error('DEEPSEEK_API_KEY is not configured.');
+function getClient(): Anthropic {
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey || apiKey === 'your_anthropic_api_key_here') {
+    throw new Error('ANTHROPIC_API_KEY is not configured.');
   }
-  return new OpenAI({
-    apiKey,
-    baseURL: process.env.DEEPSEEK_BASE_URL || 'https://api.deepseek.com',
-  });
+  return new Anthropic({ apiKey });
 }
 
 export async function analyzeWasteImage(imageUrl: string): Promise<RecycleAiReport> {
+  const model = process.env.CLAUDE_VISION_MODEL || 'claude-haiku-4-5-20251001';
   const client = getClient();
-  const model = process.env.DEEPSEEK_VISION_MODEL || 'deepseek-chat';
 
   const imgResp = await fetch(imageUrl);
+  if (!imgResp.ok) throw new Error(`Failed to fetch image for analysis: ${imgResp.status}`);
+
   const buffer = Buffer.from(await imgResp.arrayBuffer());
-  const mime = imgResp.headers.get('content-type') || 'image/jpeg';
-  const dataUri = `data:${mime};base64,${buffer.toString('base64')}`;
+  const rawMime = imgResp.headers.get('content-type') || 'image/jpeg';
+  const mime = rawMime.split(';')[0].trim() as
+    | 'image/jpeg'
+    | 'image/png'
+    | 'image/webp'
+    | 'image/gif';
 
-  try {
-    const response = await client.chat.completions.create({
-      model,
-      max_tokens: 1024,
-      messages: [
-        { role: 'system', content: SYSTEM_PROMPT },
-        {
-          role: 'user',
-          content: `Image data: ${dataUri}\n\n${USER_PROMPT}`,
-        },
-      ],
-    });
+  const response = await client.messages.create({
+    model,
+    max_tokens: 1024,
+    system: SYSTEM_PROMPT,
+    messages: [
+      {
+        role: 'user',
+        content: [
+          {
+            type: 'image',
+            source: {
+              type: 'base64',
+              media_type: mime,
+              data: buffer.toString('base64'),
+            },
+          },
+          { type: 'text', text: USER_PROMPT },
+        ],
+      },
+    ],
+  });
 
-    const raw = response.choices[0]?.message?.content ?? '';
-
-    const jsonMatch = raw.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) throw new Error(`No JSON found in response: ${raw.slice(0, 200)}`);
-    return JSON.parse(jsonMatch[0]) as RecycleAiReport;
-  } catch (err) {
-    logger.error('ai.analyze_waste.failed', { error: String(err) });
-
-    const msg = err instanceof Error ? err.message : '';
-    if (msg.includes('Invalid URL') || msg.includes('API key') || msg.includes('Incorrect API')) {
-      throw err;
-    }
-
-    return getFallbackReport();
+  const raw = response.content[0]?.type === 'text' ? response.content[0].text : '';
+  const jsonMatch = raw.match(/\{[\s\S]*\}/);
+  if (!jsonMatch) {
+    logger.error('ai.analyze_waste.no_json', { raw: raw.slice(0, 200) });
+    throw new Error('AI returned an unreadable response. Please try again.');
   }
-}
 
-function getFallbackReport(): RecycleAiReport {
-  return {
-    items: [
-      {
-        name: 'Unidentified item',
-        recyclable: false,
-        category: 'non-recyclable',
-        instruction: 'Place in your general waste black bag for PSP collection.',
-      },
-      {
-        name: 'Unknown material',
-        recyclable: true,
-        category: 'plastic',
-        instruction: 'If recyclable, rinse and drop at a Wecyclers collection point. Otherwise, dispose with general waste.',
-      },
-    ],
-    summary: 'We could not fully analyse the image. The items detected may include non-recyclable or mixed materials.',
-    recyclableCount: 1,
-    nonRecyclableCount: 1,
-    environmentalImpact: 'Proper waste sorting helps Lagos reduce landfill pressure.',
-    tips: [
-      'Ensure good lighting when taking photos for better AI analysis.',
-      'When in doubt, place questionable items in general waste.',
-      'Rinse all containers before disposal to reduce contamination.',
-    ],
-  };
+  const parsed = JSON.parse(jsonMatch[0]) as RecycleAiReport;
+
+  // Normalise imageValid in case the model omitted it
+  if (typeof parsed.imageValid !== 'boolean') {
+    parsed.imageValid = parsed.items.length > 0;
+  }
+
+  logger.info('ai.analyze_waste.success', {
+    model,
+    imageValid: parsed.imageValid,
+    itemCount: parsed.items.length,
+  });
+
+  return parsed;
 }

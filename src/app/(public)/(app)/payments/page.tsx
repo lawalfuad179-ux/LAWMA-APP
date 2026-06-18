@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { CreditCard, Receipt } from 'lucide-react';
+import { CreditCard, Receipt, Star } from 'lucide-react';
 
 import { getSession } from '@/lib/auth';
 import { db } from '@/lib/db';
@@ -39,6 +39,13 @@ export default async function PaymentsPage() {
         pendingCount={pendingCount}
         overdueCount={overdueCount}
       />
+
+      <div className={styles.rewardBanner}>
+        <Star size={16} strokeWidth={1.8} className={styles.rewardBannerIcon} />
+        <p className={styles.rewardBannerText}>
+          <strong>Earn 5 reward points</strong> every time you pay your bill through the LAWMA app — redeemable as a discount on your next bill.
+        </p>
+      </div>
 
       {bills.length > 0 ? (
         <div className={styles.section}>

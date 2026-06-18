@@ -19,6 +19,30 @@
   margin: 0;
 }
 
+/* ─── Reward Banner ─── */
+
+.rewardBanner {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: var(--color-primary-container);
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+
+.rewardBannerIcon {
+  flex-shrink: 0;
+  margin-top: 1px;
+  color: var(--color-primary);
+}
+
+.rewardBannerText {
+  font-size: var(--body-small-font-size);
+  line-height: var(--body-medium-line-height);
+  color: var(--color-on-surface);
+  margin: 0;
+}
+
 /* ─── Section ─── */
 
 .section {

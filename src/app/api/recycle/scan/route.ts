@@ -60,6 +60,13 @@ export async function POST(req: NextRequest) {
 
     const report = await analyzeWasteImage(imageUrl);
 
+    if (!report.imageValid) {
+      return NextResponse.json<Failure>(
+        { ok: false, error: { code: 'no_waste_detected', message: 'No waste was detected in this image. Make sure the photo clearly shows waste items in good lighting.' } },
+        { status: 422 },
+      );
+    }
+
     logger.info('recycle.scan.completed', { residentId: session.residentId, recyclableCount: report.recyclableCount });
 
     return NextResponse.json<Success>({ ok: true, data: { imageUrl, report, imageHash } });

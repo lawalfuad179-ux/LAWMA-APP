@@ -133,7 +133,7 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* ─── 4. How it works — 3 numbered steps ─── */}
+        {/* ─── 4. How it works — 4 numbered steps ─── */}
         <section className={styles.howSection}>
           <div className={styles.sectionInner}>
             <h2 className={styles.sectionHeading}>How it works.</h2>
@@ -152,6 +152,11 @@ export default function LandingPage() {
                 <span className={styles.stepNumber}>03</span>
                 <h3 className={styles.stepTitle}>Track updates and receive notifications</h3>
                 <p className={styles.stepDesc}>Stay informed with real-time updates on your reports, payments, and collection schedule.</p>
+              </div>
+              <div className={`${styles.step} ${styles.stepReward}`}>
+                <span className={styles.stepNumber}>04</span>
+                <h3 className={styles.stepTitle}>Pay with the app and earn discounts</h3>
+                <p className={styles.stepDesc}>Every bill paid through the LAWMA app earns you reward points — redeemable as a discount on your next bill.</p>
               </div>
             </div>
           </div>

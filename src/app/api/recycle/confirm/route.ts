@@ -12,6 +12,7 @@ const schema = z.object({
   imageUrl: z.string().url(),
   imageHash: z.string().optional(),
   report: z.object({
+    imageValid: z.boolean().optional(),
     items: z.array(z.object({
       name: z.string(),
       recyclable: z.boolean(),
