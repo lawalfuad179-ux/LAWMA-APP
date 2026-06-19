@@ -8,7 +8,7 @@ import { track } from '@/lib/analytics';
 import { createSession } from '@/lib/auth';
 
 type Failure = { ok: false; error: { code: string; message: string } };
-type Success = { ok: true; data: { residentId: string; phoneNumber: string } };
+type Success = { ok: true; data: { residentId: string } };
 
 export async function POST(req: NextRequest) {
   try {
@@ -22,36 +22,40 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { name, email, phoneNumber, password } = parsed.data;
-    const normalizedPhone = normalizePhone(phoneNumber);
-    const normalizedEmail = email.toLowerCase().trim();
+    const { name, lga, email, phoneNumber, password } = parsed.data;
 
-    const existingPhone = await db.resident.findUnique({ where: { phoneNumber: normalizedPhone } });
-    if (existingPhone) {
-      return NextResponse.json<Failure>(
-        { ok: false, error: { code: 'phone_exists', message: 'This phone number is already registered. Sign in instead.' } },
-        { status: 409 },
-      );
+    if (phoneNumber) {
+      const normalizedPhone = normalizePhone(phoneNumber);
+      const existingPhone = await db.resident.findUnique({ where: { phoneNumber: normalizedPhone } });
+      if (existingPhone) {
+        return NextResponse.json<Failure>(
+          { ok: false, error: { code: 'phone_exists', message: 'This phone number is already registered. Sign in instead.' } },
+          { status: 409 },
+        );
+      }
     }
 
-    const existingEmail = await db.resident.findUnique({ where: { email: normalizedEmail } });
-    if (existingEmail) {
-      return NextResponse.json<Failure>(
-        { ok: false, error: { code: 'email_exists', message: 'This email is already registered. Sign in instead.' } },
-        { status: 409 },
-      );
+    if (email) {
+      const normalizedEmail = email.toLowerCase().trim();
+      const existingEmail = await db.resident.findUnique({ where: { email: normalizedEmail } });
+      if (existingEmail) {
+        return NextResponse.json<Failure>(
+          { ok: false, error: { code: 'email_exists', message: 'This email is already registered. Sign in instead.' } },
+          { status: 409 },
+        );
+      }
     }
 
+    const normalizedPhone = phoneNumber ? normalizePhone(phoneNumber) : undefined;
+    const normalizedEmail = email ? email.toLowerCase().trim() : undefined;
     const passwordHash = await bcrypt.hash(password, 12);
 
+    const contactFields: { phoneNumber?: string; email?: string } = {};
+    if (normalizedPhone) contactFields.phoneNumber = normalizedPhone;
+    if (normalizedEmail) contactFields.email = normalizedEmail;
+
     const resident = await db.resident.create({
-      data: {
-        phoneNumber: normalizedPhone,
-        email: normalizedEmail,
-        name,
-        passwordHash,
-        onboardingVersion: 1,
-      },
+      data: { ...contactFields, name, lga, passwordHash, onboardingVersion: 1 },
     });
 
     await createSession(resident.id);
@@ -59,7 +63,7 @@ export async function POST(req: NextRequest) {
     track('signup_completed', { residentId: resident.id });
 
     return NextResponse.json<Success>(
-      { ok: true, data: { residentId: resident.id, phoneNumber: normalizedPhone } },
+      { ok: true, data: { residentId: resident.id } },
       { status: 201 },
     );
   } catch (error) {

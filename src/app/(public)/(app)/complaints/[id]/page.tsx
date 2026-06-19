@@ -7,6 +7,7 @@ import { db } from '@/lib/db';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { StatusTimeline } from '@/components/ui/StatusTimeline';
+import { ComplaintImageGallery } from '@/components/complaints/ComplaintImageGallery';
 import { COMPLAINT_STATUS_LABELS, COMPLAINT_STATUS_ORDER } from '@/constants';
 import styles from './page.module.css';
 
@@ -100,11 +101,7 @@ export default async function ComplaintDetailPage({ params }: Props) {
             </div>
           </div>
           <Card className={styles.sectionCard}>
-            <div className={styles.images}>
-              {complaint.images.map((img) => (
-                <img key={img.id} src={img.url} alt="Complaint" className={styles.image} />
-              ))}
-            </div>
+            <ComplaintImageGallery images={complaint.images} />
           </Card>
         </div>
       )}

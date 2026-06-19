@@ -8,8 +8,8 @@ import { db } from '@/lib/db';
 import { logger } from '@/lib/logger';
 
 const setupSchema = z.object({
-  name: z.string().min(2, 'Name must be at least 2 characters.').max(100),
-  lga: z.string().min(2, 'Please select your LGA.').max(100),
+  name: z.string().min(2, 'Name must be at least 2 characters.').max(100).optional().or(z.literal('')),
+  lga: z.string().min(2, 'Please select your LGA.').max(100).optional().or(z.literal('')),
   address: z.string().min(5, 'Address must be at least 5 characters.').max(200),
   email: z.string().email('Invalid email address.').optional().or(z.literal('')),
   phoneNumber: z.string().min(10, 'Enter a valid Nigerian phone number.').optional().or(z.literal('')),
@@ -37,10 +37,10 @@ export async function completeOnboarding(formData: FormData): Promise<ActionResu
     }
 
     const updateData: Record<string, string> = {
-      name: parsed.data.name,
-      lga: parsed.data.lga,
       address: parsed.data.address,
     };
+    if (parsed.data.name) updateData.name = parsed.data.name;
+    if (parsed.data.lga) updateData.lga = parsed.data.lga;
     if (parsed.data.email) updateData.email = parsed.data.email;
     if (parsed.data.phoneNumber) updateData.phoneNumber = parsed.data.phoneNumber;
 

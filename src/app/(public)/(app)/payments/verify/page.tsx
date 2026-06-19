@@ -4,6 +4,8 @@ import { Suspense, useEffect, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 import { Button } from '@/components/ui/Button';
+import { LottiePlayer } from '@/components/ui/LottiePlayer';
+import successCheckData from '../../../../../../public/animations/success-check.json';
 import styles from './page.module.css';
 
 function VerifyContent() {
@@ -74,7 +76,12 @@ function VerifyContent() {
 
       {status === 'success' && (
         <>
-          <div className={styles.checkmark}>✓</div>
+          <LottiePlayer
+            animationData={successCheckData}
+            loop={false}
+            autoplay
+            style={{ width: 120, height: 120 }}
+          />
           <h1 className={styles.title}>Payment Successful!</h1>
           <p className={styles.subtitle}>Your waste bill has been paid.</p>
           <Button size="lg" onClick={() => router.push('/dashboard')}>

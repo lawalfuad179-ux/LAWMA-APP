@@ -1,4 +1,4 @@
-import { Leaf, Home, Store, Building2, Ban, ScanLine, Gift, Coins, BadgePercent } from 'lucide-react';
+import { Leaf, Home, Store, Building2, Ban, ScanLine, Camera, Recycle } from 'lucide-react';
 
 import { Card } from '@/components/ui/Card';
 import { RecycleTabs } from '@/components/recycling/RecycleTabs';
@@ -17,57 +17,35 @@ const categories = [...new Set(RECYCLING_TIPS.map((t) => t.category))];
 function GuideContent() {
   return (
     <div className={styles.guideContent}>
-      {/* Scan & Earn section */}
+      {/* Scan & Analyze section */}
       <div className={styles.section}>
         <div className={styles.sectionHeader}>
           <div className={styles.sectionEyebrow}>
             <ScanLine size={15} strokeWidth={1.5} />
-            <span>Scan &amp; Earn Rewards</span>
+            <span>Scan &amp; Analyze</span>
           </div>
         </div>
         <div className={styles.rewardCards}>
           <Card className={styles.rewardCard}>
             <div className={styles.rewardHeader}>
               <div className={styles.rewardIcon}>
-                <ScanLine size={22} strokeWidth={1.5} />
+                <Camera size={22} strokeWidth={1.5} />
               </div>
-              <h3 className={styles.rewardTitle}>How scanning works</h3>
+              <h3 className={styles.rewardTitle}>How to scan</h3>
             </div>
             <p className={styles.rewardDesc}>
-              Go to the Scan &amp; Earn tab and point your camera at any recyclable item. Our AI identifies the material and awards you points instantly. The more items you scan, the more you earn.
+              Go to the <strong>Scan &amp; Analyze</strong> tab and point your camera at any waste item. Tap <em>Analyze with AI</em> and our model will classify every item in the photo within seconds.
             </p>
           </Card>
           <Card className={styles.rewardCard}>
             <div className={styles.rewardHeader}>
               <div className={styles.rewardIcon}>
-                <Coins size={22} strokeWidth={1.5} />
+                <Recycle size={22} strokeWidth={1.5} />
               </div>
-              <h3 className={styles.rewardTitle}>Points per scan</h3>
+              <h3 className={styles.rewardTitle}>What the AI detects</h3>
             </div>
             <p className={styles.rewardDesc}>
-              Earn <strong>10 base points</strong> for every scan, plus <strong>2 bonus points</strong> for each recyclable item identified in the photo. First-time scan of the day gives an extra <strong>25 points</strong>.
-            </p>
-          </Card>
-          <Card className={styles.rewardCard}>
-            <div className={styles.rewardHeader}>
-              <div className={styles.rewardIcon}>
-                <Gift size={22} strokeWidth={1.5} />
-              </div>
-              <h3 className={styles.rewardTitle}>Redeem for bill discounts</h3>
-            </div>
-            <p className={styles.rewardDesc}>
-              Every <strong>100 points = ₦100 off</strong> your waste bill. Points never expire and can be applied at checkout on the Payments page.
-            </p>
-          </Card>
-          <Card className={styles.rewardCard}>
-            <div className={styles.rewardHeader}>
-              <div className={styles.rewardIcon}>
-                <BadgePercent size={22} strokeWidth={1.5} />
-              </div>
-              <h3 className={styles.rewardTitle}>Discount limits</h3>
-            </div>
-            <p className={styles.rewardDesc}>
-              Points can cover up to <strong>50% of any single bill</strong> when redeemed at once, keeping the system sustainable while maximising your savings.
+              The AI identifies <strong>plastics, paper, glass, metal, organic waste, and e-waste</strong>, telling you which items are recyclable and the safest way to dispose of each.
             </p>
           </Card>
         </div>

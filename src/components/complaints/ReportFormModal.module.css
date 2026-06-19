@@ -82,6 +82,13 @@
   color: var(--color-on-surface-variant);
 }
 
+.textareaHint {
+  font-size: var(--body-small-font-size);
+  color: var(--color-outline);
+  line-height: var(--body-small-line-height);
+  margin: 0;
+}
+
 .textarea {
   width: 100%;
   min-height: 80px;

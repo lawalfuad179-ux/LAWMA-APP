@@ -165,7 +165,7 @@
 }
 
 .phoneMockup:hover {
-  transform: scale(1.03);
+  filter: drop-shadow(0 8px 24px hsla(24, 98%, 50%, 0.18));
 }
 
 .heroVisualVisible {
@@ -219,7 +219,7 @@
 }
 
 .statusStep:hover {
-  transform: scale(1.03);
+  opacity: 0.85;
 }
 
 .statusIcon {
@@ -390,8 +390,8 @@
 }
 
 .step:hover {
-  transform: scale(1.03);
-  box-shadow: 0 8px 24px hsla(0, 0%, 0%, 0.08);
+  background: color-mix(in srgb, var(--color-primary) 5%, var(--color-surface));
+  box-shadow: 0 4px 16px hsla(0, 0%, 0%, 0.07);
 }
 
 .stepNumber {
@@ -417,12 +417,7 @@
 }
 
 .stepReward {
-  background: color-mix(in srgb, var(--color-primary) 8%, var(--color-surface));
-  border-color: color-mix(in srgb, var(--color-primary) 30%, transparent);
-}
-
-.stepReward .stepNumber {
-  color: var(--color-primary);
+  background: color-mix(in srgb, var(--color-primary) 2%, var(--color-surface));
 }
 
 /* ─────────── 5. CTA Footer ─────────── */

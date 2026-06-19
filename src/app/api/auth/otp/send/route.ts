@@ -13,7 +13,7 @@ const sendOtpSchema = z.object({
   email: z.string().email().max(200).optional(),
 }).refine((d) => d.phoneNumber || d.email, { message: 'Phone number or email is required.' });
 
-type Success = { ok: true; data: { expiresInMinutes: number } };
+type Success = { ok: true; data: { expiresInMinutes: number; hasPassword?: boolean } };
 type Failure = { ok: false; error: { code: string; message: string } };
 
 export async function POST(req: NextRequest) {
@@ -62,18 +62,27 @@ export async function POST(req: NextRequest) {
       data: { phoneNumber: identifier, code, expiresAt },
     });
 
+    let hasPassword: boolean | undefined;
+
     if (isEmail) {
       const { subject, text, html } = passwordResetEmail(code);
       await sendEmail(email || '', subject, html, text);
     } else {
       await sendOtpSms(phoneNumber || '', code);
+      // Piggyback hasPassword so the login UI can hide the "use password" button
+      // for users who have never set a password — avoids a separate round-trip.
+      const resident = await db.resident.findUnique({
+        where: { phoneNumber: identifier },
+        select: { passwordHash: true },
+      });
+      hasPassword = !!resident?.passwordHash;
     }
 
     logger.info('auth.otp.sent', { identifier, isEmail });
 
     return NextResponse.json<Success>({
       ok: true,
-      data: { expiresInMinutes: OTP_EXPIRY_MINUTES },
+      data: { expiresInMinutes: OTP_EXPIRY_MINUTES, hasPassword },
     });
   } catch (error) {
     logger.error('auth.otp.send_failed', { error: String(error) });

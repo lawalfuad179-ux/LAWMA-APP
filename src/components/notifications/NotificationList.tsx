@@ -3,7 +3,9 @@
 import { useState, useTransition } from 'react';
 import { Bell, Truck, AlertCircle, CreditCard, Megaphone, Leaf, CheckCheck, Check } from 'lucide-react';
 
+import { LottiePlayer } from '@/components/ui/LottiePlayer';
 import { NOTIFICATION_TYPE_LABELS } from '@/constants';
+import emptyBoxData from '../../../public/animations/empty-box.json';
 import styles from './NotificationList.module.css';
 
 type Notification = {
@@ -64,13 +66,12 @@ export function NotificationList({ initialNotifications }: Props) {
   if (notifications.length === 0) {
     return (
       <div className={styles.emptyState}>
-        <div className={styles.emptyIllustration}>
-          <div className={styles.emptyBlob1} />
-          <div className={styles.emptyBlob2} />
-          <div className={styles.emptyCard}>
-            <Bell size={32} strokeWidth={1.2} className={styles.emptyCardIcon} />
-          </div>
-        </div>
+        <LottiePlayer
+          animationData={emptyBoxData}
+          loop
+          autoplay
+          style={{ width: 120, height: 120 }}
+        />
         <h2 className={styles.emptyTitle}>No notifications yet</h2>
         <p className={styles.emptySubtext}>
           You don&apos;t have any notifications right now. They will appear here when something needs your attention.

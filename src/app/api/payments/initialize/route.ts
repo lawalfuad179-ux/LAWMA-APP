@@ -59,8 +59,8 @@ export async function POST(req: NextRequest) {
     const result = await createPaymentLink({
       txRef,
       amountKobo: bill.amountKobo,
-      customerPhone: resident.phoneNumber,
-      customerName: resident.name || resident.phoneNumber,
+      customerPhone: resident.phoneNumber ?? resident.email ?? '',
+      customerName: resident.name || resident.phoneNumber || resident.email || 'Customer',
       customerEmail: undefined,
       billId: bill.id,
       residentId: session.residentId,

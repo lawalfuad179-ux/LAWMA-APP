@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, Suspense } from 'react';
-import { useRouter } from 'next/navigation';
-import { User, MapPin, Home, ChevronLeft } from 'lucide-react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { User, MapPin, Home, ChevronLeft, Mail, Phone } from 'lucide-react';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -87,6 +87,13 @@ const SLIDES = [
 
 function OnboardingContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const method = searchParams.get('method') as 'phone' | 'email' | null;
+
+  // method=phone → signed up with phone, now needs email + address
+  // method=email → signed up with email, now needs phone + address
+  // null / 'otp'  → OTP flow, needs name + lga + address
+  const isPasswordFlow = method === 'phone' || method === 'email';
 
   const [step, setStep] = useState(1);
   const [animKey, setAnimKey] = useState(0);
@@ -94,7 +101,9 @@ function OnboardingContent() {
   const [name, setName] = useState('');
   const [lga, setLga] = useState('');
   const [address, setAddress] = useState('');
-  const [errors, setErrors] = useState<{ name?: string; lga?: string; address?: string }>({});
+  const [contactEmail, setContactEmail] = useState('');
+  const [contactPhone, setContactPhone] = useState('');
+  const [errors, setErrors] = useState<Record<string, string | undefined>>({});
   const [serverError, setServerError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -106,13 +115,24 @@ function OnboardingContent() {
   }
 
   function validate(): boolean {
-    const next: { name?: string; lga?: string; address?: string } = {};
-    if (!name.trim() || name.trim().length < 2) next.name = 'Please enter your full name';
-    if (!lga) next.lga = 'Please select your LGA';
+    const next: Record<string, string> = {};
+
+    if (isPasswordFlow) {
+      if (method === 'phone' && !contactEmail.trim().includes('@')) {
+        next.email = 'Enter a valid email address';
+      }
+      if (method === 'email') {
+        const digits = contactPhone.replace(/\D/g, '');
+        if (!digits || digits.length < 10) next.phone = 'Enter a valid phone number';
+      }
+    } else {
+      if (!name.trim() || name.trim().length < 2) next.name = 'Please enter your full name';
+      if (!lga) next.lga = 'Please select your LGA';
+    }
+
     if (!address.trim() || address.trim().length < 5) next.address = 'Please enter your street address';
 
     setErrors(next);
-    if (next.name) document.getElementById('full-name')?.focus();
     return Object.keys(next).length === 0;
   }
 
@@ -123,9 +143,21 @@ function OnboardingContent() {
     if (!validate()) return;
 
     const formData = new FormData();
-    formData.set('name', name.trim());
-    formData.set('lga', lga);
     formData.set('address', address.trim());
+
+    if (isPasswordFlow) {
+      if (method === 'phone' && contactEmail.trim()) {
+        formData.set('email', contactEmail.trim().toLowerCase());
+      }
+      if (method === 'email' && contactPhone.trim()) {
+        const digits = contactPhone.replace(/\D/g, '');
+        const normalized = '+234' + (digits.startsWith('0') ? digits.slice(1) : digits);
+        formData.set('phoneNumber', normalized);
+      }
+    } else {
+      formData.set('name', name.trim());
+      formData.set('lga', lga);
+    }
 
     setLoading(true);
     try {
@@ -214,40 +246,80 @@ function OnboardingContent() {
               <div className={styles.stepHeader}>
                 <h1 className={styles.title}>One last thing</h1>
                 <p className={styles.subtitle}>
-                  We need a few details to personalise your experience and connect you to the right services in your area.
+                  {isPasswordFlow
+                    ? 'Add your street address and one more contact so we can reach you.'
+                    : 'We need a few details to personalise your experience and connect you to the right services in your area.'}
                 </p>
               </div>
               <form onSubmit={handleSubmit} className={styles.form}>
-                <Input
-                  label="Full Name"
-                  placeholder="e.g. Amaka Osei"
-                  value={name}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    setName(val);
-                    if (/\d/.test(val)) {
-                      setErrors((prev) => ({ ...prev, name: 'Name cannot contain numbers' }));
-                    } else {
-                      setErrors((prev) => ({ ...prev, name: undefined }));
-                    }
-                  }}
-                  error={errors.name}
-                  icon={<User size={16} strokeWidth={1.5} />}
-                  autoFocus
-                  autoComplete="name"
-                />
-                <Select
-                  label="Local Government Area"
-                  options={lgaOptions}
-                  placeholder="Select your LGA"
-                  value={lga}
-                  onChange={(e) => {
-                    setLga(e.target.value);
-                    if (errors.lga) setErrors((prev) => ({ ...prev, lga: undefined }));
-                  }}
-                  error={errors.lga}
-                  icon={<MapPin size={16} strokeWidth={1.5} />}
-                />
+                {!isPasswordFlow && (
+                  <>
+                    <Input
+                      label="Full Name"
+                      placeholder="e.g. Amaka Osei"
+                      value={name}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setName(val);
+                        if (/\d/.test(val)) {
+                          setErrors((prev) => ({ ...prev, name: 'Name cannot contain numbers' }));
+                        } else {
+                          setErrors((prev) => ({ ...prev, name: undefined }));
+                        }
+                      }}
+                      error={errors.name}
+                      icon={<User size={16} strokeWidth={1.5} />}
+                      autoFocus
+                      autoComplete="name"
+                    />
+                    <Select
+                      label="Local Government Area"
+                      options={lgaOptions}
+                      placeholder="Select your LGA"
+                      value={lga}
+                      onChange={(e) => {
+                        setLga(e.target.value);
+                        if (errors.lga) setErrors((prev) => ({ ...prev, lga: undefined }));
+                      }}
+                      error={errors.lga}
+                      icon={<MapPin size={16} strokeWidth={1.5} />}
+                    />
+                  </>
+                )}
+                {method === 'phone' && (
+                  <Input
+                    label="Email Address"
+                    type="email"
+                    inputMode="email"
+                    placeholder="you@example.com"
+                    value={contactEmail}
+                    onChange={(e) => {
+                      setContactEmail(e.target.value);
+                      if (errors.email) setErrors((prev) => ({ ...prev, email: undefined }));
+                    }}
+                    error={errors.email}
+                    icon={<Mail size={16} strokeWidth={1.5} />}
+                    autoFocus
+                    autoComplete="email"
+                  />
+                )}
+                {method === 'email' && (
+                  <Input
+                    label="Phone Number"
+                    type="tel"
+                    inputMode="tel"
+                    placeholder="080 1234 5678"
+                    value={contactPhone}
+                    onChange={(e) => {
+                      setContactPhone(e.target.value.replace(/[^\d]/g, ''));
+                      if (errors.phone) setErrors((prev) => ({ ...prev, phone: undefined }));
+                    }}
+                    error={errors.phone}
+                    prefix="+234"
+                    autoFocus
+                    autoComplete="tel"
+                  />
+                )}
                 <Input
                   label="Street Address"
                   placeholder="e.g. 14 Bode Thomas Street, Surulere"

@@ -10,14 +10,16 @@ const strictPassword = z
 
 export const signUpSchema = z.object({
   name: z.string().min(2, 'Enter your full name.').max(100),
-  email: z.string().email('Enter a valid email address.').max(200),
+  lga: z.string().min(2, 'Select your Local Government Area.').max(100),
+  email: z.string().email('Enter a valid email address.').max(200).optional(),
   phoneNumber: z
     .string()
     .min(10, 'Enter a valid Nigerian phone number.')
     .max(15)
-    .regex(/^(\+?234|0)[0-9]{10}$/, 'Enter a valid Nigerian phone number.'),
+    .regex(/^(\+?234|0)[0-9]{10}$/, 'Enter a valid Nigerian phone number.')
+    .optional(),
   password: strictPassword,
-});
+}).refine((d) => d.phoneNumber || d.email, { message: 'Phone number or email is required.' });
 
 export const signInSchema = z.object({
   phoneNumber: z.string().optional(),

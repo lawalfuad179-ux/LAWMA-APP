@@ -51,8 +51,7 @@ export function ReportFormModal({ onClose }: Props) {
         return;
       }
 
-      onClose();
-      router.refresh();
+      router.push(`/complaints/${data.data.id}`);
     } catch {
       setError('Network error. Try again.');
     } finally {
@@ -95,6 +94,7 @@ export function ReportFormModal({ onClose }: Props) {
 
           <div className={styles.field}>
             <label className={styles.textareaLabel}>Description (optional)</label>
+            <p className={styles.textareaHint}>Include any relevant details — time of issue, frequency, nearby landmarks.</p>
             <textarea
               className={`${styles.textarea} ${descError ? styles.textareaError : ''}`}
               placeholder="Describe the issue in more detail\u2026"

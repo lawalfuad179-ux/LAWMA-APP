@@ -84,12 +84,12 @@ export function maskIdentifier(value: string): string {
   if (cleaned.length >= 10) {
     const last4 = cleaned.slice(-4);
     if (value.startsWith('+234')) {
-      return `+234 *** *** ${last4}`;
+      return `+234 ··· ··· ${last4}`;
     }
     if (value.startsWith('0')) {
-      return `0*** *** ${last4}`;
+      return `0··· ··· ${last4}`;
     }
-    return `*** *** ${last4}`;
+    return `··· ··· ${last4}`;
   }
   return value;
 }

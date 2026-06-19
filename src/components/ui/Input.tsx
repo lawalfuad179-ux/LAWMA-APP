@@ -10,6 +10,7 @@ type InputProps = React.InputHTMLAttributes<HTMLInputElement> & {
   helpText?: string;
   icon?: React.ReactNode;
   fieldState?: 'success' | 'error' | null;
+  prefix?: string;
 };
 
 export function Input({
@@ -20,6 +21,7 @@ export function Input({
   id,
   className,
   fieldState,
+  prefix,
   ...props
 }: InputProps) {
   const inputId = id || label.toLowerCase().replace(/\s+/g, '-');
@@ -35,6 +37,7 @@ export function Input({
       </label>
       <div className={styles.inputWrap}>
         {icon && <span className={styles.iconWrap}>{icon}</span>}
+        {prefix && <span className={styles.prefixWrap}>{prefix}</span>}
         <input
           id={inputId}
           className={[
@@ -43,6 +46,7 @@ export function Input({
             fieldState === 'success' ? styles.inputSuccess : '',
             isPassword ? styles.inputPassword : '',
             icon ? styles.inputWithIcon : '',
+            prefix ? styles.inputWithPrefix : '',
           ].filter(Boolean).join(' ')}
           aria-describedby={errorId}
           aria-invalid={!!error}

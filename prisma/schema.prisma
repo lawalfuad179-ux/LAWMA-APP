@@ -63,7 +63,7 @@ enum PointTransactionType {
 
 model Resident {
   id                     String        @id @default(uuid())
-  phoneNumber            String        @unique @map("phone_number")
+  phoneNumber            String?       @unique @map("phone_number")
   email                  String?       @unique @map("email")
   name                   String?       @map("name")
   address                String?       @map("address")

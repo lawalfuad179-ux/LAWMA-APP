@@ -187,3 +187,15 @@
   text-decoration: underline;
   text-underline-offset: 2px;
 }
+
+@media (min-width: 640px) {
+  .otpOverlay {
+    align-items: center;
+    justify-content: center;
+  }
+
+  .otpSheet {
+    max-width: 480px;
+    border-radius: 20px;
+  }
+}

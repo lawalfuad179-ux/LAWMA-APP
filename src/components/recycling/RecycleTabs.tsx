@@ -33,7 +33,7 @@ export function RecycleTabs({ guideContent }: RecycleTabsProps) {
           type="button"
         >
           <Camera size={15} strokeWidth={1.8} />
-          Scan & Earn
+          Scan & Analyze
         </button>
         <button
           className={`${styles.tabBtn} ${tab === 'history' ? styles.active : ''}`}

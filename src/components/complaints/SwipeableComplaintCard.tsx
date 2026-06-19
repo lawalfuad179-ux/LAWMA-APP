@@ -3,7 +3,7 @@
 import { useRef, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Trash2, Pencil } from 'lucide-react';
+import { Trash2, Pencil, AlertTriangle } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { COMPLAINT_STATUS_LABELS } from '@/constants';
@@ -33,10 +33,12 @@ export function SwipeableComplaintCard({ complaint, onDelete }: Props) {
   const [offsetX, setOffsetX] = useState(0);
   const [open, setOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [confirming, setConfirming] = useState(false);
 
   const snapClosed = useCallback(() => {
     setOpen(false);
     setOffsetX(0);
+    setConfirming(false);
   }, []);
 
   const onTouchStart = useCallback((e: React.TouchEvent) => {
@@ -91,7 +93,11 @@ export function SwipeableComplaintCard({ complaint, onDelete }: Props) {
     }
   }, [offsetX, snapClosed]);
 
-  const handleDelete = async () => {
+  const handleDeleteClick = () => {
+    setConfirming(true);
+  };
+
+  const handleConfirmDelete = async () => {
     if (deleting) return;
     setDeleting(true);
     try {
@@ -103,6 +109,7 @@ export function SwipeableComplaintCard({ complaint, onDelete }: Props) {
       // Silently fail
     } finally {
       setDeleting(false);
+      setConfirming(false);
     }
   };
 
@@ -113,35 +120,63 @@ export function SwipeableComplaintCard({ complaint, onDelete }: Props) {
 
   return (
     <div className={styles.wrapper} ref={wrapperRef}>
-      <div
-        className={styles.actions}
-        style={{ width: ACTION_WIDTH }}
-      >
-        <Link
-          href={`/complaints/${complaint.id}/edit`}
-          className={styles.actionBtn}
-          style={{ background: 'var(--color-primary)' }}
-          aria-label="Edit"
+      {/* Confirmation overlay */}
+      {confirming && (
+        <div className={styles.confirmOverlay}>
+          <AlertTriangle size={18} strokeWidth={1.5} className={styles.confirmIcon} />
+          <p className={styles.confirmText}>Delete this report?</p>
+          <div className={styles.confirmActions}>
+            <button
+              className={styles.confirmCancel}
+              onClick={snapClosed}
+              type="button"
+              disabled={deleting}
+            >
+              Cancel
+            </button>
+            <button
+              className={styles.confirmDelete}
+              onClick={handleConfirmDelete}
+              type="button"
+              disabled={deleting}
+            >
+              {deleting ? 'Deleting…' : 'Delete'}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {!confirming && (
+        <div
+          className={styles.actions}
+          style={{ width: ACTION_WIDTH }}
         >
-          <Pencil size={18} strokeWidth={1.5} />
-          <span>Edit</span>
-        </Link>
-        <button
-          className={styles.actionBtn}
-          style={{ background: 'var(--color-error)' }}
-          onClick={handleDelete}
-          disabled={deleting}
-          type="button"
-          aria-label="Delete"
-        >
-          <Trash2 size={18} strokeWidth={1.5} />
-          <span>{deleting ? '...' : 'Delete'}</span>
-        </button>
-      </div>
+          <Link
+            href={`/complaints/${complaint.id}/edit`}
+            className={styles.actionBtn}
+            style={{ background: 'var(--color-primary)' }}
+            aria-label="Edit"
+          >
+            <Pencil size={18} strokeWidth={1.5} />
+            <span>Edit</span>
+          </Link>
+          <button
+            className={styles.actionBtn}
+            style={{ background: 'var(--color-error)' }}
+            onClick={handleDeleteClick}
+            type="button"
+            aria-label="Delete"
+          >
+            <Trash2 size={18} strokeWidth={1.5} />
+            <span>Delete</span>
+          </button>
+        </div>
+      )}
+
       <div
         className={styles.cardContent}
         style={{
-          transform: `translateX(${open ? -ACTION_WIDTH : -offsetX}px)`,
+          transform: `translateX(${confirming ? 0 : open ? -ACTION_WIDTH : -offsetX}px)`,
           transition: isDragging.current ? 'none' : 'transform 0.25s cubic-bezier(0.34, 1.06, 0.64, 1)',
         }}
         onTouchStart={onTouchStart}

@@ -9,9 +9,10 @@ import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { LAGOS_LGAS } from '@/constants';
-import { validateEmailOrPhone, passwordRules, getPasswordErrors, type FieldErrors } from '@/lib/validators/validation';
+import { validateEmailOrPhone, validateEmail, passwordRules, getPasswordErrors, type FieldErrors } from '@/lib/validators/validation';
 import { OtpInput } from '@/components/ui/OtpInput';
 import { PasswordRulesChecklist } from '@/components/ui/PasswordRulesChecklist';
+import { useToast } from '@/context/ToastContext';
 
 import { completeOnboarding } from '../onboarding/actions';
 import styles from './page.module.css';
@@ -21,6 +22,7 @@ type Mode = 'signin' | 'signup';
 
 function AuthContent() {
   const router = useRouter();
+  const toast = useToast();
   const searchParams = useSearchParams();
   const modeParam = searchParams.get('mode');
 
@@ -41,9 +43,12 @@ function AuthContent() {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [resetSent, setResetSent] = useState(false);
-  // Password signup: separate phone/email fields so user can fill whichever is missing
+  // Password signup state
   const [signupPhone, setSignupPhone] = useState('');
   const [signupEmail, setSignupEmail] = useState('');
+  const [signupLga, setSignupLga] = useState('');
+  // null = unknown (OTP not yet sent), true/false = from OTP send response
+  const [residentHasPassword, setResidentHasPassword] = useState<boolean | null>(null);
   const [identifierTouched, setIdentifierTouched] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [passwordChecks, setPasswordChecks] = useState<Record<string, boolean>>({});
@@ -89,8 +94,12 @@ function AuthContent() {
     setTimeout(() => {
       if (to === 'phone') { setCode(''); setIdentifierTouched(false); }
       if (to === 'password-signup') {
-        setSignupPhone(normalizePhone(phone) || '');
+        // Preserve phone/email from step 1 for submission — no re-entry needed
+        const rawDigits = normalizePhone(phone).replace(/\D/g, '');
+        const localPhone = rawDigits.startsWith('234') ? '0' + rawDigits.slice(3) : rawDigits.startsWith('0') ? rawDigits : rawDigits ? '0' + rawDigits : '';
+        setSignupPhone(localPhone);
         setSignupEmail(email.trim().toLowerCase() || '');
+        setSignupLga('');
         setName('');
         setNewPassword('');
         setConfirmPassword('');
@@ -167,6 +176,10 @@ function AuthContent() {
         return;
       }
 
+      if (data.data?.hasPassword !== undefined) {
+        setResidentHasPassword(data.data.hasPassword);
+      }
+
       switchStep('otp');
       startCooldown(60);
     } catch {
@@ -220,6 +233,7 @@ function AuthContent() {
         const method = email ? 'email' : 'phone';
         router.push(`/onboarding?method=${method}`);
       } else {
+        toast('Login successful', 'success');
         router.push('/dashboard');
       }
     } catch {
@@ -291,7 +305,7 @@ function AuthContent() {
   function validateField(field: string, value: string) {
     let msg: string | null = null;
     if (field === 'emailOrPhone') msg = validateEmailOrPhone(value);
-    if (field === 'email') msg = value && !value.includes('@') ? 'Enter a valid email address.' : null;
+    if (field === 'email' || field === 'signupEmail') msg = value ? (validateEmail(value)) : null;
     if (field === 'phone') msg = value && !value.replace(/\D/g, '').startsWith('0') && value.length > 3 ? 'Enter a valid phone number.' : null;
     if (field === 'newPassword') {
       const errors = getPasswordErrors(value);
@@ -456,15 +470,17 @@ function AuthContent() {
             <Button type="submit" size="lg" isLoading={loading}>
               Verify
             </Button>
-            <button
-              type="button"
-              className={styles.modeToggle}
-              onClick={() => switchStep(mode === 'signup' ? 'password-signup' : 'password-signin')}
-            >
-              <span className={styles.modeToggleBold}>
-                {mode === 'signup' ? 'Create account with password instead' : 'Use password instead'}
-              </span>
-            </button>
+            {(mode === 'signup' || residentHasPassword === true) && (
+              <button
+                type="button"
+                className={styles.modeToggle}
+                onClick={() => switchStep(mode === 'signup' ? 'password-signup' : 'password-signin')}
+              >
+                <span className={styles.modeToggleBold}>
+                  {mode === 'signup' ? 'Create account with password instead' : 'Use password instead'}
+                </span>
+              </button>
+            )}
           </form>
         )}
 
@@ -542,6 +558,7 @@ function AuthContent() {
                   }
                   return;
                 }
+                toast('Login successful', 'success');
                 router.push('/dashboard');
               } catch {
                 setError('Network error. Please check your connection.');
@@ -580,11 +597,12 @@ function AuthContent() {
               e.preventDefault();
               setError('');
               if (!name.trim()) { setError('Enter your full name.'); return; }
-              if (!signupEmail) { setError('Enter your email address.'); return; }
-              if (!signupPhone) { setError('Enter your phone number.'); return; }
+              if (!signupLga) { setError('Select your Local Government Area.'); return; }
               const passwordErrors = getPasswordErrors(newPassword);
               if (passwordErrors.length > 0) { setError(passwordErrors[0]); return; }
               if (newPassword !== confirmPassword) { setError('Passwords do not match.'); return; }
+              const cleanedPhone = normalizePhone(phone);
+              const cleanedEmail = email.trim().toLowerCase();
               setLoading(true);
               try {
                 const res = await fetch('/api/auth/signup', {
@@ -592,9 +610,10 @@ function AuthContent() {
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({
                     name: name.trim(),
-                    email: signupEmail,
-                    phoneNumber: signupPhone,
+                    lga: signupLga,
                     password: newPassword,
+                    ...(cleanedPhone ? { phoneNumber: cleanedPhone } : {}),
+                    ...(cleanedEmail && !cleanedPhone ? { email: cleanedEmail } : {}),
                   }),
                 });
                 const data = await res.json();
@@ -602,7 +621,8 @@ function AuthContent() {
                   setError(data.error?.message || 'Sign up failed.');
                   return;
                 }
-                router.push('/onboarding');
+                const method = cleanedPhone ? 'phone' : 'email';
+                router.push(`/onboarding?method=${method}`);
               } catch {
                 setError('Network error. Please check your connection.');
               } finally {
@@ -620,25 +640,12 @@ function AuthContent() {
               autoFocus
               autoComplete="name"
             />
-            <Input
-              label="Email Address"
-              type="email"
-              inputMode="email"
-              placeholder="you@example.com"
-              value={signupEmail}
-              onChange={(e) => setSignupEmail(e.target.value.trim().toLowerCase())}
-              icon={<Mail size={16} strokeWidth={1.5} />}
-              autoComplete="email"
-            />
-            <Input
-              label="Phone Number"
-              type="tel"
-              inputMode="tel"
-              placeholder="080 1234 5678"
-              value={signupPhone}
-              onChange={(e) => setSignupPhone(e.target.value)}
-              icon={<Phone size={16} strokeWidth={1.5} />}
-              autoComplete="tel"
+            <Select
+              label="Local Government Area"
+              options={lgaOptions}
+              placeholder="Select your LGA"
+              value={signupLga}
+              onChange={(e) => setSignupLga(e.target.value)}
             />
             <div>
               <Input
@@ -653,16 +660,18 @@ function AuthContent() {
               />
               <PasswordRulesChecklist password={newPassword} />
             </div>
-            <Input
-              label="Confirm Password"
-              type="password"
-              placeholder="Re-enter your password"
-              value={confirmPassword}
-              onChange={(e) => { setConfirmPassword(e.target.value); validateField('confirmPassword', e.target.value); }}
-              error={fieldErrors.confirmPassword || (error && !fieldErrors.newPassword ? error : '')}
-              icon={<Lock size={16} strokeWidth={1.5} />}
-              autoComplete="new-password"
-            />
+            {Object.values(passwordChecks).length > 0 && Object.values(passwordChecks).every(Boolean) && (
+              <Input
+                label="Confirm Password"
+                type="password"
+                placeholder="Re-enter your password"
+                value={confirmPassword}
+                onChange={(e) => { setConfirmPassword(e.target.value); validateField('confirmPassword', e.target.value); }}
+                error={fieldErrors.confirmPassword || (error && !fieldErrors.newPassword ? error : '')}
+                icon={<Lock size={16} strokeWidth={1.5} />}
+                autoComplete="new-password"
+              />
+            )}
             {error && !fieldErrors.confirmPassword && !fieldErrors.newPassword && (
               <p style={{ fontSize: 'var(--body-small-font-size)', color: 'var(--color-error)', margin: 0 }} role="alert">{error}</p>
             )}

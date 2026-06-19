@@ -89,7 +89,6 @@
 }
 
 .emptyCardBadge:hover {
-  transform: scale(1.1);
   box-shadow: 0 6px 16px hsla(24, 98%, 50%, 0.45);
 }
 

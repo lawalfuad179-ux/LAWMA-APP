@@ -11,13 +11,16 @@ function getAtCredentials() {
 }
 
 export async function sendOtpSms(phoneNumber: string, code: string): Promise<boolean> {
-  const isDev = process.env.NODE_ENV !== 'production' || process.env.AFRICASTALKING_API_KEY === 'sandbox';
+  // Mock only when no real key is configured. NODE_ENV is intentionally NOT checked —
+  // a real API key in .env should send even during local development.
+  const apiKey = process.env.AFRICASTALKING_API_KEY;
+  const isMock = !apiKey || apiKey === 'sandbox';
 
-  if (isDev) {
+  if (isMock) {
     logger.info('sms.otp.mock_sent', {
       phoneNumber,
       code,
-      message: `[DEV] OTP for ${phoneNumber}: ${code}`,
+      message: `[MOCK] OTP for ${phoneNumber}: ${code}`,
     });
     return true;
   }

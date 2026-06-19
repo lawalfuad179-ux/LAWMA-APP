@@ -4,8 +4,11 @@ import { useEffect, useRef, useState } from 'react';
 import { Camera, AlertCircle, RotateCcw, Upload, ArrowLeft, Zap, RefreshCw, ScanLine } from 'lucide-react';
 
 import { Button } from '@/components/ui/Button';
+import { NetworkError } from '@/components/ui/NetworkError';
+import { LottiePlayer } from '@/components/ui/LottiePlayer';
 import { AiRecycleIcon } from '@/components/ui/icons/AiRecycleIcon';
 import type { RecycleAiReport, WasteItem } from '@/lib/ai';
+import loadingDotsData from '../../../public/animations/loading-dots.json';
 import styles from './RecycleScanTab.module.css';
 
 type Phase =
@@ -33,6 +36,7 @@ export function RecycleScanTab() {
 
   const [phase, setPhase] = useState<Phase>({ kind: 'idle' });
   const [error, setError] = useState<string | null>(null);
+  const [networkError, setNetworkError] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [facingMode, setFacingMode] = useState<'environment' | 'user'>('environment');
   const [flashOn, setFlashOn] = useState(false);
@@ -130,33 +134,40 @@ export function RecycleScanTab() {
   async function handleScan() {
     if (phase.kind !== 'previewing') return;
     setError(null);
+    setNetworkError(false);
     setPhase({ kind: 'scanning' });
 
     const fd = new FormData();
     fd.append('image', phase.file);
 
-    const res = await fetch('/api/recycle/scan', { method: 'POST', body: fd });
-    const json = await res.json();
+    try {
+      const res = await fetch('/api/recycle/scan', { method: 'POST', body: fd });
+      const json = await res.json();
 
-    if (!json.ok) {
-      const scanErrorMessages: Record<string, string> = {
-        no_waste_detected: 'No waste detected. Make sure the photo clearly shows trash items in good lighting.',
-        file_too_large: 'Image is too large. Please use a photo under 10 MB.',
-        invalid_type: 'Unsupported file type. Use JPG, PNG, or WebP.',
-      };
-      const code: string = json.error?.code ?? '';
-      setError(scanErrorMessages[code] ?? json.error?.message ?? 'Scan failed. Please try again.');
+      if (!json.ok) {
+        const scanErrorMessages: Record<string, string> = {
+          no_waste_detected: 'No waste detected. Make sure the photo clearly shows trash items in good lighting.',
+          file_too_large: 'Image is too large. Please use a photo under 10 MB.',
+          invalid_type: 'Unsupported file type. Use JPG, PNG, or WebP.',
+        };
+        const code: string = json.error?.code ?? '';
+        setError(scanErrorMessages[code] ?? json.error?.message ?? 'Scan failed. Please try again.');
+        setPhase({ kind: 'idle' });
+        return;
+      }
+
+      setPhase({ kind: 'report', imageUrl: json.data.imageUrl, report: json.data.report });
+    } catch {
+      setNetworkError(true);
       setPhase({ kind: 'idle' });
-      return;
     }
-
-    setPhase({ kind: 'report', imageUrl: json.data.imageUrl, report: json.data.report });
   }
 
   function handleReset() {
     if (uploadInputRef.current) uploadInputRef.current.value = '';
     setPhase({ kind: 'idle' });
     setError(null);
+    setNetworkError(false);
     setCameraError(null);
   }
 
@@ -226,6 +237,12 @@ export function RecycleScanTab() {
           </div>
           {cameraError && <p className={styles.errorMsg}><AlertCircle size={14} />{cameraError}</p>}
           {error && <p className={styles.errorMsg}><AlertCircle size={14} />{error}</p>}
+          {networkError && (
+            <NetworkError
+              message="Could not reach the server. Check your connection."
+              onRetry={() => { setNetworkError(false); }}
+            />
+          )}
         </div>
       )}
 
@@ -243,9 +260,12 @@ export function RecycleScanTab() {
       {/* ── Scanning ── */}
       {phase.kind === 'scanning' && (
         <div className={styles.scanning}>
-          <div className={styles.scanningPulse}>
-            <AiRecycleIcon size={36} />
-          </div>
+          <LottiePlayer
+            animationData={loadingDotsData}
+            loop
+            autoplay
+            style={{ width: 80, height: 24 }}
+          />
           <p className={styles.scanningText}>Analyzing your waste…</p>
           <p className={styles.scanningSubtext}>The AI is classifying your items</p>
         </div>

@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { CreditCard, Receipt, Star } from 'lucide-react';
+import { Receipt, Star } from 'lucide-react';
 
 import { getSession } from '@/lib/auth';
 import { db } from '@/lib/db';
@@ -7,6 +7,7 @@ import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { BalanceCard } from './BalanceCard';
 import { PayNowButton } from './PayNowButton';
+import { EmptyBillsState } from './EmptyBillsState';
 import { BILL_STATUS_LABELS } from '@/constants';
 import styles from './page.module.css';
 
@@ -86,19 +87,7 @@ export default async function PaymentsPage() {
           </div>
         </div>
       ) : (
-        <div className={styles.emptyState}>
-          <div className={styles.emptyIllustration}>
-            <div className={styles.emptyBlob1} />
-            <div className={styles.emptyBlob2} />
-            <div className={styles.emptyCard}>
-              <CreditCard size={32} strokeWidth={1.2} className={styles.emptyCardIcon} />
-            </div>
-          </div>
-          <h2 className={styles.emptyTitle}>No bills yet</h2>
-          <p className={styles.emptySubtext}>
-            You don&apos;t have any bills right now. When a bill is generated, it will appear here.
-          </p>
-        </div>
+        <EmptyBillsState />
       )}
     </div>
   );
