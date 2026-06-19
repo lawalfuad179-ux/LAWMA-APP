@@ -68,7 +68,13 @@ export async function POST(req: NextRequest) {
       const { subject, text, html } = passwordResetEmail(code);
       await sendEmail(email || '', subject, html, text);
     } else {
-      await sendOtpSms(phoneNumber || '', code);
+      const smsSent = await sendOtpSms(phoneNumber || '', code);
+      if (!smsSent) {
+        return NextResponse.json<Failure>(
+          { ok: false, error: { code: 'sms_failed', message: 'Failed to send SMS. Please try again.' } },
+          { status: 500 },
+        );
+      }
       // Piggyback hasPassword so the login UI can hide the "use password" button
       // for users who have never set a password — avoids a separate round-trip.
       const resident = await db.resident.findUnique({

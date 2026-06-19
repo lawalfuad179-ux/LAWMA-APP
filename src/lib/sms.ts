@@ -44,13 +44,21 @@ export async function sendOtpSms(phoneNumber: string, code: string): Promise<boo
       body: encoded,
     });
 
-    const data = await res.json();
-    if (data.SMSMessageData?.Recipients?.[0]?.status === 'Success') {
+    const text = await res.text();
+    let data: unknown;
+    try {
+      data = JSON.parse(text);
+    } catch {
+      logger.error('sms.otp.error', { phoneNumber, error: `Non-JSON response from provider: ${text.slice(0, 200)}` });
+      return false;
+    }
+    const d = data as { SMSMessageData?: { Recipients?: Array<{ status: string; messageId: string }> } };
+    if (d.SMSMessageData?.Recipients?.[0]?.status === 'Success') {
       logger.info('sms.otp.sent', { phoneNumber, messageId: data.SMSMessageData.Recipients[0].messageId });
       return true;
     }
 
-    logger.error('sms.otp.failed', { phoneNumber, response: data });
+    logger.error('sms.otp.failed', { phoneNumber, response: d });
     return false;
   } catch (error) {
     logger.error('sms.otp.error', { phoneNumber, error: String(error) });
