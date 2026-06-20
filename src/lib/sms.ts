@@ -1,22 +1,18 @@
 import { logger } from '@/lib/logger';
 
-function getAtCredentials() {
-  const apiKey = process.env.AFRICASTALKING_API_KEY;
-  const username = process.env.AFRICASTALKING_USERNAME || 'sandbox';
-  const from = process.env.AFRICASTALKING_FROM;
-  if (!apiKey) {
-    throw new Error('AFRICASTALKING_API_KEY is not configured.');
+function toInternational(phoneNumber: string): string {
+  // Convert local Nigerian numbers (07xxx, 08xxx, 09xxx) to +234 format
+  if (/^0[789]\d{9}$/.test(phoneNumber)) {
+    return '+234' + phoneNumber.slice(1);
   }
-  return { apiKey, username, from };
+  // Already has + prefix or is in another format — pass through
+  return phoneNumber.startsWith('+') ? phoneNumber : '+' + phoneNumber;
 }
 
 export async function sendOtpSms(phoneNumber: string, code: string): Promise<boolean> {
-  // Mock only when no real key is configured. NODE_ENV is intentionally NOT checked —
-  // a real API key in .env should send even during local development.
-  const apiKey = process.env.AFRICASTALKING_API_KEY;
-  const isMock = !apiKey || apiKey === 'sandbox';
+  const apiKey = process.env.BREVO_SMS_API_KEY;
 
-  if (isMock) {
+  if (!apiKey) {
     logger.info('sms.otp.mock_sent', {
       phoneNumber,
       code,
@@ -26,22 +22,22 @@ export async function sendOtpSms(phoneNumber: string, code: string): Promise<boo
   }
 
   try {
-    const { apiKey, username, from } = getAtCredentials();
-    const encoded = new URLSearchParams({
-      username,
-      to: phoneNumber,
-      message: `Your LAWMA OTP is ${code}. Valid for 5 minutes.`,
-    });
-    if (from) encoded.set('from', from);
+    const sender = process.env.BREVO_SMS_SENDER || 'LAWMA';
+    const recipient = toInternational(phoneNumber);
 
-    const res = await fetch('https://api.africastalking.com/version1/messaging', {
+    const res = await fetch('https://api.brevo.com/v3/transactionalSMS/sms', {
       method: 'POST',
       headers: {
+        'api-key': apiKey,
+        'Content-Type': 'application/json',
         Accept: 'application/json',
-        'Content-Type': 'application/x-www-form-urlencoded',
-        apiKey,
       },
-      body: encoded,
+      body: JSON.stringify({
+        sender,
+        recipient,
+        content: `Your LAWMA OTP is ${code}. Valid for 5 minutes.`,
+        type: 'transactional',
+      }),
     });
 
     const text = await res.text();
@@ -49,16 +45,17 @@ export async function sendOtpSms(phoneNumber: string, code: string): Promise<boo
     try {
       data = JSON.parse(text);
     } catch {
-      logger.error('sms.otp.error', { phoneNumber, error: `Non-JSON response from provider: ${text.slice(0, 200)}` });
+      logger.error('sms.otp.error', { phoneNumber, error: `Non-JSON response from Brevo: ${text.slice(0, 200)}` });
       return false;
     }
-    const d = data as { SMSMessageData?: { Recipients?: Array<{ status: string; messageId: string }> } };
-    if (d.SMSMessageData?.Recipients?.[0]?.status === 'Success') {
-      logger.info('sms.otp.sent', { phoneNumber, messageId: data.SMSMessageData.Recipients[0].messageId });
+
+    if (res.ok) {
+      const d = data as { messageId?: string };
+      logger.info('sms.otp.sent', { phoneNumber: recipient, messageId: d.messageId });
       return true;
     }
 
-    logger.error('sms.otp.failed', { phoneNumber, response: d });
+    logger.error('sms.otp.failed', { phoneNumber, status: res.status, response: data });
     return false;
   } catch (error) {
     logger.error('sms.otp.error', { phoneNumber, error: String(error) });
