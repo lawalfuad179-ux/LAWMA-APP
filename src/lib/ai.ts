@@ -80,13 +80,26 @@ export async function analyzeWasteImage(imageUrl: string): Promise<RecycleAiRepo
   const imgResp = await fetch(imageUrl);
   if (!imgResp.ok) throw new Error(`Failed to fetch image for analysis: ${imgResp.status}`);
 
-  const buffer = Buffer.from(await imgResp.arrayBuffer());
-  const rawMime = imgResp.headers.get('content-type') || 'image/jpeg';
-  const mime = rawMime.split(';')[0].trim() as
-    | 'image/jpeg'
-    | 'image/png'
-    | 'image/webp'
-    | 'image/gif';
+  let buffer = Buffer.from(await imgResp.arrayBuffer());
+  const rawMime = (imgResp.headers.get('content-type') || 'image/jpeg').split(';')[0].trim().toLowerCase();
+
+  // Anthropic vision only accepts jpeg/png/webp/gif. iPhone uploads are HEIC/HEIF —
+  // convert to JPEG before sending, otherwise the API rejects them.
+  let mime: 'image/jpeg' | 'image/png' | 'image/webp' | 'image/gif';
+  if (rawMime === 'image/heic' || rawMime === 'image/heif') {
+    const { default: heicConvert } = await import('heic-convert');
+    const converted = await heicConvert({
+      buffer: new Uint8Array(buffer),
+      format: 'JPEG',
+      quality: 0.85,
+    });
+    buffer = Buffer.from(converted);
+    mime = 'image/jpeg';
+  } else if (rawMime === 'image/jpeg' || rawMime === 'image/png' || rawMime === 'image/webp' || rawMime === 'image/gif') {
+    mime = rawMime;
+  } else {
+    mime = 'image/jpeg';
+  }
 
   const response = await client.messages.create({
     model,

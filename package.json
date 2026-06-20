@@ -17,6 +17,7 @@
     "@vercel/blob": "^2.4.0",
     "bcryptjs": "^3.0.3",
     "dotenv": "^17.4.2",
+    "heic-convert": "^2.1.0",
     "lottie-react": "^2.4.1",
     "lucide-react": "^1.18.0",
     "next": "16.2.6",
@@ -29,6 +30,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@types/heic-convert": "^2.1.1",
     "@types/node": "^20",
     "@types/nodemailer": "^8.0.0",
     "@types/pg": "^8.20.0",
