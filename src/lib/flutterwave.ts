@@ -20,6 +20,20 @@ type CreatePaymentLinkResult = {
   error: string;
 };
 
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+/**
+ * Returns a Flutterwave-acceptable email. Prefers the resident's real email;
+ * falls back to a synthetic one built from a digits-only phone so we never
+ * send something like "+234...@lawma.resident" or "x@y@z" that the API rejects.
+ */
+function sanitizeEmail(email: string | undefined, phone: string): string {
+  if (email && EMAIL_RE.test(email)) return email;
+  const digits = (phone || '').replace(/\D/g, '');
+  const local = digits || `resident${Date.now()}`;
+  return `${local}@lawma.resident`;
+}
+
 /**
  * Creates a Flutterwave hosted payment link.
  * Converts internal kobo amounts to naira for the Flutterwave API boundary.
@@ -52,7 +66,7 @@ export async function createPaymentLink(params: CreatePaymentLinkParams): Promis
         currency: 'NGN',
         redirect_url: `${appUrl}/payments`,
         customer: {
-          email: customerEmail || `${customerPhone}@lawma.resident`,
+          email: sanitizeEmail(customerEmail, customerPhone),
           phonenumber: customerPhone,
           name: customerName,
         },
