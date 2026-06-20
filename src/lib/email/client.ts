@@ -5,15 +5,25 @@ export type SendEmailResult =
   | { ok: true; messageId?: string }
   | { ok: false; error: { code: string; message: string } };
 
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST || '',
-  port: Number(process.env.SMTP_PORT) || 587,
-  secure: process.env.SMTP_SECURE === 'true',
-  auth: {
-    user: process.env.SMTP_USER || '',
-    pass: process.env.SMTP_PASSWORD || '',
-  },
-});
+const smtpHost = process.env.SMTP_HOST || '';
+const smtpPort = Number(process.env.SMTP_PORT) || 587;
+const smtpSecure = process.env.SMTP_SECURE === 'true';
+const smtpUser = process.env.SMTP_USER || '';
+const smtpPass = process.env.SMTP_PASSWORD || '';
+
+const transportOptions = {
+  host: smtpHost,
+  port: smtpPort,
+  secure: smtpSecure,
+  ...(smtpUser && smtpPass ? {
+    auth: {
+      user: smtpUser,
+      pass: smtpPass,
+    },
+  } : {}),
+};
+
+const transporter = nodemailer.createTransport(transportOptions as nodemailer.TransportOptions);
 
 export async function sendEmail(
   to: string,
@@ -21,9 +31,17 @@ export async function sendEmail(
   html: string,
   text: string,
 ): Promise<SendEmailResult> {
-  if (process.env.EMAIL_ENABLED !== 'true') {
-    logger.info('email.disabled', { to, subject });
-    return { ok: true, messageId: 'email-disabled' };
+  const hasCredentials = !!(process.env.SMTP_USER && process.env.SMTP_PASSWORD);
+  const isLocal = !!(process.env.SMTP_HOST && (process.env.SMTP_HOST.includes('localhost') || process.env.SMTP_HOST.includes('127.0.0.1')));
+  const hasHost = !!process.env.SMTP_HOST;
+
+  if (process.env.EMAIL_ENABLED !== 'true' || !hasHost || (!hasCredentials && !isLocal)) {
+    logger.info('email.mock_sent', {
+      to,
+      subject,
+      message: `[MOCK] Email to ${to}: ${subject} (Text: ${text})`,
+    });
+    return { ok: true, messageId: 'email-mock-sent' };
   }
 
   try {

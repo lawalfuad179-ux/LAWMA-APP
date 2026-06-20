@@ -17,7 +17,7 @@ import { useToast } from '@/context/ToastContext';
 import { completeOnboarding } from '../onboarding/actions';
 import styles from './page.module.css';
 
-type Step = 'phone' | 'otp' | 'profile' | 'reset' | 'password-signin' | 'password-signup';
+type Step = 'phone' | 'otp' | 'profile' | 'reset' | 'password-signin' | 'password-signup' | 'create-password';
 type Mode = 'signin' | 'signup';
 
 function AuthContent() {
@@ -49,6 +49,9 @@ function AuthContent() {
   const [signupLga, setSignupLga] = useState('');
   // null = unknown (OTP not yet sent), true/false = from OTP send response
   const [residentHasPassword, setResidentHasPassword] = useState<boolean | null>(null);
+  // true = arrived at create-password after OTP was verified (session exists)
+  // false = arrived via button click (no session — must submit OTP code in form)
+  const [createPasswordHasSession, setCreatePasswordHasSession] = useState(false);
   const [identifierTouched, setIdentifierTouched] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [passwordChecks, setPasswordChecks] = useState<Record<string, boolean>>({});
@@ -109,6 +112,12 @@ function AuthContent() {
         setNewPassword('');
         setFieldErrors({});
       }
+      if (to === 'create-password') {
+        setNewPassword('');
+        setConfirmPassword('');
+        setPasswordChecks({});
+        setFieldErrors({});
+      }
       setStep(to);
       setError('');
       setTransition('enter');
@@ -135,31 +144,47 @@ function AuthContent() {
 
     const cleanedPhone = normalizePhone(phone);
     const cleanedEmail = email.trim().toLowerCase();
+    const isEmailField = !!(cleanedEmail && !cleanedPhone);
 
     if (!cleanedPhone && !cleanedEmail) {
       setError('Enter your phone number or email.');
       return;
     }
 
-    // Check for existing account during signup
-    if (mode === 'signup') {
-      const isEmailField = cleanedEmail && !cleanedPhone;
+    setLoading(true);
+    try {
+      // Always check resident status first — determines routing for both modes
       const checkRes = await fetch('/api/auth/check-resident', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(isEmailField ? { email: cleanedEmail } : { phoneNumber: cleanedPhone }),
       });
       const checkData = await checkRes.json();
-      if (checkData.exists) {
-        setError('An account with this email/phone number already exists. Sign in instead.');
-        setLoading(false);
-        return;
-      }
-    }
 
-    setLoading(true);
-    try {
-      const isEmailField = cleanedEmail && !cleanedPhone;
+      if (mode === 'signup') {
+        if (checkData.exists) {
+          setError('An account with this email/phone number already exists. Sign in instead.');
+          return;
+        }
+      }
+
+      if (mode === 'signin') {
+        if (!checkData.exists) {
+          setError('No account found. Create one instead.');
+          return;
+        }
+
+        setResidentHasPassword(checkData.hasPassword);
+
+        if (checkData.hasPassword) {
+          // Has password — skip OTP, go straight to password sign-in
+          switchStep('password-signin');
+          return;
+        }
+
+        // No password — send OTP then route to create-password after verification
+      }
+
       const res = await fetch('/api/auth/otp/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -174,10 +199,6 @@ function AuthContent() {
         }
         setError(data.error?.message || 'Something went wrong.');
         return;
-      }
-
-      if (data.data?.hasPassword !== undefined) {
-        setResidentHasPassword(data.data.hasPassword);
       }
 
       switchStep('otp');
@@ -232,6 +253,10 @@ function AuthContent() {
       if (data.data.isNewResident && mode === 'signup') {
         const method = email ? 'email' : 'phone';
         router.push(`/onboarding?method=${method}`);
+      } else if (mode === 'signin' && residentHasPassword === false) {
+        // Existing user with no password — OTP verified, session exists
+        setCreatePasswordHasSession(true);
+        switchStep('create-password');
       } else {
         toast('Login successful', 'success');
         router.push('/dashboard');
@@ -302,6 +327,10 @@ function AuthContent() {
 
   const lgaOptions = LAGOS_LGAS.map((l) => ({ value: l, label: l }));
 
+  const identifier = (phone || email).trim();
+  const identifierValid = identifier.length > 0 && !validateEmailOrPhone(identifier);
+  const passwordAllChecksPass = Object.values(passwordChecks).length > 0 && Object.values(passwordChecks).every(Boolean);
+
   function validateField(field: string, value: string) {
     let msg: string | null = null;
     if (field === 'emailOrPhone') msg = validateEmailOrPhone(value);
@@ -346,9 +375,10 @@ function AuthContent() {
 
           {step === 'otp' && (
             <div className={styles.header}>
-              <h1 className={styles.title}>Verify code</h1>
+              <h1 className={styles.title}>{email && !phone ? 'Check your inbox' : 'Check your messages'}</h1>
               <p className={styles.subtitle}>
                 We sent a 6-digit code to your {email && !phone ? 'email address' : 'phone number'}.
+                {mode === 'signin' && residentHasPassword === false && " Verify it and you'll set your password next."}
               </p>
             </div>
           )}
@@ -371,6 +401,13 @@ function AuthContent() {
             <div className={styles.header}>
               <h1 className={styles.title}>Create account</h1>
               <p className={styles.subtitle}>Fill in your details and choose a password.</p>
+            </div>
+          )}
+
+          {step === 'create-password' && (
+            <div className={styles.header}>
+              <h1 className={styles.title}>Create a password</h1>
+              <p className={styles.subtitle}>Set a password for your account so you can sign in faster next time.</p>
             </div>
           )}
         </div>
@@ -431,7 +468,7 @@ function AuthContent() {
                 autoComplete="username"
               />
             )}
-            <Button type="submit" size="lg" isLoading={loading}>
+            <Button type="submit" size="lg" isLoading={loading} disabled={!identifierValid}>
               {mode === 'signin' ? 'Continue' : 'Create Account'}
             </Button>
             <button className={styles.modeToggle} onClick={toggleMode} type="button">
@@ -467,18 +504,32 @@ function AuthContent() {
             >
               {cooldown > 0 ? `Resend code in ${cooldown}s` : 'Resend code'}
             </button>
-            <Button type="submit" size="lg" isLoading={loading}>
+            <Button type="submit" size="lg" isLoading={loading} disabled={code.length < 6}>
               Verify
             </Button>
-            {(mode === 'signup' || residentHasPassword === true) && (
+            {mode === 'signup' && (
               <button
                 type="button"
                 className={styles.modeToggle}
-                onClick={() => switchStep(mode === 'signup' ? 'password-signup' : 'password-signin')}
+                onClick={() => switchStep('password-signup')}
               >
-                <span className={styles.modeToggleBold}>
-                  {mode === 'signup' ? 'Create account with password instead' : 'Use password instead'}
-                </span>
+                <span className={styles.modeToggleBold}>Create account with password instead</span>
+              </button>
+            )}
+            {mode === 'signin' && (
+              <button
+                type="button"
+                className={styles.modeToggle}
+                onClick={() => {
+                  if (residentHasPassword === false) {
+                    setCreatePasswordHasSession(false);
+                    switchStep('create-password');
+                  } else {
+                    switchStep('password-signin');
+                  }
+                }}
+              >
+                <span className={styles.modeToggleBold}>Sign in with password instead</span>
               </button>
             )}
           </form>
@@ -523,7 +574,7 @@ function AuthContent() {
               icon={<MapPin size={16} strokeWidth={1.5} />}
               autoComplete="street-address"
             />
-            <Button type="submit" size="lg" isLoading={loading}>
+            <Button type="submit" size="lg" isLoading={loading} disabled={!email || !name || !lga || !address}>
               Complete Setup
             </Button>
           </form>
@@ -582,7 +633,7 @@ function AuthContent() {
             <button className={styles.forgotLink} onClick={() => { switchStep('reset'); }} type="button">
               Forgot password?
             </button>
-            <Button type="submit" size="lg" isLoading={loading}>
+            <Button type="submit" size="lg" isLoading={loading} disabled={!newPassword}>
               Sign In
             </Button>
             <button className={styles.modeToggle} onClick={() => switchStep('otp')} type="button">
@@ -596,8 +647,6 @@ function AuthContent() {
             onSubmit={async (e) => {
               e.preventDefault();
               setError('');
-              if (!name.trim()) { setError('Enter your full name.'); return; }
-              if (!signupLga) { setError('Select your Local Government Area.'); return; }
               const passwordErrors = getPasswordErrors(newPassword);
               if (passwordErrors.length > 0) { setError(passwordErrors[0]); return; }
               if (newPassword !== confirmPassword) { setError('Passwords do not match.'); return; }
@@ -609,8 +658,6 @@ function AuthContent() {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({
-                    name: name.trim(),
-                    lga: signupLga,
                     password: newPassword,
                     ...(cleanedPhone ? { phoneNumber: cleanedPhone } : {}),
                     ...(cleanedEmail && !cleanedPhone ? { email: cleanedEmail } : {}),
@@ -631,22 +678,6 @@ function AuthContent() {
             }}
             className={styles.form}
           >
-            <Input
-              label="Full Name"
-              placeholder="Your full name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              icon={<User size={16} strokeWidth={1.5} />}
-              autoFocus
-              autoComplete="name"
-            />
-            <Select
-              label="Local Government Area"
-              options={lgaOptions}
-              placeholder="Select your LGA"
-              value={signupLga}
-              onChange={(e) => setSignupLga(e.target.value)}
-            />
             <div>
               <Input
                 label="Password"
@@ -656,6 +687,7 @@ function AuthContent() {
                 onChange={(e) => { setNewPassword(e.target.value); validateField('newPassword', e.target.value); }}
                 error={fieldErrors.newPassword}
                 icon={<Lock size={16} strokeWidth={1.5} />}
+                autoFocus
                 autoComplete="new-password"
               />
               <PasswordRulesChecklist password={newPassword} />
@@ -675,8 +707,106 @@ function AuthContent() {
             {error && !fieldErrors.confirmPassword && !fieldErrors.newPassword && (
               <p style={{ fontSize: 'var(--body-small-font-size)', color: 'var(--color-error)', margin: 0 }} role="alert">{error}</p>
             )}
-            <Button type="submit" size="lg" isLoading={loading}>
+            <Button
+              type="submit"
+              size="lg"
+              isLoading={loading}
+              disabled={!passwordAllChecksPass || !confirmPassword || confirmPassword !== newPassword}
+            >
               Create Account
+            </Button>
+            <button className={styles.modeToggle} onClick={() => switchStep('otp')} type="button">
+              <span className={styles.modeToggleBold}>← Back to OTP verification</span>
+            </button>
+          </form>
+        )}
+
+        {step === 'create-password' && (
+          <form
+            onSubmit={async (e) => {
+              e.preventDefault();
+              setError('');
+              const passwordErrors = getPasswordErrors(newPassword);
+              if (passwordErrors.length > 0) { setError(passwordErrors[0]); return; }
+              if (newPassword !== confirmPassword) { setError('Passwords do not match.'); return; }
+
+              const cleanedPhone = normalizePhone(phone);
+              const cleanedEmail = email.trim().toLowerCase();
+              const isEmailField = !!(cleanedEmail && !cleanedPhone);
+
+              setLoading(true);
+              try {
+                let res: Response;
+                if (createPasswordHasSession) {
+                  // Arrived via OTP verify — session already exists
+                  res = await fetch('/api/auth/set-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password: newPassword }),
+                  });
+                } else {
+                  // Arrived via button — backend verifies valid OTP exists in DB
+                  res = await fetch('/api/auth/create-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      ...(isEmailField ? { email: cleanedEmail } : { phoneNumber: cleanedPhone }),
+                      password: newPassword,
+                    }),
+                  });
+                }
+                const data = await res.json();
+                if (!data.ok) {
+                  setError(data.error?.message || 'Failed to set password.');
+                  return;
+                }
+
+                toast('Password created. Welcome back!', 'success');
+                router.push('/dashboard');
+              } catch {
+                setError('Network error. Please try again.');
+              } finally {
+                setLoading(false);
+              }
+            }}
+            className={styles.form}
+          >
+            <div>
+              <Input
+                label="New Password"
+                type="password"
+                placeholder="At least 8 characters"
+                value={newPassword}
+                onChange={(e) => { setNewPassword(e.target.value); validateField('newPassword', e.target.value); }}
+                error={fieldErrors.newPassword}
+                icon={<Lock size={16} strokeWidth={1.5} />}
+                autoFocus={createPasswordHasSession}
+                autoComplete="new-password"
+              />
+              <PasswordRulesChecklist password={newPassword} />
+            </div>
+            {passwordAllChecksPass && (
+              <Input
+                label="Confirm Password"
+                type="password"
+                placeholder="Re-enter your password"
+                value={confirmPassword}
+                onChange={(e) => { setConfirmPassword(e.target.value); validateField('confirmPassword', e.target.value); }}
+                error={fieldErrors.confirmPassword || (error && !fieldErrors.newPassword ? error : '')}
+                icon={<Lock size={16} strokeWidth={1.5} />}
+                autoComplete="new-password"
+              />
+            )}
+            {error && !fieldErrors.confirmPassword && !fieldErrors.newPassword && (
+              <p style={{ fontSize: 'var(--body-small-font-size)', color: 'var(--color-error)', margin: 0 }} role="alert">{error}</p>
+            )}
+            <Button
+              type="submit"
+              size="lg"
+              isLoading={loading}
+              disabled={!passwordAllChecksPass || !confirmPassword || confirmPassword !== newPassword}
+            >
+              Create Password & Sign In
             </Button>
             <button className={styles.modeToggle} onClick={() => switchStep('otp')} type="button">
               <span className={styles.modeToggleBold}>← Back to OTP verification</span>
@@ -739,7 +869,7 @@ function AuthContent() {
               autoFocus
               autoComplete="username"
             />
-            <Button type="submit" size="lg" isLoading={loading}>
+            <Button type="submit" size="lg" isLoading={loading} disabled={!identifierValid}>
               Send Reset Code
             </Button>
             <button className={styles.modeToggle} onClick={() => { setStep('phone'); setResetSent(false); setError(''); }} type="button">
@@ -820,7 +950,12 @@ function AuthContent() {
               icon={<Lock size={16} strokeWidth={1.5} />}
               autoComplete="new-password"
             />
-            <Button type="submit" size="lg" isLoading={loading}>
+            <Button
+              type="submit"
+              size="lg"
+              isLoading={loading}
+              disabled={code.length < 6 || !passwordAllChecksPass || !confirmPassword || confirmPassword !== newPassword}
+            >
               Reset Password
             </Button>
             <button className={styles.modeToggle} onClick={() => { setStep('phone'); setResetSent(false); setError(''); }} type="button">

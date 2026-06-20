@@ -8,7 +8,7 @@ import { db } from '@/lib/db';
 import { logger } from '@/lib/logger';
 
 const setupSchema = z.object({
-  name: z.string().min(2, 'Name must be at least 2 characters.').max(100).optional().or(z.literal('')),
+  name: z.string().min(2, 'Name must be at least 2 characters.').max(100),
   lga: z.string().min(2, 'Please select your LGA.').max(100).optional().or(z.literal('')),
   address: z.string().min(5, 'Address must be at least 5 characters.').max(200),
   email: z.string().email('Invalid email address.').optional().or(z.literal('')),

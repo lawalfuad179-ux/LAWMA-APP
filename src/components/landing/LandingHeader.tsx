@@ -11,7 +11,7 @@ export function LandingHeader() {
         <Image src="/logo-dark.png"  alt="LAWMA" width={100} height={24} className={styles.logoDark} style={{ width: 'auto', height: 24 }} />
       </Link>
       <nav className={styles.nav}>
-        <Link href="/login" className={styles.btnPrimary}>Get started</Link>
+        <Link href="/login?mode=signup" className={styles.btnPrimary}>Get started</Link>
         <Link href="/login?mode=signin" className={styles.btnGhost}>Sign in</Link>
         <ThemeToggle />
       </nav>

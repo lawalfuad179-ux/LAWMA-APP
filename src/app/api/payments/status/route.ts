@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Missing tx_ref' }, { status: 400 });
     }
 
-    const payment = await db.payment.findUnique({ where: { txRef } });
+    const payment = await db.payment.findUnique({ where: { txRef }, include: { bill: true } });
 
     if (!payment) {
       return NextResponse.json({ status: 'NOT_FOUND' });
@@ -113,7 +113,13 @@ export async function GET(req: NextRequest) {
           },
         }).catch(() => {});
 
-        return NextResponse.json({ status: 'SUCCESSFUL' });
+        return NextResponse.json({
+          status: 'SUCCESSFUL',
+          amountKobo: payment.amountKobo,
+          periodStart: payment.bill?.periodStart ?? null,
+          periodEnd: payment.bill?.periodEnd ?? null,
+          isBulk,
+        });
       }
     } catch (fwError) {
       logger.warn('payments.status.fw_check_error', { txRef, error: String(fwError) });
@@ -143,7 +149,13 @@ export async function GET(req: NextRequest) {
       });
 
       logger.info('payments.status.dev_auto_confirmed', { txRef, isBulk });
-      return NextResponse.json({ status: 'SUCCESSFUL' });
+      return NextResponse.json({
+        status: 'SUCCESSFUL',
+        amountKobo: payment.amountKobo,
+        periodStart: payment.bill?.periodStart ?? null,
+        periodEnd: payment.bill?.periodEnd ?? null,
+        isBulk,
+      });
     }
 
     return NextResponse.json({ status: payment.status });

@@ -40,7 +40,7 @@ export default function LandingPage() {
                 </p>
               </div>
               <div className={styles.heroActions}>
-                <button className={styles.primaryCta} onClick={() => router.push('/login')} type="button">
+                <button className={styles.primaryCta} onClick={() => router.push('/login?mode=signup')} type="button">
                   Get started
                 </button>
                 <button className={styles.secondaryCta} onClick={() => router.push('/login?mode=signin')} type="button">
@@ -168,7 +168,7 @@ export default function LandingPage() {
             <h2 className={styles.ctaHeadline}>Help keep Lagos cleaner, one report at a time.</h2>
             <p className={styles.ctaSub}>Join residents across Lagos using LAWMA to build a cleaner city.</p>
             <div className={styles.ctaActions}>
-              <button className={styles.ctaPrimary} onClick={() => router.push('/login')} type="button">
+              <button className={styles.ctaPrimary} onClick={() => router.push('/login?mode=signup')} type="button">
                 Get started
               </button>
                 <button className={styles.ctaSecondary} onClick={() => router.push('/login?mode=signin')} type="button">

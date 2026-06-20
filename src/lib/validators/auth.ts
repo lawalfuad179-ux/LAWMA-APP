@@ -9,8 +9,8 @@ const strictPassword = z
   .regex(/[^a-zA-Z0-9]/, 'Use at least one special character.');
 
 export const signUpSchema = z.object({
-  name: z.string().min(2, 'Enter your full name.').max(100),
-  lga: z.string().min(2, 'Select your Local Government Area.').max(100),
+  name: z.string().min(2).max(100).optional(),
+  lga: z.string().min(2).max(100).optional(),
   email: z.string().email('Enter a valid email address.').max(200).optional(),
   phoneNumber: z
     .string()

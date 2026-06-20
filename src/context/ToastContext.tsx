@@ -35,14 +35,15 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
       <div
         style={{
           position: 'fixed',
-          top: 68,
+          top: 16,
+          left: 16,
           right: 16,
           zIndex: 200,
           display: 'flex',
           flexDirection: 'column',
           gap: 8,
           pointerEvents: 'none',
-          alignItems: 'flex-end',
+          alignItems: 'stretch',
         }}
       >
         {toasts.map((t) => (

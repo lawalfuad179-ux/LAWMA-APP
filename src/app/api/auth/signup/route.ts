@@ -55,7 +55,13 @@ export async function POST(req: NextRequest) {
     if (normalizedEmail) contactFields.email = normalizedEmail;
 
     const resident = await db.resident.create({
-      data: { ...contactFields, name, lga, passwordHash, onboardingVersion: 1 },
+      data: {
+        ...contactFields,
+        passwordHash,
+        onboardingVersion: 1,
+        ...(name ? { name } : {}),
+        ...(lga ? { lga } : {}),
+      },
     });
 
     await createSession(resident.id);

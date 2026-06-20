@@ -2,7 +2,7 @@
 
 import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { User, MapPin, Home, ChevronLeft, Mail, Phone } from 'lucide-react';
+import { User, MapPin, Home, ChevronLeft, Mail } from 'lucide-react';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -90,11 +90,6 @@ function OnboardingContent() {
   const searchParams = useSearchParams();
   const method = searchParams.get('method') as 'phone' | 'email' | null;
 
-  // method=phone → signed up with phone, now needs email + address
-  // method=email → signed up with email, now needs phone + address
-  // null / 'otp'  → OTP flow, needs name + lga + address
-  const isPasswordFlow = method === 'phone' || method === 'email';
-
   const [step, setStep] = useState(1);
   const [animKey, setAnimKey] = useState(0);
 
@@ -102,7 +97,6 @@ function OnboardingContent() {
   const [lga, setLga] = useState('');
   const [address, setAddress] = useState('');
   const [contactEmail, setContactEmail] = useState('');
-  const [contactPhone, setContactPhone] = useState('');
   const [errors, setErrors] = useState<Record<string, string | undefined>>({});
   const [serverError, setServerError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -117,20 +111,16 @@ function OnboardingContent() {
   function validate(): boolean {
     const next: Record<string, string> = {};
 
-    if (isPasswordFlow) {
+    if (!name.trim() || name.trim().length < 2) next.name = 'Please enter your full name';
+
+    if (!lga) next.lga = 'Please select your LGA';
+
+    if (lga) {
       if (method === 'phone' && !contactEmail.trim().includes('@')) {
         next.email = 'Enter a valid email address';
       }
-      if (method === 'email') {
-        const digits = contactPhone.replace(/\D/g, '');
-        if (!digits || digits.length < 10) next.phone = 'Enter a valid phone number';
-      }
-    } else {
-      if (!name.trim() || name.trim().length < 2) next.name = 'Please enter your full name';
-      if (!lga) next.lga = 'Please select your LGA';
+      if (!address.trim() || address.trim().length < 5) next.address = 'Please enter your street address';
     }
-
-    if (!address.trim() || address.trim().length < 5) next.address = 'Please enter your street address';
 
     setErrors(next);
     return Object.keys(next).length === 0;
@@ -144,20 +134,12 @@ function OnboardingContent() {
 
     const formData = new FormData();
     formData.set('address', address.trim());
+    formData.set('lga', lga);
 
-    if (isPasswordFlow) {
-      if (method === 'phone' && contactEmail.trim()) {
-        formData.set('email', contactEmail.trim().toLowerCase());
-      }
-      if (method === 'email' && contactPhone.trim()) {
-        const digits = contactPhone.replace(/\D/g, '');
-        const normalized = '+234' + (digits.startsWith('0') ? digits.slice(1) : digits);
-        formData.set('phoneNumber', normalized);
-      }
-    } else {
-      formData.set('name', name.trim());
-      formData.set('lga', lga);
+    if (method === 'phone' && contactEmail.trim()) {
+      formData.set('email', contactEmail.trim().toLowerCase());
     }
+    formData.set('name', name.trim());
 
     setLoading(true);
     try {
@@ -246,94 +228,75 @@ function OnboardingContent() {
               <div className={styles.stepHeader}>
                 <h1 className={styles.title}>One last thing</h1>
                 <p className={styles.subtitle}>
-                  {isPasswordFlow
-                    ? 'Add your street address and one more contact so we can reach you.'
-                    : 'We need a few details to personalise your experience and connect you to the right services in your area.'}
+                  We need a few details to personalise your experience and connect you to the right services in your area.
                 </p>
               </div>
               <form onSubmit={handleSubmit} className={styles.form}>
-                {!isPasswordFlow && (
+                <Input
+                  label="Full Name"
+                  placeholder="e.g. Amaka Osei"
+                  value={name}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setName(val);
+                    if (/\d/.test(val)) {
+                      setErrors((prev) => ({ ...prev, name: 'Name cannot contain numbers' }));
+                    } else {
+                      setErrors((prev) => ({ ...prev, name: undefined }));
+                    }
+                  }}
+                  error={errors.name}
+                  icon={<User size={16} strokeWidth={1.5} />}
+                  autoFocus
+                  autoComplete="name"
+                />
+                <Select
+                  label="Local Government Area"
+                  options={lgaOptions}
+                  placeholder="Select your LGA"
+                  value={lga}
+                  onChange={(e) => {
+                    setLga(e.target.value);
+                    setAddress('');
+                    if (errors.lga) setErrors((prev) => ({ ...prev, lga: undefined }));
+                  }}
+                  error={errors.lga}
+                  icon={<MapPin size={16} strokeWidth={1.5} />}
+                />
+                {lga && (
                   <>
                     <Input
-                      label="Full Name"
-                      placeholder="e.g. Amaka Osei"
-                      value={name}
+                      label="Street Address"
+                      placeholder={`e.g. Bode Thomas Street, ${lga}`}
+                      value={address}
                       onChange={(e) => {
-                        const val = e.target.value;
-                        setName(val);
-                        if (/\d/.test(val)) {
-                          setErrors((prev) => ({ ...prev, name: 'Name cannot contain numbers' }));
-                        } else {
-                          setErrors((prev) => ({ ...prev, name: undefined }));
-                        }
+                        setAddress(e.target.value);
+                        if (errors.address) setErrors((prev) => ({ ...prev, address: undefined }));
                       }}
-                      error={errors.name}
-                      icon={<User size={16} strokeWidth={1.5} />}
-                      autoFocus
-                      autoComplete="name"
+                      error={errors.address}
+                      icon={<Home size={16} strokeWidth={1.5} />}
+                      autoComplete="street-address"
                     />
-                    <Select
-                      label="Local Government Area"
-                      options={lgaOptions}
-                      placeholder="Select your LGA"
-                      value={lga}
-                      onChange={(e) => {
-                        setLga(e.target.value);
-                        if (errors.lga) setErrors((prev) => ({ ...prev, lga: undefined }));
-                      }}
-                      error={errors.lga}
-                      icon={<MapPin size={16} strokeWidth={1.5} />}
-                    />
+                    {method === 'phone' && (
+                      <Input
+                        label="Email Address"
+                        type="email"
+                        inputMode="email"
+                        placeholder="you@example.com"
+                        value={contactEmail}
+                        onChange={(e) => {
+                          setContactEmail(e.target.value);
+                          if (errors.email) setErrors((prev) => ({ ...prev, email: undefined }));
+                        }}
+                        error={errors.email}
+                        icon={<Mail size={16} strokeWidth={1.5} />}
+                        autoComplete="email"
+                      />
+                    )}
                   </>
                 )}
-                {method === 'phone' && (
-                  <Input
-                    label="Email Address"
-                    type="email"
-                    inputMode="email"
-                    placeholder="you@example.com"
-                    value={contactEmail}
-                    onChange={(e) => {
-                      setContactEmail(e.target.value);
-                      if (errors.email) setErrors((prev) => ({ ...prev, email: undefined }));
-                    }}
-                    error={errors.email}
-                    icon={<Mail size={16} strokeWidth={1.5} />}
-                    autoFocus
-                    autoComplete="email"
-                  />
-                )}
-                {method === 'email' && (
-                  <Input
-                    label="Phone Number"
-                    type="tel"
-                    inputMode="tel"
-                    placeholder="080 1234 5678"
-                    value={contactPhone}
-                    onChange={(e) => {
-                      setContactPhone(e.target.value.replace(/[^\d]/g, ''));
-                      if (errors.phone) setErrors((prev) => ({ ...prev, phone: undefined }));
-                    }}
-                    error={errors.phone}
-                    prefix="+234"
-                    autoFocus
-                    autoComplete="tel"
-                  />
-                )}
-                <Input
-                  label="Street Address"
-                  placeholder="e.g. 14 Bode Thomas Street, Surulere"
-                  value={address}
-                  onChange={(e) => {
-                    setAddress(e.target.value);
-                    if (errors.address) setErrors((prev) => ({ ...prev, address: undefined }));
-                  }}
-                  error={errors.address}
-                  icon={<Home size={16} strokeWidth={1.5} />}
-                  autoComplete="street-address"
-                />
                 {serverError && <p className={styles.serverError}>{serverError}</p>}
-                <Button type="submit" size="lg" isLoading={loading}>Finish Setup</Button>
+                <Button type="submit" size="lg" isLoading={loading} disabled={!lga}>Finish Setup</Button>
                 <button className={styles.skipLink} onClick={() => router.push('/dashboard')} type="button">
                   Skip for now
                 </button>

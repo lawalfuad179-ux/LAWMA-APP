@@ -66,7 +66,13 @@ export async function POST(req: NextRequest) {
 
     if (isEmail) {
       const { subject, text, html } = passwordResetEmail(code);
-      await sendEmail(email || '', subject, html, text);
+      const emailResult = await sendEmail(email || '', subject, html, text);
+      if (!emailResult.ok) {
+        return NextResponse.json<Failure>(
+          { ok: false, error: { code: 'email_failed', message: 'Failed to send verification email. Please try again.' } },
+          { status: 500 },
+        );
+      }
     } else {
       const smsSent = await sendOtpSms(phoneNumber || '', code);
       if (!smsSent) {

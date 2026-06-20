@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
       const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'recycle');
       await mkdir(uploadDir, { recursive: true });
       await writeFile(path.join(uploadDir, fileName), bytes);
-      imageUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/uploads/recycle/${fileName}`;
+      imageUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3100'}/uploads/recycle/${fileName}`;
     }
 
     const report = await analyzeWasteImage(imageUrl);

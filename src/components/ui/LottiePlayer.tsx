@@ -8,9 +8,10 @@ type Props = {
   autoplay?: boolean;
   className?: string;
   style?: React.CSSProperties;
+  onComplete?: () => void;
 };
 
-export function LottiePlayer({ animationData, loop = true, autoplay = true, className, style }: Props) {
+export function LottiePlayer({ animationData, loop = true, autoplay = true, className, style, onComplete }: Props) {
   return (
     <Lottie
       animationData={animationData}
@@ -18,6 +19,7 @@ export function LottiePlayer({ animationData, loop = true, autoplay = true, clas
       autoplay={autoplay}
       className={className}
       style={style}
+      onComplete={onComplete}
       rendererSettings={{ preserveAspectRatio: 'xMidYMid meet' }}
     />
   );

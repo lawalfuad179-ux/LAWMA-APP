@@ -37,7 +37,7 @@ export async function createPaymentLink(params: CreatePaymentLinkParams): Promis
       meta,
     } = params;
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3100';
 
   try {
     const response = await fetch('https://api.flutterwave.com/v3/payments', {
@@ -50,7 +50,7 @@ export async function createPaymentLink(params: CreatePaymentLinkParams): Promis
         tx_ref: txRef,
         amount: amountKobo / 100, // Convert kobo to naira at the gateway boundary
         currency: 'NGN',
-        redirect_url: `${appUrl}/payments/verify?tx_ref=${txRef}`,
+        redirect_url: `${appUrl}/payments`,
         customer: {
           email: customerEmail || `${customerPhone}@lawma.resident`,
           phonenumber: customerPhone,
@@ -59,7 +59,8 @@ export async function createPaymentLink(params: CreatePaymentLinkParams): Promis
         customizations: {
           title: 'LAWMA Waste Bill Payment',
           description: 'Waste collection bill payment',
-          logo: `${appUrl}/lawma-logo.png`,
+          // Only pass logo when deployed — localhost URLs are blocked by Flutterwave's HTTPS checkout
+          ...(appUrl.startsWith('https://') ? { logo: `${appUrl}/logo.png` } : {}),
         },
         meta: {
           bill_id: billId,

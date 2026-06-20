@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/Badge';
 import { BalanceCard } from './BalanceCard';
 import { PayNowButton } from './PayNowButton';
 import { EmptyBillsState } from './EmptyBillsState';
+import { PaymentVerifySheet } from './PaymentVerifySheet';
 import { BILL_STATUS_LABELS } from '@/constants';
 import styles from './page.module.css';
 
@@ -33,6 +34,7 @@ export default async function PaymentsPage() {
 
   return (
     <div className={styles.page}>
+      <PaymentVerifySheet />
       <h1 className={styles.title}>Payments</h1>
 
       <BalanceCard
