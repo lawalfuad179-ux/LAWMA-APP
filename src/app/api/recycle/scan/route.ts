@@ -1,7 +1,6 @@
 import crypto from 'crypto';
-import { writeFile, mkdir } from 'node:fs/promises';
-import path from 'node:path';
 import { NextRequest, NextResponse } from 'next/server';
+import { put } from '@vercel/blob';
 
 import { getSession } from '@/lib/auth';
 import { analyzeWasteImage } from '@/lib/ai';
@@ -36,27 +35,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json<Failure>({ ok: false, error: { code: 'invalid_type', message: 'Only JPG, PNG, WebP, or HEIC images are accepted.' } }, { status: 400 });
     }
 
-    // Read bytes once — used for both hashing and local storage
     const bytes = Buffer.from(await file.arrayBuffer());
     const imageHash = crypto.createHash('sha256').update(bytes).digest('hex');
 
-    let imageUrl: string;
-
-    if (process.env.BLOB_READ_WRITE_TOKEN) {
-      const { put } = await import('@vercel/blob');
-      const blob = await put(`recycle/${session.residentId}/${Date.now()}-${file.name}`, file, {
-        access: 'public',
-        addRandomSuffix: true,
-      });
-      imageUrl = blob.url;
-    } else {
-      const ext = file.name.split('.').pop() || 'jpg';
-      const fileName = `${session.residentId}-${Date.now()}.${ext}`;
-      const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'recycle');
-      await mkdir(uploadDir, { recursive: true });
-      await writeFile(path.join(uploadDir, fileName), bytes);
-      imageUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3100'}/uploads/recycle/${fileName}`;
-    }
+    const blob = await put(`recycle/${session.residentId}/${Date.now()}-${file.name}`, file, {
+      access: 'public',
+      addRandomSuffix: true,
+    });
+    const imageUrl = blob.url;
 
     const report = await analyzeWasteImage(imageUrl);
 
