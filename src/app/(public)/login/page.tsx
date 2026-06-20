@@ -175,14 +175,9 @@ function AuthContent() {
         }
 
         setResidentHasPassword(checkData.hasPassword);
-
-        if (checkData.hasPassword) {
-          // Has password — skip OTP, go straight to password sign-in
-          switchStep('password-signin');
-          return;
-        }
-
-        // No password — send OTP then route to create-password after verification
+        // OTP is the primary sign-in path — always send a code, regardless of
+        // whether the resident has a password. Users who prefer password can
+        // tap "Sign in with password instead" on the OTP screen.
       }
 
       const res = await fetch('/api/auth/otp/send', {
@@ -516,20 +511,25 @@ function AuthContent() {
                 <span className={styles.modeToggleBold}>Create account with password instead</span>
               </button>
             )}
-            {mode === 'signin' && (
+            {mode === 'signin' && residentHasPassword === true && (
+              <button
+                type="button"
+                className={styles.modeToggle}
+                onClick={() => switchStep('password-signin')}
+              >
+                <span className={styles.modeToggleBold}>Sign in with password instead</span>
+              </button>
+            )}
+            {mode === 'signin' && residentHasPassword === false && (
               <button
                 type="button"
                 className={styles.modeToggle}
                 onClick={() => {
-                  if (residentHasPassword === false) {
-                    setCreatePasswordHasSession(false);
-                    switchStep('create-password');
-                  } else {
-                    switchStep('password-signin');
-                  }
+                  setCreatePasswordHasSession(false);
+                  switchStep('create-password');
                 }}
               >
-                <span className={styles.modeToggleBold}>Sign in with password instead</span>
+                <span className={styles.modeToggleBold}>Set up a password instead</span>
               </button>
             )}
           </form>
