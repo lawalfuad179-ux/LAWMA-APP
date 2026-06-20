@@ -25,12 +25,22 @@ export async function POST(req: NextRequest) {
       return new Response('Unauthorized', { status: 401 });
     }
 
-    const payload = (await req.json()) as FlutterwaveWebhookBody;
-    const { tx_ref, amount, currency, status, id: transactionId } = payload.data;
+    const payload = (await req.json()) as Partial<FlutterwaveWebhookBody>;
 
-    if (payload.event !== 'charge.completed') {
+    // Only act on charge.completed; ack everything else (incl. test pings) with 200
+    // so Flutterwave doesn't retry or disable the endpoint.
+    if (payload?.event !== 'charge.completed') {
       return NextResponse.json({ ok: true, message: 'Event ignored' });
     }
+
+    // Guard the data object before destructuring — a missing/!malformed `data`
+    // must not throw (which would surface as a 500 and trigger retries).
+    if (!payload.data || typeof payload.data.tx_ref !== 'string') {
+      logger.warn('webhook.flutterwave.malformed_payload');
+      return NextResponse.json({ ok: true, message: 'Malformed payload ignored' });
+    }
+
+    const { tx_ref, id: transactionId } = payload.data;
 
     const payment = await db.payment.findUnique({ where: { txRef: tx_ref } });
     if (!payment) {
@@ -56,11 +66,11 @@ export async function POST(req: NextRequest) {
     const verifyData = await verifyRes.json();
 
     if (
-      verifyData.status !== 'success' ||
-      verifyData.data.status !== 'successful' ||
-      verifyData.data.amount !== payment.amountKobo / 100 ||
-      verifyData.data.currency !== payment.currency ||
-      verifyData.data.tx_ref !== payment.txRef
+      verifyData?.status !== 'success' ||
+      verifyData?.data?.status !== 'successful' ||
+      verifyData?.data?.amount !== payment.amountKobo / 100 ||
+      verifyData?.data?.currency !== payment.currency ||
+      verifyData?.data?.tx_ref !== payment.txRef
     ) {
       logger.warn('webhook.flutterwave.validation_checks_failed', { tx_ref });
       return NextResponse.json({ ok: true, message: 'Validation checks failed' });
