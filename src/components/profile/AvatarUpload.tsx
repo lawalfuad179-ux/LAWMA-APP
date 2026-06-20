@@ -93,6 +93,8 @@ export function AvatarUpload({ name, avatarUrl: initialUrl }: Props) {
         if (updateData.ok) {
           setUrl(data.url);
           setCacheKey((c) => c + 1);
+          // Tell the Navbar to refresh its avatar without remounting.
+          window.dispatchEvent(new CustomEvent('profile:avatar-updated', { detail: { url: data.url } }));
           toast('Profile photo updated.', 'success');
         } else {
           toast('Photo uploaded but could not be saved. Try again.', 'warning');

@@ -71,6 +71,17 @@ export function Navbar() {
       .catch(() => {});
   }, []);
 
+  // Live-refresh the sidebar avatar when the user changes their photo on /profile,
+  // without remounting the Navbar.
+  useEffect(() => {
+    function onAvatarUpdated(e: Event) {
+      const detail = (e as CustomEvent<{ url: string }>).detail;
+      if (detail?.url) setProfileAvatar(detail.url);
+    }
+    window.addEventListener('profile:avatar-updated', onAvatarUpdated);
+    return () => window.removeEventListener('profile:avatar-updated', onAvatarUpdated);
+  }, []);
+
   useEffect(() => {
     const stored = localStorage.getItem('lawma-sidebar');
     const isCollapsed = stored === 'true';
@@ -351,16 +362,14 @@ export function Navbar() {
 
             <div className={styles.sheetDivider} />
 
+            <div className={styles.sheetItem}>
+              <ThemeToggle />
+            </div>
+
             <button className={styles.sheetLogout} onClick={() => { setMenuOpen(false); setShowConfirm(true); }} type="button">
               <LogOut size={18} strokeWidth={1.5} />
               Sign out
             </button>
-
-            <div className={styles.sheetDivider} />
-
-            <div className={styles.sheetItem}>
-              <ThemeToggle />
-            </div>
           </div>
         </div>
       )}
