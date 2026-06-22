@@ -14,12 +14,6 @@ export default withSentryConfig(nextConfig, {
   // SENTRY_AUTH_TOKEN to be set at build time on Vercel.
   silent: !process.env.CI,
 
-  // Hide source maps from the client bundle after upload.
+  // Strip source maps from the client bundle after they upload to Sentry.
   sourcemaps: { deleteSourcemapsAfterUpload: true },
-
-  // Auto-instrument server-side error handling (route handlers, server actions).
-  autoInstrumentServerFunctions: true,
-
-  // Quiet logs in user environments; helpful for CI debugging.
-  disableLogger: true,
 });

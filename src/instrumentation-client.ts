@@ -8,8 +8,10 @@ if (dsn) {
     dsn,
     environment: process.env.NEXT_PUBLIC_VERCEL_ENV || 'production',
     enabled: process.env.NODE_ENV === 'production',
+    // Conservative tracing: 5% of transactions. Raise after we have load data.
     tracesSampleRate: 0.05,
-    // Session Replay: never record full sessions, only sessions where an error fires.
+    // Session Replay: never record full sessions; only sessions where an
+    // error fires. Mask all text/media — NDPR posture.
     replaysSessionSampleRate: 0,
     replaysOnErrorSampleRate: 1.0,
     integrations: [
