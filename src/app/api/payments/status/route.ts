@@ -20,9 +20,40 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ status: 'NOT_FOUND' });
     }
 
-    // Already resolved
+    // Already resolved — usually because the Flutterwave webhook beat us
+    // here. We still need to return the full payload so the success UI can
+    // render the amount, period, and reward chip even when we didn't do
+    // the verification ourselves.
     if (payment.status !== 'PENDING') {
-      return NextResponse.json({ status: payment.status });
+      if (payment.status !== 'SUCCESSFUL') {
+        return NextResponse.json({ status: payment.status });
+      }
+
+      const isBulk = payment.txRef.startsWith('lawma_bulk_');
+      const [existingPointTx, account] = await Promise.all([
+        db.pointTransaction.findFirst({
+          where: {
+            residentId: payment.residentId,
+            billId: payment.billId,
+            type: 'EARNED_BILL_PAYMENT',
+          },
+          select: { amount: true },
+        }),
+        db.rewardAccount.findUnique({
+          where: { residentId: payment.residentId },
+          select: { balance: true },
+        }),
+      ]);
+
+      return NextResponse.json({
+        status: 'SUCCESSFUL',
+        amountKobo: payment.amountKobo,
+        periodStart: payment.bill?.periodStart ?? null,
+        periodEnd: payment.bill?.periodEnd ?? null,
+        isBulk,
+        pointsAwarded: existingPointTx?.amount ?? 0,
+        newBalance: account?.balance ?? 0,
+      });
     }
 
     // Use the numeric transaction_id from the Flutterwave redirect for the
