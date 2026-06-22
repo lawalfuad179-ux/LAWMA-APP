@@ -45,8 +45,16 @@ export function NotificationList({ initialNotifications }: Props) {
 
   const unreadCount = notifications.filter((n) => !n.isRead).length;
 
+  function emitUnreadCount(count: number) {
+    window.dispatchEvent(new CustomEvent('notifications:unread-changed', { detail: { count } }));
+  }
+
   function markOne(id: string) {
-    setNotifications((prev) => prev.map((n) => n.id === id ? { ...n, isRead: true } : n));
+    setNotifications((prev) => {
+      const next = prev.map((n) => n.id === id ? { ...n, isRead: true } : n);
+      emitUnreadCount(next.filter((n) => !n.isRead).length);
+      return next;
+    });
     startTransition(async () => {
       await fetch('/api/notifications/mark-read', {
         method: 'POST',
@@ -58,6 +66,7 @@ export function NotificationList({ initialNotifications }: Props) {
 
   function markAll() {
     setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
+    emitUnreadCount(0);
     startTransition(async () => {
       await fetch('/api/notifications/mark-all-read', { method: 'POST' });
     });

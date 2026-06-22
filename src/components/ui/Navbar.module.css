@@ -576,14 +576,22 @@
   border-top: 1px solid var(--color-outline-variant);
 }
 
+/* When the sidebar is collapsed, pop the menu out to the RIGHT of the rail
+   instead of above the button — there's no horizontal room left at 72px. */
 .sidebarCollapsed .sidebarProfileWrapper .logoutPopup {
-  left: 0;
+  left: 100%;
   right: auto;
-  width: 200px;
-  bottom: auto;
+  bottom: 0;
   top: auto;
+  width: 200px;
   margin-bottom: 0;
   margin-left: 8px;
+}
+
+/* Hide the chevron when collapsed — no room and it's no longer accurate
+   (the popup opens sideways, not upward). */
+.sidebarCollapsed .profileChevron {
+  display: none;
 }
 
 .sidebarProfileAvatar {

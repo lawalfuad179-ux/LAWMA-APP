@@ -82,6 +82,16 @@ export function Navbar() {
     return () => window.removeEventListener('profile:avatar-updated', onAvatarUpdated);
   }, []);
 
+  // Live-refresh the unread badge when notifications are marked read.
+  useEffect(() => {
+    function onUnreadChanged(e: Event) {
+      const detail = (e as CustomEvent<{ count: number }>).detail;
+      if (typeof detail?.count === 'number') setUnreadCount(detail.count);
+    }
+    window.addEventListener('notifications:unread-changed', onUnreadChanged);
+    return () => window.removeEventListener('notifications:unread-changed', onUnreadChanged);
+  }, []);
+
   useEffect(() => {
     const stored = localStorage.getItem('lawma-sidebar');
     const isCollapsed = stored === 'true';
