@@ -61,9 +61,17 @@ export async function awardBillPaymentPoints(
   return { awarded: POINTS_PER_BILL_PAYMENT, newBalance: acct.balance };
 }
 
-// 100 points = ₦100 = 10_000 kobo
+// 1 point = ₦1 = 100 kobo. Picked at this rate so the math is legible to a
+// resident ("you have 12 points = ₦12 credit") without divisions in their head.
 export const POINTS_TO_KOBO = 100;
-export const MIN_REDEEM_POINTS = 100;
+
+// Minimum points the system will redeem in a single transaction. 1 means
+// every point earned can be auto-applied to the next bill — no "save up for
+// 100 points" friction. Govt-utility users open this app monthly at best;
+// they shouldn't have to remember a balance.
+export const MIN_REDEEM_POINTS = 1;
+
+// Hard cap to keep a single bill payment from being entirely paid by points.
 export const MAX_REDEEM_FRACTION = 0.5; // max 50% of bill
 
 export function pointsToKobo(points: number): number {
@@ -78,4 +86,63 @@ export function maxRedeemablePoints(billAmountKobo: number, currentDiscountKobo:
   const remainingKobo = billAmountKobo - currentDiscountKobo;
   const maxDiscountKobo = Math.floor(remainingKobo * MAX_REDEEM_FRACTION);
   return koboToPoints(maxDiscountKobo);
+}
+
+/**
+ * Decide how many points to auto-apply to a bill at payment-initiate time.
+ * Caps at `MAX_REDEEM_FRACTION` of the bill's remaining undiscounted amount
+ * and at the user's available balance. Returns 0 if there's nothing to apply.
+ */
+export function computeAutoRedeem(
+  billAmountKobo: number,
+  currentDiscountKobo: number,
+  availablePoints: number,
+): number {
+  if (availablePoints < MIN_REDEEM_POINTS) return 0;
+  const headroom = maxRedeemablePoints(billAmountKobo, currentDiscountKobo);
+  if (headroom <= 0) return 0;
+  return Math.min(availablePoints, headroom);
+}
+
+/**
+ * Apply a redemption inside a Prisma transaction.
+ * Updates Bill.discountKobo, decrements RewardAccount.balance, and writes
+ * a REDEEMED_BILL_DISCOUNT PointTransaction. Returns the discount in kobo
+ * and the resulting balance.
+ *
+ * Caller is responsible for checking that `points >= MIN_REDEEM_POINTS`
+ * and `points <= maxRedeemablePoints(...)`. Use computeAutoRedeem() to
+ * derive a safe value before invoking this.
+ */
+export async function applyRedemption(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  tx: any,
+  args: { residentId: string; billId: string; points: number },
+): Promise<{ discountKobo: number; newBalance: number }> {
+  const discountKobo = pointsToKobo(args.points);
+
+  await tx.bill.update({
+    where: { id: args.billId },
+    data: { discountKobo: { increment: discountKobo } },
+  });
+
+  const acct = await tx.rewardAccount.update({
+    where: { residentId: args.residentId },
+    data: {
+      balance: { decrement: args.points },
+      totalRedeemed: { increment: args.points },
+    },
+  });
+
+  await tx.pointTransaction.create({
+    data: {
+      residentId: args.residentId,
+      amount: -args.points,
+      type: 'REDEEMED_BILL_DISCOUNT',
+      description: `Auto-applied ₦${(discountKobo / 100).toLocaleString('en-NG')} reward credit`,
+      billId: args.billId,
+    },
+  });
+
+  return { discountKobo, newBalance: acct.balance };
 }

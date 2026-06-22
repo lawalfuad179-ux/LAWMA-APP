@@ -4,6 +4,16 @@ What we depend on from each external service, what shape we expect the data in, 
 
 ---
 
+## Reward economics
+
+- **Earn:** every successful bill payment grants `POINTS_PER_BILL_PAYMENT` (currently 5) points. Awarded inside the same DB transaction that marks the bill `PAID`. Source-of-truth helper: `awardBillPaymentPoints()` in `src/lib/rewards.ts`. Idempotent — safe to call from both the Flutterwave webhook and the `/api/payments/status` poll-fallback.
+- **Conversion:** 1 point = ₦1 (100 kobo). The UI surfaces this 1:1 so a resident never has to do math.
+- **Auto-redeem:** at payment-initiate time the system applies the resident's available point balance against the bill, capped at **50%** of the bill's undiscounted amount (`MAX_REDEEM_FRACTION`). The redemption is recorded as a `REDEEMED_BILL_DISCOUNT` `PointTransaction`; `Bill.discountKobo` is updated; `RewardAccount.balance` is decremented. Helper: `applyRedemption()`.
+- **Minimum redemption:** `MIN_REDEEM_POINTS = 1`. Set deliberately low so every earned point is useful — there is no "save up for 100" friction.
+- **What Flutterwave sees:** the **net** charge (bill amount minus all applied discount). `Payment.amountKobo` is also the net amount, so webhook signature checks match exactly. The bill's gross `amountKobo` is preserved untouched on the Bill row for receipts/audit.
+- **Failed/abandoned payments:** the discount stays applied to the bill. A retry sees `discountKobo > 0` and only auto-applies new credit up to the remaining headroom. Points are not "stuck in limbo" — they're either spent on a bill (whether that bill is eventually paid or not) or sitting in `RewardAccount.balance`.
+- **Bulk pay (`/api/payments/initialize-all`):** spreads redemption across outstanding bills in due-date order, each capped at its own 50% headroom.
+
 ## Flutterwave (payments — current primary)
 
 **What we use it for**

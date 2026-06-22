@@ -232,3 +232,31 @@
 }
 
 .receiptLink:hover { text-decoration: underline; }
+
+.billAmountStack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.billAmountStrike {
+  font-size: var(--body-small-font-size);
+  color: var(--color-on-surface-variant);
+  text-decoration: line-through;
+  line-height: 1;
+}
+
+.billDiscountNote {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 8px 0 0;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--color-primary-container);
+  color: var(--color-on-primary-container);
+  font-size: var(--label-small-font-size);
+  align-self: flex-start;
+  width: fit-content;
+}
