@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { db } from '@/lib/db';
 import { logger } from '@/lib/logger';
-import { POINTS_PER_BILL_PAYMENT } from '@/lib/rewards';
+import { awardBillPaymentPoints } from '@/lib/rewards';
 
 type FlutterwaveWebhookBody = {
   event: string;
@@ -89,27 +89,10 @@ export async function POST(req: NextRequest) {
           where: { id: payment.billId },
           data: { status: 'PAID' },
         });
-        await tx.rewardAccount.upsert({
-          where: { residentId: payment.residentId },
-          update: {
-            balance: { increment: POINTS_PER_BILL_PAYMENT },
-            totalEarned: { increment: POINTS_PER_BILL_PAYMENT },
-          },
-          create: {
-            residentId: payment.residentId,
-            balance: POINTS_PER_BILL_PAYMENT,
-            totalEarned: POINTS_PER_BILL_PAYMENT,
-            totalRedeemed: 0,
-          },
-        });
-        await tx.pointTransaction.create({
-          data: {
-            residentId: payment.residentId,
-            amount: POINTS_PER_BILL_PAYMENT,
-            type: 'EARNED_BILL_PAYMENT',
-            description: `Bill payment reward (₦${(payment.amountKobo / 100).toLocaleString('en-NG')})`,
-            billId: payment.billId,
-          },
+        await awardBillPaymentPoints(tx, {
+          residentId: payment.residentId,
+          billId: payment.billId,
+          amountKobo: payment.amountKobo,
         });
       });
 

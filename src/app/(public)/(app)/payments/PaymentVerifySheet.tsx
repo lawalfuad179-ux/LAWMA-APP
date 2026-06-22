@@ -2,6 +2,7 @@
 
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { Star } from 'lucide-react';
 
 import { Button } from '@/components/ui/Button';
 import { LottiePlayer } from '@/components/ui/LottiePlayer';
@@ -26,6 +27,8 @@ function PaymentVerifyContent() {
     periodStart: string | null;
     periodEnd: string | null;
     isBulk: boolean;
+    pointsAwarded: number;
+    newBalance: number;
   } | null>(null);
 
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -46,6 +49,8 @@ function PaymentVerifyContent() {
           periodStart: data.periodStart,
           periodEnd: data.periodEnd,
           isBulk: data.isBulk ?? false,
+          pointsAwarded: data.pointsAwarded ?? 0,
+          newBalance: data.newBalance ?? 0,
         });
         setStatus('success');
       } else if (data.status === 'FAILED') {
@@ -141,6 +146,15 @@ function PaymentVerifyContent() {
                   : 'Your waste collection bill has been paid and your account is now up to date.'
                 }
               </p>
+              {paymentDetails && paymentDetails.pointsAwarded > 0 && (
+                <div className={styles.rewardChip} role="status">
+                  <Star size={15} strokeWidth={1.8} className={styles.rewardChipIcon} />
+                  <span>
+                    <strong>+{paymentDetails.pointsAwarded} reward points</strong>
+                    {paymentDetails.newBalance > 0 ? ` · balance ${paymentDetails.newBalance} pts` : null}
+                  </span>
+                </div>
+              )}
               <Button size="lg" onClick={() => close(true)}>Done</Button>
             </>
           )}

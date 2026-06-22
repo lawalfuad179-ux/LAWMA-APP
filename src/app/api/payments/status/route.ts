@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { db } from '@/lib/db';
 import { logger } from '@/lib/logger';
+import { awardBillPaymentPoints } from '@/lib/rewards';
 
 export async function GET(req: NextRequest) {
   try {
@@ -62,6 +63,7 @@ export async function GET(req: NextRequest) {
       ) {
         const isBulk = payment.txRef.startsWith('lawma_bulk_');
 
+        let rewardResult = { awarded: 0, newBalance: 0 };
         await db.$transaction(async (prisma: any) => {
           await prisma.payment.update({
             where: { id: payment.id },
@@ -99,9 +101,15 @@ export async function GET(req: NextRequest) {
               data: { status: 'PAID' },
             });
           }
+
+          rewardResult = await awardBillPaymentPoints(prisma, {
+            residentId: payment.residentId,
+            billId: payment.billId,
+            amountKobo: payment.amountKobo,
+          });
         });
 
-        logger.info('payments.status.verified', { txRef, transactionId, isBulk });
+        logger.info('payments.status.verified', { txRef, transactionId, isBulk, pointsAwarded: rewardResult.awarded });
 
         db.notification.create({
           data: {
@@ -119,6 +127,8 @@ export async function GET(req: NextRequest) {
           periodStart: payment.bill?.periodStart ?? null,
           periodEnd: payment.bill?.periodEnd ?? null,
           isBulk,
+          pointsAwarded: rewardResult.awarded,
+          newBalance: rewardResult.newBalance,
         });
       }
     } catch (fwError) {
@@ -129,6 +139,7 @@ export async function GET(req: NextRequest) {
     if (process.env.NODE_ENV === 'development' && payment.status === 'PENDING') {
       const isBulk = payment.txRef.startsWith('lawma_bulk_');
 
+      let rewardResult = { awarded: 0, newBalance: 0 };
       await db.$transaction(async (prisma: any) => {
         await prisma.payment.update({
           where: { id: payment.id },
@@ -146,15 +157,23 @@ export async function GET(req: NextRequest) {
             data: { status: 'PAID' },
           });
         }
+
+        rewardResult = await awardBillPaymentPoints(prisma, {
+          residentId: payment.residentId,
+          billId: payment.billId,
+          amountKobo: payment.amountKobo,
+        });
       });
 
-      logger.info('payments.status.dev_auto_confirmed', { txRef, isBulk });
+      logger.info('payments.status.dev_auto_confirmed', { txRef, isBulk, pointsAwarded: rewardResult.awarded });
       return NextResponse.json({
         status: 'SUCCESSFUL',
         amountKobo: payment.amountKobo,
         periodStart: payment.bill?.periodStart ?? null,
         periodEnd: payment.bill?.periodEnd ?? null,
         isBulk,
+        pointsAwarded: rewardResult.awarded,
+        newBalance: rewardResult.newBalance,
       });
     }
 
