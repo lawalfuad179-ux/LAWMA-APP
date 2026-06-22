@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google';
 import './globals.css';
 
 import { ToastProvider } from '@/context/ToastContext';
+import { InstallPrompt } from '@/components/ui/InstallPrompt';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -12,7 +13,13 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: 'LAWMA - Lagos Waste Management',
   description: 'Waste collection schedules, bill payments, and complaint reporting for Lagos residents.',
-  icons: { icon: '/favicon.png', shortcut: '/favicon.png' },
+  icons: { icon: '/favicon.png', shortcut: '/favicon.png', apple: '/favicon.png' },
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'LAWMA',
+  },
 };
 
 export const viewport: Viewport = {
@@ -29,7 +36,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="color-scheme" content="light dark" />
       </head>
       <body>
-        <ToastProvider>{children}</ToastProvider>
+        <ToastProvider>
+          {children}
+          <InstallPrompt />
+        </ToastProvider>
       </body>
     </html>
   );

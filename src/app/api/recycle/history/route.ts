@@ -21,7 +21,6 @@ export async function GET() {
         id: true,
         imageUrl: true,
         aiReport: true,
-        pointsEarned: true,
         confirmedAt: true,
         createdAt: true,
       },

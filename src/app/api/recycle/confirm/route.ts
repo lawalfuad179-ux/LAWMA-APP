@@ -3,7 +3,6 @@ import { z } from 'zod';
 
 import { getSession } from '@/lib/auth';
 import { db } from '@/lib/db';
-import { calcPointsForScan } from '@/lib/rewards';
 import { logger } from '@/lib/logger';
 import { buildContentHash, runScanGuard } from '@/lib/recycle-guard';
 import type { RecycleAiReport } from '@/lib/ai';
@@ -28,7 +27,7 @@ const schema = z.object({
 });
 
 type Failure = { ok: false; error: { code: string; message: string } };
-type Success = { ok: true; data: { activityId: string; pointsEarned: number; newBalance: number } };
+type Success = { ok: true; data: { activityId: string } };
 
 export async function POST(req: NextRequest) {
   try {
@@ -46,73 +45,32 @@ export async function POST(req: NextRequest) {
     const { imageUrl, imageHash, report } = parsed.data;
     const contentHash = buildContentHash(report as RecycleAiReport);
 
-    // Run all 5 abuse-protection layers before touching the DB transaction
+    // Anti-abuse guard (cooldown / dup-image / dup-content). Cheap to keep —
+    // it protects the AI compute budget even though no rewards are at stake.
     const guardError = await runScanGuard(session.residentId, imageUrl, imageHash, contentHash);
     if (guardError) {
       const status = guardError.code === 'cooldown_active' || guardError.code === 'daily_limit_reached' ? 429 : 409;
       return NextResponse.json<Failure>({ ok: false, error: guardError }, { status });
     }
 
-    const existingCount = await db.recycleActivity.count({ where: { residentId: session.residentId } });
-    const isFirstScan = existingCount === 0;
-    const pointsEarned = calcPointsForScan(report as RecycleAiReport, isFirstScan);
-
-    const [activity, rewardAccount] = await db.$transaction(async (tx) => {
-      const act = await tx.recycleActivity.create({
-        data: {
-          residentId: session.residentId,
-          imageUrl,
-          imageHash: imageHash ?? null,
-          contentHash,
-          aiReport: report as object,
-          pointsEarned,
-          status: 'CONFIRMED',
-          confirmedAt: new Date(),
-        },
-      });
-
-      const acct = await tx.rewardAccount.upsert({
-        where: { residentId: session.residentId },
-        update: {
-          balance: { increment: pointsEarned },
-          totalEarned: { increment: pointsEarned },
-        },
-        create: {
-          residentId: session.residentId,
-          balance: pointsEarned,
-          totalEarned: pointsEarned,
-          totalRedeemed: 0,
-        },
-      });
-
-      await tx.pointTransaction.create({
-        data: {
-          residentId: session.residentId,
-          amount: pointsEarned,
-          type: isFirstScan ? 'BONUS_FIRST_SCAN' : 'EARNED_RECYCLING',
-          description: `Recycling scan: ${report.recyclableCount} recyclable item${report.recyclableCount !== 1 ? 's' : ''} identified`,
-          activityId: act.id,
-        },
-      });
-
-      await tx.notification.create({
-        data: {
-          residentId: session.residentId,
-          title: `+${pointsEarned} Recycling Points Earned!`,
-          body: `Great work! You earned ${pointsEarned} points for recycling${isFirstScan ? ' (includes first-scan bonus)' : ''}. Keep it up to unlock bill discounts.`,
-          type: 'RECYCLING_REWARD',
-          referenceId: act.id,
-        },
-      });
-
-      return [act, acct];
+    const activity = await db.recycleActivity.create({
+      data: {
+        residentId: session.residentId,
+        imageUrl,
+        imageHash: imageHash ?? null,
+        contentHash,
+        aiReport: report as object,
+        pointsEarned: 0,
+        status: 'CONFIRMED',
+        confirmedAt: new Date(),
+      },
     });
 
-    logger.info('recycle.confirm.success', { residentId: session.residentId, activityId: activity.id, pointsEarned });
+    logger.info('recycle.confirm.success', { residentId: session.residentId, activityId: activity.id });
 
     return NextResponse.json<Success>({
       ok: true,
-      data: { activityId: activity.id, pointsEarned, newBalance: rewardAccount.balance },
+      data: { activityId: activity.id },
     }, { status: 201 });
   } catch (error) {
     logger.error('recycle.confirm.failed', { error: String(error) });

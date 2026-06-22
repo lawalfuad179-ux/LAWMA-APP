@@ -1,0 +1,78 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px;
+}
+
+.header {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.iconWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--color-primary-container);
+  color: var(--color-on-primary-container);
+  flex-shrink: 0;
+}
+
+.eyebrow {
+  font-size: var(--label-small-font-size);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-on-surface-variant);
+  margin: 0 0 2px 0;
+}
+
+.pspName {
+  font-size: var(--title-medium-font-size);
+  font-weight: 600;
+  margin: 0;
+  color: var(--color-on-surface);
+}
+
+.zone {
+  font-size: var(--body-small-font-size);
+  color: var(--color-on-surface-variant);
+  margin: 2px 0 0 0;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.actionLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: var(--color-surface-container);
+  color: var(--color-on-surface);
+  font-size: var(--body-small-font-size);
+  font-weight: 500;
+  text-decoration: none;
+  transition: background 120ms ease;
+}
+
+.actionLink:hover,
+.actionLink:focus-visible {
+  background: var(--color-surface-container-high);
+}
+
+.reportBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+}

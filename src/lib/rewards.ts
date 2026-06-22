@@ -1,29 +1,11 @@
-import type { RecycleAiReport } from './ai';
-
-export const POINTS = {
-  BASE_PER_SCAN: 10,
-  PER_RECYCLABLE_ITEM: 2,
-  BONUS_FIRST_SCAN: 25,
-  BONUS_LARGE_BATCH: 20, // 10+ recyclable items
-  LARGE_BATCH_THRESHOLD: 10,
-} as const;
+// 5 reward points per successful bill payment.
+// Exploit-resistant: requires actual money to move.
+export const POINTS_PER_BILL_PAYMENT = 5;
 
 // 100 points = ₦100 = 10_000 kobo
 export const POINTS_TO_KOBO = 100;
 export const MIN_REDEEM_POINTS = 100;
 export const MAX_REDEEM_FRACTION = 0.5; // max 50% of bill
-
-export function calcPointsForScan(report: RecycleAiReport, isFirstScan: boolean): number {
-  let pts = POINTS.BASE_PER_SCAN;
-  pts += report.recyclableCount * POINTS.PER_RECYCLABLE_ITEM;
-  if (report.recyclableCount >= POINTS.LARGE_BATCH_THRESHOLD) {
-    pts += POINTS.BONUS_LARGE_BATCH;
-  }
-  if (isFirstScan) {
-    pts += POINTS.BONUS_FIRST_SCAN;
-  }
-  return pts;
-}
 
 export function pointsToKobo(points: number): number {
   return points * POINTS_TO_KOBO;

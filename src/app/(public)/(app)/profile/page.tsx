@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { Truck, Bell, CreditCard, FileText, ChevronRight, Settings, Lock } from 'lucide-react';
+import { Truck, Bell, CreditCard, FileText, ChevronRight, Settings, Lock, BadgeCheck, MessageCircle } from 'lucide-react';
 
 import { getSession } from '@/lib/auth';
 import { db } from '@/lib/db';
@@ -73,7 +73,12 @@ export default async function ProfilePage() {
       <div className={styles.hero}>
         <AvatarUpload name={resident.name || ''} avatarUrl={resident.avatarUrl} />
         <div className={styles.heroMeta}>
-          <h1 className={styles.heroName}>{resident.name || 'Resident'}</h1>
+          <h1 className={styles.heroName}>
+            {resident.name || 'Resident'}
+            <span className={styles.verifiedBadge} title="Official LAWMA Lagos app account">
+              <BadgeCheck size={16} strokeWidth={2} />
+            </span>
+          </h1>
           <span className={styles.heroPhone}>{resident.phoneNumber}</span>
           <div className={styles.heroBadges}>
             {resident.lga && <Badge label={resident.lga} variant="blue" />}
@@ -106,8 +111,8 @@ export default async function ProfilePage() {
           <QuickLink
             href="/recycling"
             icon={<FileText size={18} strokeWidth={1.5} />}
-            label="Scan & Earn"
-            description="Photograph trash, get recycling tips, earn points"
+            label="Scan & Sort"
+            description="Photograph waste, get AI sorting tips for your bin"
           />
           <QuickLink
             href="/payments"
@@ -203,6 +208,21 @@ export default async function ProfilePage() {
             label="Notification Preferences"
             description="Choose which alerts to receive by email or SMS"
           />
+          <a
+            href="https://wa.me/2347080601020"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.quickLink}
+          >
+            <div className={styles.quickLinkIcon}>
+              <MessageCircle size={18} strokeWidth={1.5} />
+            </div>
+            <div className={styles.quickLinkBody}>
+              <span className={styles.quickLinkLabel}>Chat with LAWMA on WhatsApp</span>
+              <span className={styles.quickLinkDesc}>Talk to support at +234 708 060 1020</span>
+            </div>
+            <ChevronRight size={16} className={styles.quickLinkChevron} />
+          </a>
         </Card>
       </div>
 

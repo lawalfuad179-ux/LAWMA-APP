@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Leaf, Star, Clock } from 'lucide-react';
+import { Leaf, Recycle, Clock } from 'lucide-react';
 
 import styles from './RecycleHistory.module.css';
 
@@ -13,7 +13,6 @@ type Activity = {
     recyclableCount: number;
     nonRecyclableCount: number;
   };
-  pointsEarned: number;
   createdAt: string;
 };
 
@@ -50,12 +49,12 @@ export function RecycleHistory() {
           </div>
         </div>
         <h2 className={styles.emptyTitle}>No scans yet</h2>
-        <p className={styles.emptyDesc}>Scan your first bag of trash to start earning recycling points.</p>
+        <p className={styles.emptyDesc}>Scan your first bag of trash to see your recycling impact.</p>
       </div>
     );
   }
 
-  const totalPoints = activities.reduce((sum, a) => sum + a.pointsEarned, 0);
+  const totalRecyclable = activities.reduce((sum, a) => sum + a.aiReport.recyclableCount, 0);
 
   return (
     <div className={styles.root}>
@@ -66,8 +65,8 @@ export function RecycleHistory() {
         </div>
         <div className={styles.summaryDivider} />
         <div className={styles.summaryItem}>
-          <span className={styles.summaryNum}>{totalPoints}</span>
-          <span className={styles.summaryLabel}>Total Points</span>
+          <span className={styles.summaryNum}>{totalRecyclable}</span>
+          <span className={styles.summaryLabel}>Items Recycled</span>
         </div>
       </div>
 
@@ -82,9 +81,9 @@ export function RecycleHistory() {
                   <Leaf size={12} />
                   {activity.aiReport.recyclableCount} recyclable
                 </span>
-                <span className={styles.cardPoints}>
-                  <Star size={12} />
-                  +{activity.pointsEarned} pts
+                <span className={styles.cardRecyclable}>
+                  <Recycle size={12} />
+                  {activity.aiReport.nonRecyclableCount} non-recyclable
                 </span>
               </div>
               <span className={styles.cardDate}>

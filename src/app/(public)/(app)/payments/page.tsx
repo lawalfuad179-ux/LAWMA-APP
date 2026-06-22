@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { Receipt, Star } from 'lucide-react';
+import { Receipt, Star, Download } from 'lucide-react';
 
 import { getSession } from '@/lib/auth';
 import { db } from '@/lib/db';
@@ -83,6 +83,17 @@ export default async function PaymentsPage() {
                 </div>
                 {(bill.status === 'PENDING' || bill.status === 'OVERDUE') && (
                   <PayNowButton billId={bill.id} label={`Pay Now — ${formatKobo(bill.amountKobo)}`} />
+                )}
+                {bill.status === 'PAID' && (
+                  <a
+                    href={`/api/payments/receipt/${bill.id}`}
+                    className={styles.receiptLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Download size={14} strokeWidth={1.6} />
+                    Download receipt (PDF)
+                  </a>
                 )}
               </Card>
             ))}

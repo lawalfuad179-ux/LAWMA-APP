@@ -5,7 +5,8 @@ import { getSession } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
-import { DAYS_OF_WEEK, COLLECTION_STATUS_LABELS } from '@/constants';
+import { DAYS_OF_WEEK, COLLECTION_STATUS_LABELS, type LagosLga } from '@/constants';
+import { PspContactCard } from '@/components/schedules/PspContactCard';
 import styles from './page.module.css';
 
 export default async function SchedulesPage() {
@@ -46,6 +47,11 @@ export default async function SchedulesPage() {
         <h1 className={styles.title}>Schedule</h1>
         {resident.lga && <p className={styles.subtitle}>{resident.lga} · Lagos</p>}
       </div>
+
+      <PspContactCard
+        lga={(resident.lga as LagosLga | null) || null}
+        address={resident.address}
+      />
 
       {schedules.length === 0 ? (
         <div className={styles.emptyState}>
