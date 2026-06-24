@@ -1,5 +1,19 @@
 # AGENTS.md — LAWMA Mobile App
 
+> **Model-agnostic entry point.** Any AI (Claude / OpenCode / Antigravity / Gemini / GPT) reads this first.
+> Then read **`STATE.md`** for current status, next task, blockers.
+> Then read the rest of this file for product principles and conventions.
+
+## Where to find more
+
+- **`STATE.md`** — current status + next task + blockers (READ FIRST after this header)
+- **`AGENT_CONTEXT.md`** — deep technical briefing (Next.js 16, Prisma, Flutterwave, auth, etc.)
+- **`decisions/`** — append-only ADRs (Vercel deploy stall fix, brand glyph, pitch plan)
+- **`docs/`** — feature-level documentation
+- **`Brand Assets/`** — logos, brand kit (orange-dot cluster is the intentional LAWMA glyph — see `decisions/0001`)
+- **`~/ai-workspace/wiki/projects/lawma/`** — LAWMA-specific cross-session memory (pitch context, brand notes)
+- **`~/ai-workspace/standards/ai-collaboration.md`** — universal AI operating rules (token discipline, plan-first, audit-and-rate, etc.)
+
 ## Project Overview
 
 The LAWMA Mobile App is a resident-facing waste management platform for Lagos State residents.
