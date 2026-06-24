@@ -11,27 +11,32 @@ LAWMA work runs on two parallel tracks. STATE.md tracks both.
 ## Stream 1 — Product (the Next.js app)
 
 ### Status
-🟢 Active. Last 3 commits suggest payment-system work was the recent focus.
-Last commits:
-- `192fb51` Push
-- `56a578c` feat(payments): auto-apply reward credit at payment initiate
-- `d312bd7` fix(payments): centre verify modal on desktop + return full payload when already resolved
+🟢 Active. General UI refinement via the `loops/ui-ux/` autonomous loop. Previous cycle completed Landing, Auth, and Dashboard pages.
 
 ### Last touched
-Payments — reward-credit auto-apply + verify-modal centering.
+- Loop cycle: Landing, Auth, Dashboard UI refinement (done)
+- Recent product commits: payments (reward-credit auto-apply, verify-modal centering — `56a578c`, `d312bd7`)
 
 ### Next task
-> **NEEDS MICHAEL.** What's the next product task? Options:
-> - Continue payment work
-> - Move to a different feature area (complaints? schedules? notifications?)
-> - Bug-fix queue
-> - Something else
+**Continue the `loops/ui-ux/` cycle on the remaining pages.** Once all pages have been refined, immediately switch to the pitch deck (see Stream 2).
+
+### Loops portability (works in any IDE, not just Claude)
+
+The methodology lives in `loops/README.md` + each loop's `contract.md` + `loops/WORK_LOG.md`. Any agent (Antigravity, OpenCode, Gemini, GPT) can continue it by:
+
+1. Reading `loops/ui-ux/contract.md` (the spec)
+2. Reading the last 5–10 entries of `loops/WORK_LOG.md` (recent state)
+3. Picking the next page in the backlog (or finding remaining pages by reading what's been done)
+4. Doing one iteration of refinement
+5. Logging the run in `loops/ui-ux/runs/<timestamp>.md` and updating `WORK_LOG.md`
+
+**The only Claude-specific bit is the `/loop` slash-command trigger.** In other IDEs, manually tell the agent: *"Read loops/ui-ux/contract.md and WORK_LOG.md, then run one iteration of the ui-ux loop and log it."* Same outcome.
 
 ### Blockers
-> **NEEDS MICHAEL.**
+None. Soft signal: once the loop has covered all pages, **switch immediately to Stream 2 (pitch deck)** — that's the higher-leverage next step.
 
 ### Don't touch zones
-> **NEEDS MICHAEL.** None recorded yet — confirm.
+None.
 
 ### Live state
 - Deployed on Vercel (`kingfizzy-projects/lawma-app`, Hobby plan)
@@ -51,7 +56,7 @@ Payments — reward-credit auto-apply + verify-modal centering.
 - Deck spine, ask numbers, contradictions, pilot data, scaling plan — already vetted and ready
 
 ### Next action
-> **NEEDS MICHAEL.** Date of the meeting? Is it scheduled, or still pending an intro/follow-up?
+**No confirmed meeting date yet.** Pitch plan stays locked, ready to produce on trigger keyword `LAWMA-PITCH-GO`. Once the `loops/ui-ux/` cycle finishes covering all pages, switch focus to the pitch deck even without a date — it's the next high-leverage block of work.
 
 ### Source
 Full plan: `~/ai-workspace/wiki/projects/lawma/project_lawma_pitch_plan_locked.md`
@@ -68,10 +73,9 @@ Context: `~/ai-workspace/wiki/projects/lawma/project_lawma_pitch_context.md`
 
 ## Open questions for next session
 
-- [ ] Fill in Stream 1 "Next task" + "Blockers" + "Don't touch"
-- [ ] Fill in Stream 2 meeting date
-- [ ] Confirm whether the pitch trigger keyword `LAWMA-PITCH-GO` should still produce the locked deck plan or needs updating
-- [ ] Decide whether `loops/` and `implementation_plam.md` deserve a doc cleanup pass (typo in filename)
+- [ ] Update `loops/ui-ux/contract.md` backlog with the pages still pending (so any agent picks up correctly)
+- [ ] Confirm whether the pitch trigger keyword `LAWMA-PITCH-GO` should still produce the locked deck plan or needs updating (revisit once a meeting date is set)
+- [ ] Rename `implementation_plam.md` → `implementation_plan.md` (typo)
 
 ## Working rules — quick refresh
 
