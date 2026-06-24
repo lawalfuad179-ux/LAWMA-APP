@@ -7,7 +7,6 @@ import { ArrowLeft, Mail, Phone, Lock, Hash, User, MapPin, Check } from 'lucide-
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
-import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { LAGOS_LGAS } from '@/constants';
 import { validateEmailOrPhone, validateEmail, passwordRules, getPasswordErrors, type FieldErrors } from '@/lib/validators/validation';
 import { OtpInput } from '@/components/ui/OtpInput';
@@ -349,7 +348,6 @@ function AuthContent() {
             <ArrowLeft size={18} strokeWidth={1.5} />
             <span className={styles.backText}>Back</span>
           </button>
-          <ThemeToggle className={styles.toggleInCard} />
         </div>
 
         <div className={styles.logoCircle}>
@@ -362,8 +360,8 @@ function AuthContent() {
               <h1 className={styles.title}>{mode === 'signin' ? 'Sign in' : 'Create account'}</h1>
               <p className={styles.subtitle}>
                 {mode === 'signin'
-                  ? 'Enter your phone number to sign in.'
-                  : 'Enter your phone number to get started.'}
+                  ? 'Use your phone or email to sign in.'
+                  : 'Use your phone or email to get started.'}
               </p>
             </div>
           )}

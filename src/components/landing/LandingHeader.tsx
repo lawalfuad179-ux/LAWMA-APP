@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import styles from './LandingHeader.module.css';
 
 export function LandingHeader() {
@@ -13,7 +12,6 @@ export function LandingHeader() {
       <nav className={styles.nav}>
         <Link href="/login?mode=signup" className={styles.btnPrimary}>Get started</Link>
         <Link href="/login?mode=signin" className={styles.btnGhost}>Sign in</Link>
-        <ThemeToggle />
       </nav>
     </header>
   );

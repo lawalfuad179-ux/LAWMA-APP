@@ -6,8 +6,11 @@ severity: medium
 category: hierarchy
 found_by: auditor
 found_at: 2026-06-23
-status: open
+status: dismissed
 promoted_to: null
+dismissed_at: 2026-06-23
+dismissed_by: triage
+dismissed_reason: Auditor error. Code review shows `.progressBar` has 2 flex:1 segments with `.segmentActive` applied only when `s <= step`. At step=1 of 2, segment 1 is filled = 50% width minus half the 6px gap (~47%). That's correct math. The screenshot was misread — the bar IS at ~50%, not 80%. No code change needed.
 ---
 
 ## Observation

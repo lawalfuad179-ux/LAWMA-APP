@@ -3,7 +3,6 @@
 import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { User, MapPin, Home, ChevronLeft, Mail } from 'lucide-react';
-import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
@@ -80,7 +79,7 @@ function Slide3Svg() {
 }
 
 const SLIDES = [
-  { title: 'Know your pickup day', subText: "See your LGA's exact collection schedule before you miss it.", illustration: <Slide1Svg /> },
+  { title: 'Know your pickup day', subText: "See your area's exact collection schedule before you miss it.", illustration: <Slide1Svg /> },
   { title: 'Pay bills in seconds', subText: 'No queues, no stress. Settle your waste management bills right here.', illustration: <Slide2Svg /> },
   { title: 'Report, track, resolve', subText: 'Spotted illegal dumping? File a complaint and watch it get handled.', illustration: <Slide3Svg /> },
 ];
@@ -167,7 +166,6 @@ function OnboardingContent() {
           <div className={styles.logoCircle}>
             <img src="/favicon.png" alt="" className={styles.logoFavicon} />
           </div>
-          <ThemeToggle className={styles.toggleInCard} />
         </div>
 
         <div className={styles.progressWrap}>

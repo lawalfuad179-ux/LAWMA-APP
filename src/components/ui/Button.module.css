@@ -16,7 +16,11 @@
 }
 
 .root:disabled {
-  opacity: 0.45;
+  background: var(--color-surface-container-high) !important;
+  color: var(--color-on-surface-variant) !important;
+  border-color: var(--color-surface-container-high) !important;
+  box-shadow: none !important;
+  opacity: 0.85;
   cursor: not-allowed;
   transform: none !important;
 }

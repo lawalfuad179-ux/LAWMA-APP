@@ -6,8 +6,8 @@ severity: low
 category: typography
 found_by: auditor
 found_at: 2026-06-23
-status: open
-promoted_to: null
+status: promoted
+promoted_to: task-004
 ---
 
 ## Observation

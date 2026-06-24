@@ -52,12 +52,31 @@ For each page, the Auditor checks:
 6. **Alignment & rhythm** — elements snapped to a grid? No off-by-4px drift?
 7. **Touch targets** — interactive elements ≥44×44px (mobile-first; Lagos residents will use phones)?
 8. **Brand fit** — Seravek font present where intended? LAWMA/Makiti colors from tokens, not hardcoded?
+9. **Mobile fold budget** — On 375×812 mobile, the hero / first content section of any public page must be ≤ 920px tall (≈100vh minus a 180px header). Auditor measures via `getBoundingClientRect().height` on the first `<main> > section`.
 
-## Target pages (first run — scoped)
+## Pages already refined (previous cycles)
 
-1. `/` — root (likely splash/redirect)
-2. `/login` — first impression for residents
-3. `/dashboard` — the post-login hub
+Out of scope unless a regression is filed as a fresh signal.
+
+- `/` — landing
+- `/login` — handles sign-in, sign-up, forgot password, OTP, set-up password sub-flows
+- `/onboarding`
+- `/dashboard`
+
+## Target pages (next cycle backlog)
+
+Pick one per loop iteration. Process top-to-bottom unless an audit signal shifts priority.
+
+1. `/payments` — payment flow (recent: reward-credit auto-apply, verify-modal centering)
+2. `/complaints` — complaints listing
+3. `/complaints/report` — submit a new complaint
+4. `/complaints/[id]` — view a single complaint
+5. `/complaints/[id]/edit` — edit a complaint
+6. `/schedules` — waste collection schedule
+7. `/notifications` — notifications inbox
+8. `/notifications/preferences` — notification settings
+9. `/profile` — user profile
+10. `/recycling` — recycling tips
 
 ## Backlog / status
 
@@ -66,16 +85,12 @@ For each page, the Auditor checks:
 | ID | Title | Status | Priority |
 |----|-------|--------|----------|
 | 001 | Make landing hero fit within mobile viewport | verified | P0 |
+| 002 | Remove ThemeToggle from public headers | verified | P1 |
+| 003 | Fix login copy + neutralize disabled button | verified | P1 |
+| 004 | Replace LGA jargon on onboarding card | verified | P2 |
 
-### Open signals not yet promoted
-- 002 (P2) — Continue disabled state color
-- 003 (P1) — Login phone/email copy mismatch
-- 004 (P1) — Theme toggle wrong altitude (3 pages)
-- 006 (P1) — Onboarding progress bar mismatch
-- 007 (P2) — Header CTA + theme toggle grouped
-- 008 (P2) — LGA abbreviation
-
-Triage rationale (2026-06-23): Picked 001 first — highest pitch impact, contained to two files. Next loop will batch 003/004/006 as P1 group; 002/007/008 as low-priority cleanup batch.
+### Backlog
+_Empty — all open signals from run 1 resolved or dismissed._
 
 ## Timeline
 
