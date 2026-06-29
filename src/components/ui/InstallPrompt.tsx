@@ -17,7 +17,11 @@ export function InstallPrompt() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    // Register service worker (required for PWA installability in production)
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(() => {});
+    }
+
     if (localStorage.getItem(DISMISS_KEY) === '1') return;
     // Already installed (display-mode: standalone) → don't prompt.
     if (window.matchMedia('(display-mode: standalone)').matches) return;
