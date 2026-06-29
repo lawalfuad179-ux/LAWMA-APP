@@ -10,15 +10,11 @@ import styles from './page.module.css';
 
 export default function LandingPage() {
   const router = useRouter();
-  const [mounted, setMounted] = useState(false);
   const [animIn, setAnimIn] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
     requestAnimationFrame(() => setAnimIn(true));
   }, []);
-
-  if (!mounted) return null;
 
   return (
     <>
