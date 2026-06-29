@@ -12,6 +12,7 @@ const complaintSchema = z.object({
   description: z.string().max(500).optional(),
   latitude: z.number().optional(),
   longitude: z.number().optional(),
+  imageUrls: z.array(z.string().url()).max(3).optional(),
 });
 
 type Failure = { ok: false; error: { code: string; message: string } };
@@ -30,7 +31,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json<Failure>({ ok: false, error: { code: 'invalid_input', message: 'Check your input.' } }, { status: 400 });
     }
 
-    const { issueType, area, address, description, latitude, longitude } = parsed.data;
+    const { issueType, area, address, description, latitude, longitude, imageUrls } = parsed.data;
 
     // Duplicate check: same issue type, area, within 48 hours
     const recent = await db.complaint.findFirst({
@@ -69,6 +70,12 @@ export async function POST(req: NextRequest) {
         longitude: longitude || null,
       },
     });
+
+    if (imageUrls && imageUrls.length > 0) {
+      await db.complaintImage.createMany({
+        data: imageUrls.map((url) => ({ complaintId: complaint.id, url })),
+      });
+    }
 
     logger.info('complaint.created', { complaintId: complaint.id, issueType, lga: resident?.lga });
 

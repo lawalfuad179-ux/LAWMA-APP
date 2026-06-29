@@ -19,13 +19,19 @@ type Activity = {
 export function RecycleHistory() {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
+  const [apiError, setApiError] = useState(false);
 
   useEffect(() => {
     fetch('/api/recycle/history')
       .then((r) => r.json())
       .then((json) => {
-        if (json.ok) setActivities(json.data.activities);
+        if (json.ok) {
+          setActivities(json.data.activities ?? []);
+        } else {
+          setApiError(true);
+        }
       })
+      .catch(() => setApiError(true))
       .finally(() => setLoading(false));
   }, []);
 
@@ -34,6 +40,22 @@ export function RecycleHistory() {
       <div className={styles.loading}>
         <div className={styles.loadingSpinner} />
         <span>Loading history…</span>
+      </div>
+    );
+  }
+
+  if (apiError) {
+    return (
+      <div className={styles.emptyState}>
+        <div className={styles.emptyIllustration}>
+          <div className={styles.emptyBlob1} />
+          <div className={styles.emptyBlob2} />
+          <div className={styles.emptyCard}>
+            <Clock size={36} strokeWidth={1.2} className={styles.emptyCardIcon} />
+          </div>
+        </div>
+        <h2 className={styles.emptyTitle}>Couldn&apos;t load history</h2>
+        <p className={styles.emptyDesc}>There was a problem loading your scan history. Please try again later.</p>
       </div>
     );
   }

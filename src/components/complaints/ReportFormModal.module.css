@@ -151,3 +151,76 @@
   color: var(--color-error);
   text-align: center;
 }
+
+/* Image upload */
+.imageRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.imgThumb {
+  position: relative;
+  width: 76px;
+  height: 76px;
+  border-radius: 10px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.thumbImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.removeImg {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: hsla(0, 0%, 0%, 0.55);
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.addImgBtn {
+  width: 76px;
+  height: 76px;
+  border-radius: 10px;
+  border: 1.5px dashed var(--color-outline-variant);
+  background: var(--color-surface-container);
+  color: var(--color-on-surface-variant);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  flex-shrink: 0;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.addImgBtn span {
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.addImgBtn:hover {
+  border-color: var(--color-primary);
+  background: var(--color-surface-container-high);
+}
+
+.hiddenInput {
+  display: none;
+}
