@@ -28,6 +28,10 @@ LAWMA work runs on two parallel tracks. STATE.md tracks both.
 - Navbar — Smart Bins added (desktop sidebar + mobile sheet)
 - Dashboard — Profile Completion Card (SVG ring, incomplete-step chips, auto-hides when profile is 5/5)
 
+**Also shipped same session:**
+- Smart Bins verify sheet — Flutterwave now redirects to `/smart-bins`; `/api/bins/verify` verifies via Flutterwave API; slide-up shows success (bin chip, delivery address) or failed (retry/dismiss)
+- Onboarding step 1 — 4th feature tile "Order your smart bin" with matching SVG illustration
+
 ### Next task
 **Stream 2 is now ACTIVE.** DS meeting was 2026-06-29. Trigger `LAWMA-PITCH-GO` after the meeting outcome is confirmed to produce the MD pitch deck.
 
