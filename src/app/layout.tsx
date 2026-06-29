@@ -23,6 +23,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
+  colorScheme: 'light dark',
   themeColor: [
     { media: '(prefers-color-scheme: light)', color: '#ffffff' },
     { media: '(prefers-color-scheme: dark)', color: '#0f1010' },
@@ -32,9 +33,6 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={inter.className}>
-      <head>
-        <meta name="color-scheme" content="light dark" />
-      </head>
       <body>
         <ToastProvider>
           {children}
