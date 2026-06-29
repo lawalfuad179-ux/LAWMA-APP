@@ -78,10 +78,43 @@ function Slide3Svg() {
   );
 }
 
+function Slide4Svg() {
+  return (
+    <svg width="100" height="100" viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+      {/* shadow */}
+      <ellipse cx="48" cy="88" rx="24" ry="4.5" fill="#e96419" fillOpacity="0.10"/>
+      {/* bin body */}
+      <rect x="20" y="34" width="56" height="50" rx="6" fill="#e96419"/>
+      {/* label area */}
+      <rect x="26" y="42" width="44" height="30" rx="4" fill="white" fillOpacity="0.92"/>
+      {/* label lines */}
+      <rect x="30" y="48" width="26" height="3" rx="1.5" fill="#e96419" fillOpacity="0.55"/>
+      <rect x="30" y="55" width="20" height="2.5" rx="1.25" fill="#e96419" fillOpacity="0.25"/>
+      <rect x="30" y="61" width="23" height="2.5" rx="1.25" fill="#e96419" fillOpacity="0.25"/>
+      {/* lid */}
+      <rect x="16" y="24" width="64" height="14" rx="6" fill="#bf5214"/>
+      <rect x="20" y="28" width="56" height="4" rx="2" fill="#e96419" fillOpacity="0.28"/>
+      {/* handle */}
+      <rect x="36" y="17" width="24" height="10" rx="5" fill="#8c3c0e"/>
+      <rect x="40" y="20" width="16" height="4" rx="2" fill="#5c2d0e" fillOpacity="0.45"/>
+      {/* wheels */}
+      <circle cx="33" cy="86" r="7" fill="#5c2d0e"/>
+      <circle cx="33" cy="86" r="3.5" fill="#f6c49a"/>
+      <circle cx="63" cy="86" r="7" fill="#5c2d0e"/>
+      <circle cx="63" cy="86" r="3.5" fill="#f6c49a"/>
+      {/* accent dots */}
+      <circle cx="84" cy="32" r="3.5" fill="#e96419" fillOpacity="0.18"/>
+      <circle cx="10" cy="28" r="2.5" fill="#e96419" fillOpacity="0.12"/>
+      <circle cx="88" cy="60" r="2" fill="#e96419" fillOpacity="0.22"/>
+    </svg>
+  );
+}
+
 const SLIDES = [
   { title: 'Know your pickup day', subText: "See your area's exact collection schedule before you miss it.", illustration: <Slide1Svg /> },
   { title: 'Pay bills in seconds', subText: 'No queues, no stress. Settle your waste management bills right here.', illustration: <Slide2Svg /> },
   { title: 'Report, track, resolve', subText: 'Spotted illegal dumping? File a complaint and watch it get handled.', illustration: <Slide3Svg /> },
+  { title: 'Order your smart bin', subText: 'Get official LAWMA bins delivered to your doorstep — straight from the app.', illustration: <Slide4Svg /> },
 ];
 
 function OnboardingContent() {
