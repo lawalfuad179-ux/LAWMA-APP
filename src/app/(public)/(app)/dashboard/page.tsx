@@ -5,6 +5,7 @@ import { AlertCircle, CreditCard, CalendarDays, Leaf, ArrowRight } from 'lucide-
 import { getSession } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { DashboardActivity } from '@/components/dashboard/DashboardActivity';
+import { ProfileCompletionCard } from '@/components/dashboard/ProfileCompletionCard';
 import { COMPLAINT_STATUS_LABELS, PAYMENT_STATUS_LABELS, RECYCLING_TIPS, DAYS_OF_WEEK, COLLECTION_STATUS_LABELS } from '@/constants';
 import styles from './page.module.css';
 
@@ -42,7 +43,7 @@ export default async function DashboardPage() {
 
   const resident = await db.resident.findUnique({
     where: { id: session.residentId },
-    select: { name: true, lga: true, avatarUrl: true },
+    select: { name: true, lga: true, avatarUrl: true, address: true, email: true, phoneNumber: true },
   });
   if (!resident) redirect('/login');
 
@@ -108,6 +109,14 @@ export default async function DashboardPage() {
   return (
     <div className={styles.dashboardPage}>
       <div className={styles.dashboardContent}>
+        <ProfileCompletionCard
+          name={resident.name}
+          lga={resident.lga}
+          address={resident.address}
+          email={resident.email}
+          phoneNumber={resident.phoneNumber}
+        />
+
         {/* User greeting row — visible on all screen sizes */}
         <Link href="/profile" className={styles.mobileUserRow}>
           <div className={styles.mobileUserAvatar}>

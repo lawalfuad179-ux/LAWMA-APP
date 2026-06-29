@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { Clock, Truck, CalendarDays, Sparkles } from 'lucide-react';
+import { Clock, Truck, CalendarDays, Sparkles, Leaf } from 'lucide-react';
 
 import { getSession } from '@/lib/auth';
 import { db } from '@/lib/db';
@@ -31,6 +31,29 @@ export default async function SchedulesPage() {
     seen.add(s.dayOfWeek);
     return true;
   });
+
+  // Compute next 3 last-Saturdays for environmental days
+  function getUpcomingLastSaturdays(count: number): Date[] {
+    const results: Date[] = [];
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+    let year = now.getFullYear();
+    let month = now.getMonth();
+
+    while (results.length < count) {
+      const lastDay = new Date(year, month + 1, 0);
+      const offset = (lastDay.getDay() - 6 + 7) % 7;
+      const lastSat = new Date(year, month, lastDay.getDate() - offset);
+      if (lastSat >= now) results.push(lastSat);
+      month++;
+      if (month > 11) { month = 0; year++; }
+    }
+    return results;
+  }
+
+  const environmentalDays = getUpcomingLastSaturdays(3);
+  const todayDate = new Date();
+  todayDate.setHours(0, 0, 0, 0);
 
   const today = new Date().getDay();
   const todaySchedules = schedules.filter((s) => s.dayOfWeek === today);
@@ -167,6 +190,50 @@ export default async function SchedulesPage() {
           )}
         </>
       )}
+      {/* ── Environmental / Community Sanitation Days ── */}
+      <section className={styles.envSection}>
+        <div className={styles.envDivider}>
+          <div className={styles.envDividerLine} />
+          <span className={styles.envDividerLabel}>Community</span>
+          <div className={styles.envDividerLine} />
+        </div>
+
+        <div className={styles.sectionHeader}>
+          <div className={styles.sectionEyebrow}>
+            <Leaf size={15} strokeWidth={1.5} />
+            <span>Community Sanitation Days</span>
+          </div>
+        </div>
+
+        {environmentalDays.map((date) => {
+          const isToday = date.getTime() === todayDate.getTime();
+          const formatted = date.toLocaleDateString('en-NG', {
+            weekday: 'long',
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+          });
+          return (
+            <div key={date.toISOString()} className={styles.envCard}>
+              <div className={styles.envCardHeader}>
+                <span className={styles.envChip}>
+                  <Leaf size={11} strokeWidth={1.5} />
+                  Community
+                </span>
+                {isToday && <span className={styles.envTodayPill}>Today</span>}
+              </div>
+              <span className={styles.envDate}>{formatted}</span>
+              <div className={styles.metaRow}>
+                <Clock size={14} strokeWidth={1.5} />
+                <span>7:00 AM – 10:00 AM</span>
+              </div>
+              <p className={styles.envDesc}>
+                Resident-led sanitation. Clear your frontage and shared spaces. LAWMA-mandated last Saturday of every month.
+              </p>
+            </div>
+          );
+        })}
+      </section>
     </div>
   );
 }

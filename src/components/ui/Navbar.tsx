@@ -17,18 +17,20 @@ import {
   Menu,
   X,
   ChevronUp,
+  ShoppingBag,
 } from 'lucide-react';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { AiRecycleIcon } from '@/components/ui/icons/AiRecycleIcon';
 import styles from './Navbar.module.css';
 
-// Desktop sidebar nav items (all 5)
+// Desktop sidebar nav items
 const sidebarItems = [
-  { href: '/dashboard', label: 'Home',      Icon: Home },
-  { href: '/schedules', label: 'Schedule',  Icon: CalendarDays },
-  { href: '/recycling', label: 'Recycling', Icon: ({ size }: { size?: number }) => <AiRecycleIcon size={size || 22} color="currentColor" /> },
-  { href: '/payments',  label: 'Payments',  Icon: CreditCard },
-  { href: '/complaints',label: 'Report',    Icon: AlertCircle },
+  { href: '/dashboard',   label: 'Home',       Icon: Home },
+  { href: '/schedules',   label: 'Schedule',   Icon: CalendarDays },
+  { href: '/recycling',   label: 'Recycling',  Icon: ({ size }: { size?: number }) => <AiRecycleIcon size={size || 22} color="currentColor" /> },
+  { href: '/payments',    label: 'Payments',   Icon: CreditCard },
+  { href: '/complaints',  label: 'Report',     Icon: AlertCircle },
+  { href: '/smart-bins',  label: 'Smart Bins', Icon: ShoppingBag },
 ];
 
 // Mobile bottom nav: 4 items + center AI Recycle button
@@ -367,6 +369,12 @@ export function Navbar() {
                 {unreadCount > 0 && (
                   <span className={styles.sheetBadgeLabel}>{unreadCount} unread</span>
                 )}
+              </Link>
+              <Link href="/smart-bins" className={styles.sheetItem}>
+                <span className={styles.sheetItemIcon}>
+                  <ShoppingBag size={20} strokeWidth={1.5} />
+                </span>
+                <span className={styles.sheetItemLabel}>Smart Bins</span>
               </Link>
             </div>
 

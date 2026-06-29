@@ -162,7 +162,32 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* ─── 5. CTA Footer — dark bg ─── */}
+        {/* ─── 5. Community Carousel ─── */}
+        <section className={styles.communitySection}>
+          <div className={styles.communityInner}>
+            <h2 className={styles.communityHeading}>Stay informed. Stay involved.</h2>
+            <p className={styles.communitySub}>Tips, campaigns, and events from LAWMA.</p>
+            <div className={styles.carouselTrack}>
+              <div className={styles.carouselCard}>
+                <span className={`${styles.carouselChip} ${styles.chipRecycling}`}>Recycling Tips</span>
+                <h3 className={styles.carouselCardTitle}>Separate before you dispose</h3>
+                <p className={styles.carouselCardBody}>Rinse plastics, flatten cardboard. Small steps at home make a big difference for Lagos.</p>
+              </div>
+              <div className={styles.carouselCard}>
+                <span className={`${styles.carouselChip} ${styles.chipCampaign}`}>Community Campaign</span>
+                <h3 className={styles.carouselCardTitle}>Adopt a Street</h3>
+                <p className={styles.carouselCardBody}>Join LAWMA&apos;s Adopt a Street initiative. Keep your street spotless as a community — one street at a time.</p>
+              </div>
+              <div className={styles.carouselCard}>
+                <span className={`${styles.carouselChip} ${styles.chipEnvironmental}`}>Environmental Day</span>
+                <h3 className={styles.carouselCardTitle}>Last Saturday of every month</h3>
+                <p className={styles.carouselCardBody}>Residents dedicate a few hours to clearing frontages and shared spaces. LAWMA-mandated Community Sanitation Day.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ─── 6. CTA Footer — dark bg ─── */}
         <section className={styles.ctaSection}>
           <div className={styles.ctaInner}>
             <h2 className={styles.ctaHeadline}>Help keep Lagos cleaner, one report at a time.</h2>

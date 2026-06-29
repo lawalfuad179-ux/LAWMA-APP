@@ -17,8 +17,19 @@ LAWMA work runs on two parallel tracks. STATE.md tracks both.
 - Loop cycle: Landing, Auth, Dashboard UI refinement (done)
 - Recent product commits: payments (reward-credit auto-apply, verify-modal centering — `56a578c`, `d312bd7`)
 
+### Last touched (2026-06-29)
+8 features shipped across two sessions for DS meeting demo:
+- `/smart-bins` — new Smart Bin order page with Flutterwave (₦10,000/bin, address prefilled)
+- `/smart-bins` — desktop split layout: sticky bin preview right panel, crossfades green↔blue on type change
+- `/api/bins/order` — new route for bin order payment init
+- Schedules page — Environmental/Community Sanitation Days section (last Saturdays, next 3 months)
+- Notification preferences — Environmental Day toggles (email + SMS), DB schema pushed
+- Landing page — Community carousel (Recycling Tips + Adopt a Street + Environmental Day cards)
+- Navbar — Smart Bins added (desktop sidebar + mobile sheet)
+- Dashboard — Profile Completion Card (SVG ring, incomplete-step chips, auto-hides when profile is 5/5)
+
 ### Next task
-**Continue the `loops/ui-ux/` cycle on the remaining pages.** Once all pages have been refined, immediately switch to the pitch deck (see Stream 2).
+**Stream 2 is now ACTIVE.** DS meeting was 2026-06-29. Trigger `LAWMA-PITCH-GO` after the meeting outcome is confirmed to produce the MD pitch deck.
 
 ### Loops portability (works in any IDE, not just Claude)
 
@@ -52,11 +63,12 @@ None.
 
 ### Context
 - DS Hon. Meranda made the introduction
-- Expected meeting: DG of LAWMA + family
+- Informal meeting with DS today (2026-06-29) to demo the app and earn intro to MD
+- Expected escalation: MD of LAWMA + family
 - Deck spine, ask numbers, contradictions, pilot data, scaling plan — already vetted and ready
 
 ### Next action
-**No confirmed meeting date yet.** Pitch plan stays locked, ready to produce on trigger keyword `LAWMA-PITCH-GO`. Once the `loops/ui-ux/` cycle finishes covering all pages, switch focus to the pitch deck even without a date — it's the next high-leverage block of work.
+**Meeting today.** After the meeting, trigger `LAWMA-PITCH-GO` to produce the MD pitch deck. Key demo talking points in `~/ai-workspace/logs/2026-06-29.md`.
 
 ### Source
 Full plan: `~/ai-workspace/wiki/projects/lawma/project_lawma_pitch_plan_locked.md`

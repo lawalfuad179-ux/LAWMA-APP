@@ -31,9 +31,11 @@ export async function PUT(req: NextRequest) {
     'emailPaymentReceipts',
     'emailCollectionReminders',
     'emailAnnouncements',
+    'emailEnvironmentalReminders',
     'smsComplaintUpdates',
     'smsCollectionReminders',
     'smsDelayedPickup',
+    'smsEnvironmentalReminders',
   ] as const;
 
   const data: Partial<Record<typeof allowed[number], boolean>> = {};

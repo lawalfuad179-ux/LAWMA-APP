@@ -93,6 +93,7 @@ export const NOTIFICATION_TYPE_LABELS: Record<string, string> = {
   PAYMENT_CONFIRMATION: 'Payment Confirmation',
   ANNOUNCEMENT: 'LAWMA Announcement',
   RECYCLING_REWARD: 'Recycling Reward',
+  ENVIRONMENTAL_REMINDER: 'Community Sanitation Day',
 };
 
 export const RECYCLING_TIPS = [

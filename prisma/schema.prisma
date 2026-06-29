@@ -46,6 +46,7 @@ enum NotificationType {
   PAYMENT_CONFIRMATION
   ANNOUNCEMENT
   RECYCLING_REWARD
+  ENVIRONMENTAL_REMINDER
 }
 
 enum RecycleActivityStatus {
@@ -315,13 +316,15 @@ model PointTransaction {
 model NotificationPreference {
   id                       String   @id @default(cuid())
   residentId               String   @unique @map("resident_id")
-  emailComplaintUpdates    Boolean  @default(true) @map("email_complaint_updates")
-  emailPaymentReceipts     Boolean  @default(true) @map("email_payment_receipts")
-  emailCollectionReminders Boolean  @default(true) @map("email_collection_reminders")
-  emailAnnouncements       Boolean  @default(false) @map("email_announcements")
-  smsComplaintUpdates      Boolean  @default(true) @map("sms_complaint_updates")
-  smsCollectionReminders   Boolean  @default(true) @map("sms_collection_reminders")
-  smsDelayedPickup         Boolean  @default(true) @map("sms_delayed_pickup")
+  emailComplaintUpdates         Boolean  @default(true) @map("email_complaint_updates")
+  emailPaymentReceipts          Boolean  @default(true) @map("email_payment_receipts")
+  emailCollectionReminders      Boolean  @default(true) @map("email_collection_reminders")
+  emailAnnouncements            Boolean  @default(false) @map("email_announcements")
+  emailEnvironmentalReminders   Boolean  @default(true) @map("email_environmental_reminders")
+  smsComplaintUpdates           Boolean  @default(true) @map("sms_complaint_updates")
+  smsCollectionReminders        Boolean  @default(true) @map("sms_collection_reminders")
+  smsDelayedPickup              Boolean  @default(true) @map("sms_delayed_pickup")
+  smsEnvironmentalReminders     Boolean  @default(true) @map("sms_environmental_reminders")
   createdAt                DateTime @default(now()) @map("created_at")
   updatedAt                DateTime @updatedAt @map("updated_at")
 

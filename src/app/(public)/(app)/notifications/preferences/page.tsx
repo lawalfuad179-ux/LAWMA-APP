@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Mail, MessageSquare, Check } from 'lucide-react';
+import { ArrowLeft, Mail, MessageSquare, Check, Leaf } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import styles from './page.module.css';
 
@@ -11,9 +11,11 @@ type Prefs = {
   emailPaymentReceipts: boolean;
   emailCollectionReminders: boolean;
   emailAnnouncements: boolean;
+  emailEnvironmentalReminders: boolean;
   smsComplaintUpdates: boolean;
   smsCollectionReminders: boolean;
   smsDelayedPickup: boolean;
+  smsEnvironmentalReminders: boolean;
 };
 
 const DEFAULT_PREFS: Prefs = {
@@ -21,9 +23,11 @@ const DEFAULT_PREFS: Prefs = {
   emailPaymentReceipts: true,
   emailCollectionReminders: true,
   emailAnnouncements: false,
+  emailEnvironmentalReminders: true,
   smsComplaintUpdates: true,
   smsCollectionReminders: true,
   smsDelayedPickup: true,
+  smsEnvironmentalReminders: true,
 };
 
 type ToggleProps = {
@@ -169,6 +173,29 @@ export default function NotificationPreferencesPage() {
                 checked={prefs.smsDelayedPickup}
                 onChange={(v) => set('smsDelayedPickup', v)}
                 label="Delayed pickup alerts"
+                icon={<MessageSquare size={15} strokeWidth={1.5} />}
+              />
+            </div>
+          </section>
+
+          <section className={styles.section}>
+            <div className={styles.sectionHeader}>
+              <div className={styles.sectionEyebrow}>
+                <Leaf size={15} strokeWidth={1.5} />
+                <span>Environmental Days</span>
+              </div>
+            </div>
+            <div className={styles.toggleList}>
+              <Toggle
+                checked={prefs.emailEnvironmentalReminders}
+                onChange={(v) => set('emailEnvironmentalReminders', v)}
+                label="Community sanitation day reminders (Email)"
+                icon={<Mail size={15} strokeWidth={1.5} />}
+              />
+              <Toggle
+                checked={prefs.smsEnvironmentalReminders}
+                onChange={(v) => set('smsEnvironmentalReminders', v)}
+                label="Community sanitation day reminders (SMS)"
                 icon={<MessageSquare size={15} strokeWidth={1.5} />}
               />
             </div>

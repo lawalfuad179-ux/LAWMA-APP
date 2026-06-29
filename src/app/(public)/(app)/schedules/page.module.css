@@ -208,6 +208,93 @@
   font-weight: 500;
 }
 
+/* ── Environmental Days ── */
+
+.envSection {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.envDivider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 4px 0;
+}
+
+.envDividerLine {
+  flex: 1;
+  height: 1px;
+  background: var(--color-outline-variant);
+}
+
+.envDividerLabel {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--color-on-surface-variant);
+  white-space: nowrap;
+}
+
+.envCard {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 20px;
+  background: color-mix(in srgb, var(--color-secondary) 4%, var(--color-surface));
+  border: 1px solid color-mix(in srgb, var(--color-secondary) 20%, var(--color-outline-variant));
+  border-radius: 14px;
+}
+
+.envCardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.envChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: color-mix(in srgb, var(--color-secondary) 12%, var(--color-surface));
+  color: var(--color-secondary);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 100px;
+  border: 1px solid color-mix(in srgb, var(--color-secondary) 25%, transparent);
+}
+
+.envTodayPill {
+  display: inline-flex;
+  align-items: center;
+  background: var(--color-secondary);
+  color: var(--color-on-primary);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  padding: 4px 12px;
+  border-radius: 100px;
+}
+
+.envDate {
+  font-size: var(--title-small-font-size);
+  font-weight: 700;
+  color: var(--color-on-surface);
+  letter-spacing: -0.1px;
+}
+
+.envDesc {
+  font-size: var(--body-medium-font-size);
+  color: var(--color-on-surface-variant);
+  line-height: 1.5;
+}
+
 /* ── Empty state ── */
 
 .emptyState {
