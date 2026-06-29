@@ -103,7 +103,7 @@ export async function analyzeWasteImage(imageUrl: string): Promise<RecycleAiRepo
 
   const response = await client.messages.create({
     model,
-    max_tokens: 1024,
+    max_tokens: 2048,
     system: SYSTEM_PROMPT,
     messages: [
       {
@@ -124,13 +124,26 @@ export async function analyzeWasteImage(imageUrl: string): Promise<RecycleAiRepo
   });
 
   const raw = response.content[0]?.type === 'text' ? response.content[0].text : '';
+
+  // Guard against truncated responses (stop_reason === 'max_tokens' mid-JSON)
+  if (response.stop_reason === 'max_tokens') {
+    logger.error('ai.analyze_waste.truncated', { rawLength: raw.length, model });
+    throw new Error('The AI response was too long to process. Please try with a simpler image.');
+  }
+
   const jsonMatch = raw.match(/\{[\s\S]*\}/);
   if (!jsonMatch) {
     logger.error('ai.analyze_waste.no_json', { raw: raw.slice(0, 200) });
     throw new Error('AI returned an unreadable response. Please try again.');
   }
 
-  const parsed = JSON.parse(jsonMatch[0]) as RecycleAiReport;
+  let parsed: RecycleAiReport;
+  try {
+    parsed = JSON.parse(jsonMatch[0]) as RecycleAiReport;
+  } catch (parseErr) {
+    logger.error('ai.analyze_waste.json_parse_failed', { raw: raw.slice(0, 300), error: String(parseErr) });
+    throw new Error('AI response could not be read. Please try again.');
+  }
 
   // Normalise imageValid in case the model omitted it
   if (typeof parsed.imageValid !== 'boolean') {
