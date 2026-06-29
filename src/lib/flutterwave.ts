@@ -10,6 +10,8 @@ type CreatePaymentLinkParams = {
   residentId: string;
   paymentId: string;
   meta?: Record<string, string>;
+  /** Override the path Flutterwave redirects back to (default: /payments). */
+  redirectPath?: string;
 };
 
 type CreatePaymentLinkResult = {
@@ -49,6 +51,7 @@ export async function createPaymentLink(params: CreatePaymentLinkParams): Promis
       residentId,
       paymentId,
       meta,
+      redirectPath,
     } = params;
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3100';
@@ -64,7 +67,7 @@ export async function createPaymentLink(params: CreatePaymentLinkParams): Promis
         tx_ref: txRef,
         amount: amountKobo / 100, // Convert kobo to naira at the gateway boundary
         currency: 'NGN',
-        redirect_url: `${appUrl}/payments`,
+        redirect_url: `${appUrl}${redirectPath ?? '/payments'}`,
         customer: {
           email: sanitizeEmail(customerEmail, customerPhone),
           phonenumber: customerPhone,

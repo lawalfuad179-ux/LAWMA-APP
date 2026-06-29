@@ -50,6 +50,7 @@ export async function POST(req: NextRequest) {
       billId: 'bin_order',
       residentId: session.residentId,
       paymentId: txRef,
+      redirectPath: '/smart-bins',
       meta: {
         order_type: 'smart_bin',
         bin_type: binType,
