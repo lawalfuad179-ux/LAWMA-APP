@@ -3,6 +3,9 @@ import { withSentryConfig } from "@sentry/nextjs";
 
 const nextConfig: NextConfig = {
   allowedDevOrigins: ['192.168.100.68'],
+  turbopack: {
+    root: __dirname,
+  },
 };
 
 export default withSentryConfig(nextConfig, {
