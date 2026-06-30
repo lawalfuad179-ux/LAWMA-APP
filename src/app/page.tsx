@@ -49,7 +49,7 @@ function WordByWord({ text, className }: { text: string; className?: string }) {
     <span className={className}>
       {tokens.map((token, i) => {
         if (token === '\n') return <br key={`br-${i}`} />;
-        if (token === ' ') return null;
+        if (token === ' ') return <span key={`sp-${i}`}>{' '}</span>;
         const delay = 0.1 + wordCount++ * 0.07;
         return (
           <motion.span
@@ -59,7 +59,7 @@ function WordByWord({ text, className }: { text: string; className?: string }) {
             animate={{ opacity: 1, filter: 'blur(0px)' }}
             transition={{ duration: 0.4, delay, ease: 'easeOut' }}
           >
-            {token}{' '}
+            {token}
           </motion.span>
         );
       })}
