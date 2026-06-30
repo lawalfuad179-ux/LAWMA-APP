@@ -7,6 +7,7 @@ import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { DAYS_OF_WEEK, COLLECTION_STATUS_LABELS, type LagosLga } from '@/constants';
 import { PspContactCard } from '@/components/schedules/PspContactCard';
+import { Reveal } from '@/components/ui/Reveal';
 import styles from './page.module.css';
 
 export default async function SchedulesPage() {
@@ -71,10 +72,12 @@ export default async function SchedulesPage() {
         {resident.lga && <p className={styles.subtitle}>{resident.lga} · Lagos</p>}
       </div>
 
-      <PspContactCard
-        lga={(resident.lga as LagosLga | null) || null}
-        address={resident.address}
-      />
+      <Reveal delay={0.04}>
+        <PspContactCard
+          lga={(resident.lga as LagosLga | null) || null}
+          address={resident.address}
+        />
+      </Reveal>
 
       {schedules.length === 0 ? (
         <div className={styles.emptyState}>

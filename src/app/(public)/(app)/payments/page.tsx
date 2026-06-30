@@ -11,6 +11,7 @@ import { EmptyBillsState } from './EmptyBillsState';
 import { PaymentVerifySheet } from './PaymentVerifySheet';
 import { BILL_STATUS_LABELS } from '@/constants';
 import { computeAutoRedeem, pointsToKobo } from '@/lib/rewards';
+import { Reveal } from '@/components/ui/Reveal';
 import styles from './page.module.css';
 
 function formatKobo(amountKobo: number) {
@@ -49,11 +50,13 @@ export default async function PaymentsPage() {
       <PaymentVerifySheet />
       <h1 className={styles.title}>Payments</h1>
 
-      <BalanceCard
-        totalKobo={totalOutstanding}
-        pendingCount={pendingCount}
-        overdueCount={overdueCount}
-      />
+      <Reveal delay={0.04}>
+        <BalanceCard
+          totalKobo={totalOutstanding}
+          pendingCount={pendingCount}
+          overdueCount={overdueCount}
+        />
+      </Reveal>
 
       <div className={styles.rewardBanner}>
         <Star size={16} strokeWidth={1.8} className={styles.rewardBannerIcon} />
@@ -72,7 +75,7 @@ export default async function PaymentsPage() {
       </div>
 
       {bills.length > 0 ? (
-        <div className={styles.section}>
+        <Reveal className={styles.section} delay={0.1}>
           <div className={styles.sectionHeader}>
             <div className={styles.sectionEyebrow}>
               <Receipt size={15} strokeWidth={1.5} />
@@ -144,7 +147,7 @@ export default async function PaymentsPage() {
               );
             })}
           </div>
-        </div>
+        </Reveal>
       ) : (
         <EmptyBillsState />
       )}

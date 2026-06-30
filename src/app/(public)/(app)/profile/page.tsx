@@ -5,6 +5,7 @@ import { Truck, Bell, CreditCard, FileText, ChevronRight, Settings, Lock, BadgeC
 import { getSession } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { Card } from '@/components/ui/Card';
+import { Reveal } from '@/components/ui/Reveal';
 import { ProfileEditForm } from '@/components/profile/ProfileEditForm';
 import { AvatarUpload } from '@/components/profile/AvatarUpload';
 import { PasswordSection } from '@/components/profile/PasswordSection';
@@ -70,7 +71,7 @@ export default async function ProfilePage() {
   return (
     <div className={styles.page}>
       {/* ── Hero ── */}
-      <div className={styles.hero}>
+      <Reveal className={styles.hero} delay={0.04}>
         <AvatarUpload name={resident.name || ''} avatarUrl={resident.avatarUrl} />
         <div className={styles.heroMeta}>
           <h1 className={styles.heroName}>
@@ -85,10 +86,10 @@ export default async function ProfilePage() {
             <Badge label={`Member since ${memberSince}`} variant="green" />
           </div>
         </div>
-      </div>
+      </Reveal>
 
       {/* ── Stats Row ── */}
-      <div className={styles.statsRow}>
+      <Reveal className={styles.statsRow} delay={0.1}>
         <StatCard
           value={complaintCount}
           label="Reports"
@@ -99,7 +100,7 @@ export default async function ProfilePage() {
           label="Paid"
           icon={<CreditCard size={18} strokeWidth={1.5} />}
         />
-      </div>
+      </Reveal>
 
       {/* ── Quick Links ── */}
       <div className={styles.section}>

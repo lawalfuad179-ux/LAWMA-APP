@@ -6,6 +6,7 @@ import { getSession } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { DashboardActivity } from '@/components/dashboard/DashboardActivity';
 import { ProfileCompletionCard } from '@/components/dashboard/ProfileCompletionCard';
+import { Reveal } from '@/components/ui/Reveal';
 import { COMPLAINT_STATUS_LABELS, PAYMENT_STATUS_LABELS, RECYCLING_TIPS, DAYS_OF_WEEK, COLLECTION_STATUS_LABELS } from '@/constants';
 import styles from './page.module.css';
 
@@ -131,7 +132,7 @@ export default async function DashboardPage() {
           </div>
         </Link>
         {/* Collection Schedule */}
-        <div className={styles.dashboardSection}>
+        <Reveal className={styles.dashboardSection} delay={0.04}>
           <div className={styles.sectionHeader}>
             <div className={styles.sectionEyebrow}>
               <CalendarDays size={16} strokeWidth={1.5} />
@@ -200,15 +201,15 @@ export default async function DashboardPage() {
               </div>
             </div>
           </div>
-        </div>
+        </Reveal>
 
         {/* Recent Activity */}
-        <div className={styles.dashboardSection}>
+        <Reveal className={styles.dashboardSection} delay={0.1}>
           <DashboardActivity activities={activities} />
-        </div>
+        </Reveal>
 
         {/* Recycling Tip */}
-        <div className={styles.dashboardSection}>
+        <Reveal className={styles.dashboardSection} delay={0.16}>
           <div className={styles.sectionHeader}>
             <div className={styles.sectionEyebrow}>
               <Leaf size={16} strokeWidth={1.5} />
@@ -220,7 +221,7 @@ export default async function DashboardPage() {
             <h3 className={styles.tipTitle}>{recyclingTip.title}</h3>
             <p className={styles.tipDesc}>{recyclingTip.description}</p>
           </div>
-        </div>
+        </Reveal>
       </div>
     </div>
   );

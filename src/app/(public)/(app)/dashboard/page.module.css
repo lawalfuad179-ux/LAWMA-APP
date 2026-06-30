@@ -264,11 +264,14 @@
   font-weight: 600;
   color: var(--color-text-action);
   text-decoration: none;
-  transition: background 0.15s;
+  transition: background 0.15s, transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .quickActionCard:hover {
   background: var(--color-surface-container-high);
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--color-primary) 35%, var(--color-outline-variant));
+  box-shadow: 0 6px 18px hsla(0, 0%, 0%, 0.06);
 }
 
 /* ─── Stat Cards ─── */
@@ -283,11 +286,14 @@
   align-items: center;
   justify-content: center;
   text-decoration: none;
-  transition: background 0.15s;
+  transition: background 0.15s, transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .statCard:hover {
   background: var(--color-surface-container-high);
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--color-primary) 45%, var(--color-outline-variant));
+  box-shadow: 0 6px 18px hsla(0, 0%, 0%, 0.06);
 }
 
 .statValue {

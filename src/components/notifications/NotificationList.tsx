@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
+import { motion, useReducedMotion } from 'framer-motion';
 import { Bell, Truck, AlertCircle, CreditCard, Megaphone, Leaf, CheckCheck, Check } from 'lucide-react';
 
 import { LottiePlayer } from '@/components/ui/LottiePlayer';
@@ -42,6 +43,7 @@ const TYPE_COLOR: Record<string, string> = {
 export function NotificationList({ initialNotifications }: Props) {
   const [notifications, setNotifications] = useState(initialNotifications);
   const [isPending, startTransition] = useTransition();
+  const reduced = useReducedMotion();
 
   const unreadCount = notifications.filter((n) => !n.isRead).length;
 
@@ -109,10 +111,13 @@ export function NotificationList({ initialNotifications }: Props) {
       </div>
 
       <div className={styles.list}>
-        {notifications.map((n) => (
-          <div
+        {notifications.map((n, i) => (
+          <motion.div
             key={n.id}
             className={`${styles.item} ${!n.isRead ? styles.unread : ''}`}
+            initial={{ opacity: 0, y: reduced ? 0 : 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35, delay: Math.min(i * 0.05, 0.4), ease: [0.16, 1, 0.3, 1] }}
           >
             <div className={`${styles.iconWrap} ${styles[`icon_${TYPE_COLOR[n.type] ?? 'neutral'}`]}`}>
               {TYPE_ICONS[n.type] ?? <Bell size={16} strokeWidth={1.8} />}
@@ -142,7 +147,7 @@ export function NotificationList({ initialNotifications }: Props) {
                 <Check size={14} strokeWidth={2.5} />
               </button>
             )}
-          </div>
+          </motion.div>
         ))}
       </div>
     </div>

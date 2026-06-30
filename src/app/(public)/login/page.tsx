@@ -2,8 +2,10 @@
 
 import { useState, useRef, useCallback, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { ArrowLeft, Mail, Phone, Lock, Hash, User, MapPin, Check } from 'lucide-react';
 
+import { AuroraBackground } from '@/components/ui/AuroraBackground';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
@@ -33,7 +35,7 @@ function AuthContent() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [cooldown, setCooldown] = useState(0);
-  const [transition, setTransition] = useState<'enter' | 'leave'>('enter');
+  const reducedMotion = useReducedMotion();
 
   // Profile fields (signup)
   const [name, setName] = useState('');
@@ -58,10 +60,6 @@ function AuthContent() {
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const verifyInFlight = useRef(false);
   const verifyOtpRef = useRef<() => Promise<void>>(async () => {});
-
-  useEffect(() => {
-    setTransition('enter');
-  }, []);
 
   useEffect(() => {
     verifyOtpRef.current = verifyOtp;
@@ -91,36 +89,34 @@ function AuthContent() {
   }, []);
 
   function switchStep(to: Step) {
-    setTransition('leave');
+    // AnimatePresence (keyed on `step`) owns the exit/enter animation now;
+    // state resets run immediately while the outgoing step animates out.
     verifyInFlight.current = false;
-    setTimeout(() => {
-      if (to === 'phone') { setCode(''); setIdentifierTouched(false); }
-      if (to === 'password-signup') {
-        // Preserve phone/email from step 1 for submission — no re-entry needed
-        const rawDigits = normalizePhone(phone).replace(/\D/g, '');
-        const localPhone = rawDigits.startsWith('234') ? '0' + rawDigits.slice(3) : rawDigits.startsWith('0') ? rawDigits : rawDigits ? '0' + rawDigits : '';
-        setSignupPhone(localPhone);
-        setSignupEmail(email.trim().toLowerCase() || '');
-        setSignupLga('');
-        setName('');
-        setNewPassword('');
-        setConfirmPassword('');
-        setFieldErrors({});
-      }
-      if (to === 'password-signin') {
-        setNewPassword('');
-        setFieldErrors({});
-      }
-      if (to === 'create-password') {
-        setNewPassword('');
-        setConfirmPassword('');
-        setPasswordChecks({});
-        setFieldErrors({});
-      }
-      setStep(to);
-      setError('');
-      setTransition('enter');
-    }, 200);
+    if (to === 'phone') { setCode(''); setIdentifierTouched(false); }
+    if (to === 'password-signup') {
+      // Preserve phone/email from step 1 for submission — no re-entry needed
+      const rawDigits = normalizePhone(phone).replace(/\D/g, '');
+      const localPhone = rawDigits.startsWith('234') ? '0' + rawDigits.slice(3) : rawDigits.startsWith('0') ? rawDigits : rawDigits ? '0' + rawDigits : '';
+      setSignupPhone(localPhone);
+      setSignupEmail(email.trim().toLowerCase() || '');
+      setSignupLga('');
+      setName('');
+      setNewPassword('');
+      setConfirmPassword('');
+      setFieldErrors({});
+    }
+    if (to === 'password-signin') {
+      setNewPassword('');
+      setFieldErrors({});
+    }
+    if (to === 'create-password') {
+      setNewPassword('');
+      setConfirmPassword('');
+      setPasswordChecks({});
+      setFieldErrors({});
+    }
+    setStep(to);
+    setError('');
   }
 
   function toggleMode() {
@@ -342,6 +338,7 @@ function AuthContent() {
 
   return (
     <div className={styles.page}>
+      <AuroraBackground />
       <div className={styles.card}>
         <div className={styles.cardNav}>
           <button className={styles.backBtn} onClick={() => router.push('/')} type="button" aria-label="Back to home">
@@ -354,7 +351,16 @@ function AuthContent() {
           <img src="/favicon.png" alt="" className={styles.logoFavicon} />
         </div>
 
-        <div className={`${styles.stage} ${transition === 'enter' ? styles.enter : styles.leave}`}>
+        <AnimatePresence mode="wait" initial={false}>
+        <motion.div
+          key={step}
+          className={styles.stepWrap}
+          initial={{ opacity: 0, y: reducedMotion ? 0 : 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: reducedMotion ? 0 : -8 }}
+          transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+        >
+        <div className={styles.stage}>
           {step === 'phone' && (
             <div className={styles.header}>
               <h1 className={styles.title}>{mode === 'signin' ? 'Sign in' : 'Create account'}</h1>
@@ -961,6 +967,8 @@ function AuthContent() {
             </button>
           </form>
         )}
+        </motion.div>
+        </AnimatePresence>
       </div>
     </div>
   );

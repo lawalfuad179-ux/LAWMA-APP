@@ -2,7 +2,9 @@
 
 import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { User, MapPin, Home, ChevronLeft, Mail } from 'lucide-react';
+import { AuroraBackground } from '@/components/ui/AuroraBackground';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
@@ -123,7 +125,7 @@ function OnboardingContent() {
   const method = searchParams.get('method') as 'phone' | 'email' | null;
 
   const [step, setStep] = useState(1);
-  const [animKey, setAnimKey] = useState(0);
+  const reducedMotion = useReducedMotion();
 
   const [name, setName] = useState('');
   const [lga, setLga] = useState('');
@@ -136,7 +138,6 @@ function OnboardingContent() {
   const lgaOptions = LAGOS_LGAS.map((l) => ({ value: l, label: l }));
 
   function goTo(nextStep: number) {
-    setAnimKey((k) => k + 1);
     setStep(nextStep);
   }
 
@@ -194,6 +195,7 @@ function OnboardingContent() {
 
   return (
     <div className={styles.page}>
+      <AuroraBackground />
       <div className={styles.card}>
         <div className={styles.cardTop}>
           <div className={styles.logoCircle}>
@@ -223,7 +225,15 @@ function OnboardingContent() {
           </button>
         )}
 
-        <div key={animKey} className={styles.stepContent}>
+        <AnimatePresence mode="wait" initial={false}>
+        <motion.div
+          key={step}
+          className={styles.stepContent}
+          initial={{ opacity: 0, y: reducedMotion ? 0 : 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: reducedMotion ? 0 : -10 }}
+          transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
+        >
           {step === 1 && (
             <>
               <div className={styles.stepHeader}>
@@ -334,7 +344,8 @@ function OnboardingContent() {
               </form>
             </>
           )}
-        </div>
+        </motion.div>
+        </AnimatePresence>
       </div>
     </div>
   );

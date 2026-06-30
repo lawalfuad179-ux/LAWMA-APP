@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { BookOpen, Camera, Clock } from 'lucide-react';
 
 import { RecycleScanTab } from './RecycleScanTab';
@@ -13,42 +14,53 @@ type RecycleTabsProps = {
   guideContent: React.ReactNode;
 };
 
+const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
+  { id: 'guide', label: 'Guide', icon: <BookOpen size={15} strokeWidth={1.8} /> },
+  { id: 'scan', label: 'Scan & Analyze', icon: <Camera size={15} strokeWidth={1.8} /> },
+  { id: 'history', label: 'My History', icon: <Clock size={15} strokeWidth={1.8} /> },
+];
+
 export function RecycleTabs({ guideContent }: RecycleTabsProps) {
   const [tab, setTab] = useState<Tab>('scan');
+  const reduced = useReducedMotion();
 
   return (
     <div className={styles.root}>
       <div className={styles.tabBar}>
-        <button
-          className={`${styles.tabBtn} ${tab === 'guide' ? styles.active : ''}`}
-          onClick={() => setTab('guide')}
-          type="button"
-        >
-          <BookOpen size={15} strokeWidth={1.8} />
-          Guide
-        </button>
-        <button
-          className={`${styles.tabBtn} ${tab === 'scan' ? styles.active : ''}`}
-          onClick={() => setTab('scan')}
-          type="button"
-        >
-          <Camera size={15} strokeWidth={1.8} />
-          Scan & Analyze
-        </button>
-        <button
-          className={`${styles.tabBtn} ${tab === 'history' ? styles.active : ''}`}
-          onClick={() => setTab('history')}
-          type="button"
-        >
-          <Clock size={15} strokeWidth={1.8} />
-          My History
-        </button>
+        {TABS.map((t) => (
+          <button
+            key={t.id}
+            className={`${styles.tabBtn} ${tab === t.id ? styles.active : ''}`}
+            onClick={() => setTab(t.id)}
+            type="button"
+          >
+            {tab === t.id && (
+              <motion.span
+                layoutId="recycleTabPill"
+                className={styles.tabIndicator}
+                transition={reduced ? { duration: 0 } : { type: 'spring', stiffness: 500, damping: 38 }}
+              />
+            )}
+            {t.icon}
+            {t.label}
+          </button>
+        ))}
       </div>
 
       <div className={styles.panel}>
-        {tab === 'guide' && guideContent}
-        {tab === 'scan' && <RecycleScanTab />}
-        {tab === 'history' && <RecycleHistory />}
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            key={tab}
+            initial={{ opacity: 0, y: reduced ? 0 : 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: reduced ? 0 : -8 }}
+            transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+          >
+            {tab === 'guide' && guideContent}
+            {tab === 'scan' && <RecycleScanTab />}
+            {tab === 'history' && <RecycleHistory />}
+          </motion.div>
+        </AnimatePresence>
       </div>
     </div>
   );

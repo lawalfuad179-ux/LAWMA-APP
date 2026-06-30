@@ -2,6 +2,7 @@
 
 import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { motion, useReducedMotion } from 'framer-motion';
 import { X, ImagePlus } from 'lucide-react';
 
 import { Button } from '@/components/ui/Button';
@@ -19,6 +20,7 @@ type Props = {
 
 export function ReportFormModal({ onClose }: Props) {
   const router = useRouter();
+  const reduced = useReducedMotion();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [issueType, setIssueType] = useState('');
@@ -104,8 +106,22 @@ export function ReportFormModal({ onClose }: Props) {
   }
 
   return (
-    <div className={styles.overlay} onClick={onClose}>
-      <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+    <motion.div
+      className={styles.overlay}
+      onClick={onClose}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.2 }}
+    >
+      <motion.div
+        className={styles.modal}
+        onClick={(e) => e.stopPropagation()}
+        initial={{ opacity: 0, scale: reduced ? 1 : 0.96, y: reduced ? 0 : 8 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: reduced ? 1 : 0.97, y: reduced ? 0 : 6 }}
+        transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
+      >
         <div className={styles.modalHeader}>
           <h2 className={styles.modalTitle}>File a Report</h2>
           <button className={styles.closeBtn} onClick={onClose} type="button" aria-label="Close">
@@ -207,7 +223,7 @@ export function ReportFormModal({ onClose }: Props) {
             {loading && images.length > 0 ? 'Uploading & submitting…' : 'File a report'}
           </Button>
         </form>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }

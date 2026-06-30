@@ -1,4 +1,6 @@
 .page {
+  position: relative;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -9,6 +11,8 @@
 }
 
 .card {
+  position: relative;
+  z-index: 1;
   width: 100%;
   max-width: 440px;
   display: flex;
@@ -100,26 +104,11 @@
   color: var(--color-on-surface);
 }
 
-/* ── Step content animations ── */
-@keyframes stepEnter {
-  from { opacity: 0; transform: translateX(24px); }
-  to   { opacity: 1; transform: translateX(0); }
-}
-
-@keyframes stepEnterReverse {
-  from { opacity: 0; transform: translateX(-24px); }
-  to   { opacity: 1; transform: translateX(0); }
-}
-
+/* ── Step content (animation owned by Framer AnimatePresence) ── */
 .stepContent {
   display: flex;
   flex-direction: column;
   gap: 20px;
-  animation: stepEnter 320ms ease-out both;
-}
-
-.stepContentReverse {
-  animation: stepEnterReverse 320ms ease-out both;
 }
 
 /* ── Step header ── */

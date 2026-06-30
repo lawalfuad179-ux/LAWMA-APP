@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { AnimatePresence } from 'framer-motion';
 import { Plus } from 'lucide-react';
 import { ComplaintList } from './ComplaintList';
 import { ReportFormModal } from './ReportFormModal';
@@ -29,9 +30,11 @@ export function ComplaintsPageClient({ complaints }: Props) {
 
       <ComplaintList complaints={complaints} onNewReport={() => setShowModal(true)} />
 
-      {showModal && (
-        <ReportFormModal onClose={() => setShowModal(false)} />
-      )}
+      <AnimatePresence>
+        {showModal && (
+          <ReportFormModal onClose={() => setShowModal(false)} />
+        )}
+      </AnimatePresence>
     </>
   );
 }

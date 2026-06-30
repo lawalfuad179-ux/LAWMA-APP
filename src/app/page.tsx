@@ -7,6 +7,7 @@ import { motion, useInView, useReducedMotion } from 'framer-motion';
 import { Check, FileCheck, FileSearch, UserRoundCheck, ShieldCheck } from 'lucide-react';
 
 import { LandingHeader } from '@/components/landing/LandingHeader';
+import { AuroraBackground } from '@/components/ui/AuroraBackground';
 import styles from './page.module.css';
 
 // ── Scroll-triggered fade+rise wrapper ───────────────────────────────────────
@@ -108,27 +109,6 @@ function BeamCard({
   );
 }
 
-// ── Aurora blobs (hero background) ──────────────────────────────────────────
-
-function AuroraBlob() {
-  const reduced = useReducedMotion();
-  if (reduced) return null;
-  return (
-    <div className={styles.auroraContainer} aria-hidden="true">
-      <motion.div
-        className={styles.auroraBlob1}
-        animate={{ x: [0, 50, -25, 0], y: [0, -30, 18, 0] }}
-        transition={{ duration: 20, repeat: Infinity, ease: 'easeInOut' }}
-      />
-      <motion.div
-        className={styles.auroraBlob2}
-        animate={{ x: [0, -40, 28, 0], y: [0, 24, -30, 0] }}
-        transition={{ duration: 26, repeat: Infinity, ease: 'easeInOut' }}
-      />
-    </div>
-  );
-}
-
 // ── Page ─────────────────────────────────────────────────────────────────────
 
 export default function LandingPage() {
@@ -141,7 +121,7 @@ export default function LandingPage() {
 
         {/* ─── 1. Hero ─── */}
         <section className={styles.heroSection}>
-          <AuroraBlob />
+          <AuroraBackground />
           <div className={styles.heroInner}>
             <div className={styles.heroContent}>
               <div className={styles.heroText}>

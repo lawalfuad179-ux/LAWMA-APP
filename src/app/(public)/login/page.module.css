@@ -1,4 +1,6 @@
 .page {
+  position: relative;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -10,6 +12,8 @@
 
 /* ── Card ── */
 .card {
+  position: relative;
+  z-index: 1;
   width: 100%;
   max-width: 440px;
   display: flex;
@@ -79,29 +83,20 @@
 }
 
 /* ── Header area with transitions ── */
+/* Wraps one step's header + form as a single AnimatePresence unit. Reproduces
+   the 24px gap the card flex previously applied between stage and form. */
+.stepWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+}
+
 .stage {
   text-align: center;
   display: flex;
   justify-content: center;
   width: 100%;
-}
-
-.enter {
-  animation: fadeSlideIn 0.25s ease forwards;
-}
-
-.leave {
-  animation: fadeSlideOut 0.2s ease forwards;
-}
-
-@keyframes fadeSlideIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes fadeSlideOut {
-  from { opacity: 1; transform: translateY(0); }
-  to   { opacity: 0; transform: translateY(-8px); }
 }
 
 .header {

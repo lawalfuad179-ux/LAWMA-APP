@@ -17,6 +17,8 @@
 }
 
 .tabBtn {
+  position: relative;
+  isolation: isolate;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -28,20 +30,28 @@
   font-size: 13px;
   font-weight: 500;
   color: var(--color-on-surface-variant);
-  transition: background 0.15s, color 0.15s;
+  transition: color 0.15s;
   cursor: pointer;
   white-space: nowrap;
 }
 
 .tabBtn.active {
-  background: var(--color-surface);
   color: var(--color-primary);
   font-weight: 600;
+}
+
+/* Sliding pill behind the active tab (framer layoutId) */
+.tabIndicator {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: 11px;
+  background: var(--color-surface);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
 }
 
 .tabBtn:hover:not(.active) {
-  background: var(--color-surface-container-high);
+  color: var(--color-on-surface);
 }
 
 @media (max-width: 767px) {

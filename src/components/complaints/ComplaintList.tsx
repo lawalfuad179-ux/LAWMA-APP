@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { motion, useReducedMotion } from 'framer-motion';
 import Link from 'next/link';
 import { Plus } from 'lucide-react';
 import { LottiePlayer } from '@/components/ui/LottiePlayer';
@@ -24,6 +25,7 @@ type Props = {
 
 export function ComplaintList({ complaints: initial, onNewReport }: Props) {
   const [complaints, setComplaints] = useState(initial);
+  const reduced = useReducedMotion();
 
   const handleDelete = (id: string) => {
     setComplaints((prev) => prev.filter((c) => c.id !== id));
@@ -52,8 +54,15 @@ export function ComplaintList({ complaints: initial, onNewReport }: Props) {
 
   return (
     <div className={styles.list}>
-      {complaints.map((c) => (
-        <SwipeableComplaintCard key={c.id} complaint={c} onDelete={handleDelete} />
+      {complaints.map((c, i) => (
+        <motion.div
+          key={c.id}
+          initial={{ opacity: 0, y: reduced ? 0 : 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35, delay: Math.min(i * 0.05, 0.4), ease: [0.16, 1, 0.3, 1] }}
+        >
+          <SwipeableComplaintCard complaint={c} onDelete={handleDelete} />
+        </motion.div>
       ))}
     </div>
   );
