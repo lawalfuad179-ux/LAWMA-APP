@@ -75,7 +75,6 @@ export default async function SchedulesPage() {
       <Reveal delay={0.04}>
         <PspContactCard
           lga={(resident.lga as LagosLga | null) || null}
-          address={resident.address}
         />
       </Reveal>
 
