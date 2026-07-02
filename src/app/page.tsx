@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, memo } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import dynamic from 'next/dynamic';
 import { motion, useInView, useReducedMotion } from 'framer-motion';
 import { Check, FileCheck, FileSearch, UserRoundCheck, ShieldCheck } from 'lucide-react';
 
@@ -12,7 +13,7 @@ import styles from './page.module.css';
 
 // ── Scroll-triggered fade+rise wrapper ───────────────────────────────────────
 
-function FadeUp({
+const FadeUp = memo(function FadeUp({
   children,
   delay = 0,
   className,
@@ -35,11 +36,11 @@ function FadeUp({
       {children}
     </motion.div>
   );
-}
+});
 
 // ── Word-by-word headline reveal ─────────────────────────────────────────────
 
-function WordByWord({ text, className }: { text: string; className?: string }) {
+const WordByWord = memo(function WordByWord({ text, className }: { text: string; className?: string }) {
   const reduced = useReducedMotion();
   if (reduced) return <span className={className}>{text.replace(/\n/g, ' ')}</span>;
 
@@ -66,11 +67,11 @@ function WordByWord({ text, className }: { text: string; className?: string }) {
       })}
     </span>
   );
-}
+});
 
 // ── Hover-beam card ─────────────────────────────────────────────────────────
 
-function BeamCard({
+const BeamCard = memo(function BeamCard({
   children,
   className,
   delay = 0,
@@ -107,7 +108,7 @@ function BeamCard({
       {children}
     </motion.div>
   );
-}
+});
 
 // ── Page ─────────────────────────────────────────────────────────────────────
 

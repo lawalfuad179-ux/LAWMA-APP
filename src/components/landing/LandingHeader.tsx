@@ -6,8 +6,8 @@ export function LandingHeader() {
   return (
     <header className={styles.header}>
       <Link href="/" className={styles.logoLink}>
-        <Image src="/logo-light.png" alt="LAWMA" width={100} height={24} className={styles.logoLight} style={{ width: 'auto', height: 24 }} />
-        <Image src="/logo-dark.png"  alt="LAWMA" width={100} height={24} className={styles.logoDark} style={{ width: 'auto', height: 24 }} />
+        <Image src="/logo-light.png" alt="LAWMA" width={100} height={24} className={styles.logoLight} style={{ width: 'auto', height: 'auto' }} />
+         <Image src="/logo-dark.png"  alt="LAWMA" width={100} height={24} className={styles.logoDark} style={{ width: 'auto', height: 'auto' }} />
       </Link>
       <nav className={styles.nav}>
         <Link href="/login?mode=signup" className={styles.btnPrimary}>Get started</Link>
