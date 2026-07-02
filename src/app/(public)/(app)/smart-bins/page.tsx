@@ -2,11 +2,16 @@
 
 import { Suspense, useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ShoppingBag, Truck, CreditCard, MapPin, Package, AlertCircle, CheckCircle2, XCircle } from 'lucide-react';
+import { ShoppingBag, Truck, CreditCard, MapPin, Package, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { AddressInput } from '@/components/ui/AddressInput';
 import { Select } from '@/components/ui/Select';
 import { Card } from '@/components/ui/Card';
+import { LottiePlayer } from '@/components/ui/LottiePlayer';
+import paymentSuccessData from '@/../public/animations/payment-success.json';
+import paymentSuccessPulseData from '@/../public/animations/payment-success-pulse.json';
+import paymentFailedData from '@/../public/animations/payment-failed.json';
 import styles from './page.module.css';
 
 const BIN_TYPES = [
@@ -56,6 +61,7 @@ function BinVerifyContent() {
   const [open, setOpen] = useState(false);
   const [status, setStatus] = useState<VerifyStatus>('verifying');
   const [order, setOrder] = useState<OrderDetails | null>(null);
+  const [entranceDone, setEntranceDone] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const retriesRef = useRef(0);
   const MAX_RETRIES = 10;
@@ -103,6 +109,7 @@ function BinVerifyContent() {
     setOpen(true);
     setStatus('verifying');
     setOrder(null);
+    setEntranceDone(false);
     retriesRef.current = 0;
     checkStatus();
     return () => { if (timerRef.current) clearTimeout(timerRef.current); };
@@ -136,9 +143,24 @@ function BinVerifyContent() {
 
           {status === 'success' && order && (
             <>
-              <div className={styles.successIcon}>
-                <CheckCircle2 size={56} strokeWidth={1.5} color="var(--color-primary)" />
-              </div>
+              {!entranceDone ? (
+                <LottiePlayer
+                  key="entrance"
+                  animationData={paymentSuccessData}
+                  loop={false}
+                  autoplay
+                  style={{ width: 160, height: 160 }}
+                  onComplete={() => setEntranceDone(true)}
+                />
+              ) : (
+                <LottiePlayer
+                  key="pulse"
+                  animationData={paymentSuccessPulseData}
+                  loop
+                  autoplay
+                  style={{ width: 160, height: 160 }}
+                />
+              )}
               <h2 className={styles.sheetTitle}>Order Confirmed!</h2>
               <p className={styles.sheetSubtitle}>
                 ₦{order.amountNaira.toLocaleString('en-NG')} paid — {order.quantity} {order.binLabel} bin{order.quantity !== 1 ? 's' : ''} on the way.
@@ -162,9 +184,12 @@ function BinVerifyContent() {
 
           {status === 'failed' && (
             <>
-              <div className={styles.failedIcon}>
-                <XCircle size={56} strokeWidth={1.5} color="var(--color-error)" />
-              </div>
+              <LottiePlayer
+                animationData={paymentFailedData}
+                loop={false}
+                autoplay
+                style={{ width: 160, height: 160 }}
+              />
               <h2 className={styles.sheetTitle}>Payment Not Confirmed</h2>
               <p className={styles.sheetSubtitle}>
                 We couldn&apos;t verify your payment. If money left your account, it will be reversed automatically within 3–5 business days.
@@ -213,9 +238,7 @@ export default function SmartBinsPage() {
     fetch('/api/profile/me')
       .then((r) => r.json())
       .then((d) => {
-        if (d.ok && d.data) {
-          if (d.data.address) setAddress(d.data.address);
-        }
+        if (d.ok && d.address) setAddress(d.address);
       })
       .catch(() => {})
       .finally(() => setPrefilling(false));
@@ -293,11 +316,11 @@ export default function SmartBinsPage() {
                   onChange={(e) => setQuantity(e.target.value)}
                 />
 
-                <Input
+                <AddressInput
                   label="Delivery address"
                   placeholder="Your full street address"
                   value={prefilling ? 'Loading…' : address}
-                  onChange={(e) => setAddress(e.target.value)}
+                  onChange={setAddress}
                   icon={<MapPin size={16} strokeWidth={1.5} />}
                   helpText="Prefilled from your profile. Edit if different."
                   disabled={prefilling}
@@ -323,12 +346,6 @@ export default function SmartBinsPage() {
                   Payment processed securely via Flutterwave. LAWMA may integrate additional payment methods in future.
                 </p>
               </form>
-            </Card>
-
-            <Card className={styles.infoCard}>
-              <p className={styles.infoText}>
-                <strong>For Lagos State tenements only.</strong> Bins include a geotagging feature for easier collection tracking. Delivery is to your registered address. Contact LAWMA at <a href="tel:08130358535" className={styles.infoLink}>0813-035-8535</a> for order support.
-              </p>
             </Card>
           </div>
 
@@ -360,6 +377,12 @@ export default function SmartBinsPage() {
             </div>
           </div>
         </div>
+
+        <Card className={styles.infoCard}>
+          <p className={styles.infoText}>
+            <strong>For Lagos State tenements only.</strong> Bins include a geotagging feature for easier collection tracking. Delivery is to your registered address. Contact LAWMA at <a href="tel:08130358535" className={styles.infoLink}>0813-035-8535</a> for order support.
+          </p>
+        </Card>
       </div>
     </>
   );

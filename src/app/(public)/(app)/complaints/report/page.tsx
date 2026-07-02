@@ -1,25 +1,33 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { ImagePlus, X } from 'lucide-react';
+import Link from 'next/link';
+import { ImagePlus, X, MapPinOff, ArrowLeft } from 'lucide-react';
+import { GoogleMap, Marker } from '@react-google-maps/api';
 
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { AddressInput } from '@/components/ui/AddressInput';
 import { Select } from '@/components/ui/Select';
 import { COMPLAINT_ISSUE_TYPES } from '@/constants';
 import { validateDescription } from '@/lib/validators/validation';
+import { useGoogleMapsLoader, LAGOS_CENTER } from '@/lib/mapsLoader';
 import styles from './page.module.css';
 
 type Preview = { file: File; objectUrl: string };
+type Coords = { lat: number; lng: number };
 
 export default function ReportComplaintPage() {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { isLoaded: mapsLoaded, loadError: mapsLoadError } = useGoogleMapsLoader();
+  const geocoderRef = useRef<google.maps.Geocoder | null>(null);
 
   const [issueType, setIssueType] = useState('');
   const [area, setArea] = useState('');
   const [address, setAddress] = useState('');
+  const [coords, setCoords] = useState<Coords | null>(null);
   const [description, setDescription] = useState('');
   const [previews, setPreviews] = useState<Preview[]>([]);
   const [loading, setLoading] = useState(false);
@@ -29,6 +37,45 @@ export default function ReportComplaintPage() {
   const [descError, setDescError] = useState('');
 
   const issueOptions = COMPLAINT_ISSUE_TYPES.map((t) => ({ value: t.value, label: t.label }));
+
+  useEffect(() => {
+    if (mapsLoaded && window.google) {
+      geocoderRef.current = new google.maps.Geocoder();
+    }
+  }, [mapsLoaded]);
+
+  // Happy path: silently prefill the map with the resident's current location on load.
+  // Edge case: permission denied/unavailable — map just falls back to the Lagos center pin
+  // below, and the resident can still search or drag the pin manually.
+  useEffect(() => {
+    if (!navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+      },
+      () => {
+        // silent — resident can still set location via search or by dragging the pin
+      },
+      { timeout: 8000 }
+    );
+  }, []);
+
+  const reverseGeocode = useCallback((next: Coords) => {
+    setCoords(next);
+    if (!geocoderRef.current) return;
+    geocoderRef.current.geocode({ location: next }, (results, status) => {
+      // Edge case: geocoder returns no results (e.g. pin dropped over water/empty land) —
+      // keep the existing typed address rather than overwriting it with nothing useful.
+      if (status === 'OK' && results?.[0]) {
+        setAddress(results[0].formatted_address);
+      }
+    });
+  }, []);
+
+  function handleMarkerDragEnd(e: google.maps.MapMouseEvent) {
+    if (!e.latLng) return;
+    reverseGeocode({ lat: e.latLng.lat(), lng: e.latLng.lng() });
+  }
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files || []);
@@ -62,17 +109,11 @@ export default function ReportComplaintPage() {
 
     setLoading(true);
 
-    let lat: number | undefined;
-    let lng: number | undefined;
-    try {
-      const pos = await new Promise<GeolocationPosition>((resolve, reject) =>
-        navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000 })
-      );
-      lat = pos.coords.latitude;
-      lng = pos.coords.longitude;
-    } catch {
-      // GPS unavailable — proceed without coordinates
-    }
+    // Edge case: resident never granted location and never touched the map/search —
+    // coords stays null and the report still submits fine, matching prior behavior
+    // where coordinates were always optional.
+    const lat = coords?.lat;
+    const lng = coords?.lng;
 
     // Upload photos first
     const imageUrls: string[] = [];
@@ -126,6 +167,10 @@ export default function ReportComplaintPage() {
   return (
     <div className={styles.page}>
       <div className={styles.pageHeader}>
+        <Link href="/complaints" className={styles.backBtn}>
+          <ArrowLeft size={18} strokeWidth={1.5} />
+          <span>Back</span>
+        </Link>
         <h1 className={styles.title}>Report an Issue</h1>
         <p className={styles.subtitle}>Describe the problem and we&apos;ll get it sorted.</p>
       </div>
@@ -147,18 +192,56 @@ export default function ReportComplaintPage() {
           onChange={(e) => setArea(e.target.value)}
         />
 
-        <Input
+        <AddressInput
           label="Address"
           placeholder="Street address or landmark"
           value={address}
-          onChange={(e) => setAddress(e.target.value)}
+          onChange={setAddress}
+          onLocationSelect={setCoords}
         />
+
+        <div className={styles.mapField}>
+          {mapsLoadError ? (
+            <div className={styles.mapFallback}>
+              <MapPinOff size={18} strokeWidth={1.5} />
+              &nbsp;Map preview unavailable — you can still type your address above.
+            </div>
+          ) : mapsLoaded ? (
+            <>
+              <div className={styles.mapWrap}>
+                <GoogleMap
+                  mapContainerStyle={{ width: '100%', height: '100%' }}
+                  center={coords ?? LAGOS_CENTER}
+                  zoom={coords ? 16 : 11}
+                  options={{
+                    disableDefaultUI: true,
+                    zoomControl: true,
+                    gestureHandling: 'greedy',
+                  }}
+                >
+                  <Marker
+                    position={coords ?? LAGOS_CENTER}
+                    draggable
+                    onDragEnd={handleMarkerDragEnd}
+                  />
+                </GoogleMap>
+              </div>
+              <p className={styles.mapHint}>
+                {coords
+                  ? 'Drag the pin if this isn’t quite right.'
+                  : 'Search an address above or drag the pin to set your location.'}
+              </p>
+            </>
+          ) : (
+            <div className={styles.mapFallback}>Loading map…</div>
+          )}
+        </div>
 
         <div className={styles.field}>
           <label className={styles.textareaLabel}>Description (optional)</label>
           <textarea
             className={`${styles.textarea} ${descError ? styles.textareaError : ''}`}
-            placeholder="Describe the issue in more detail\u2026"
+            placeholder="Describe the issue in more detail…"
             value={description}
             onChange={(e) => {
               const val = e.target.value.slice(0, 500);

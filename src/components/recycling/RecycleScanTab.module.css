@@ -27,6 +27,7 @@
   transition: border-color 0.2s, background 0.2s;
   width: 100%;
   max-width: 320px;
+  margin-top: 12px;
 }
 
 .uploadArea:hover {
@@ -64,6 +65,7 @@
   gap: 12px;
   width: 100%;
   max-width: 320px;
+  margin-top: 12px;
 }
 
 /* Take Photo button — custom round-ish pill with 12px icon-to-text gap */

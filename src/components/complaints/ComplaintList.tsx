@@ -20,10 +20,9 @@ type ComplaintData = {
 
 type Props = {
   complaints: ComplaintData[];
-  onNewReport: () => void;
 };
 
-export function ComplaintList({ complaints: initial, onNewReport }: Props) {
+export function ComplaintList({ complaints: initial }: Props) {
   const [complaints, setComplaints] = useState(initial);
   const reduced = useReducedMotion();
 
@@ -44,10 +43,10 @@ export function ComplaintList({ complaints: initial, onNewReport }: Props) {
         <p className={styles.emptySubtext}>
           Spotted an issue in your neighbourhood? File a report and we&apos;ll get it sorted.
         </p>
-        <button onClick={onNewReport} className={styles.emptyAction}>
+        <Link href="/complaints/report" className={styles.emptyAction}>
           <Plus size={20} strokeWidth={2.5} />
           File a report
-        </button>
+        </Link>
       </div>
     );
   }

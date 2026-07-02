@@ -7,6 +7,7 @@ import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { DAYS_OF_WEEK, COLLECTION_STATUS_LABELS, type LagosLga } from '@/constants';
 import { PspContactCard } from '@/components/schedules/PspContactCard';
+import { TrackPickupMap } from '@/components/schedules/TrackPickupMap';
 import { Reveal } from '@/components/ui/Reveal';
 import styles from './page.module.css';
 
@@ -124,17 +125,25 @@ export default async function SchedulesPage() {
                       variant="success"
                     />
                   </div>
-                  <span className={styles.todayTime}>{s.windowStart} – {s.windowEnd}</span>
-                  <div className={styles.metaRow}>
-                    <Truck size={14} strokeWidth={1.5} />
-                    <span>{s.pspOperator.name}</span>
-                  </div>
                   {s.status === 'DELAYED' && s.delayReason ? (
                     <div className={styles.delayBanner}>
                       <Clock size={14} strokeWidth={1.5} />
                       {s.delayReason}
                     </div>
                   ) : null}
+                  <TrackPickupMap
+                    pspName={s.pspOperator.name}
+                    windowStart={s.windowStart}
+                    windowEnd={s.windowEnd}
+                  >
+                    <div className={styles.todayMeta}>
+                      <span className={styles.todayTime}>{s.windowStart} – {s.windowEnd}</span>
+                      <div className={styles.metaRow}>
+                        <Truck size={14} strokeWidth={1.5} />
+                        <span>{s.pspOperator.name}</span>
+                      </div>
+                    </div>
+                  </TrackPickupMap>
                 </Card>
               ))}
             </section>

@@ -13,6 +13,8 @@ const setupSchema = z.object({
   address: z.string().min(5, 'Address must be at least 5 characters.').max(200),
   email: z.string().email('Invalid email address.').optional().or(z.literal('')),
   phoneNumber: z.string().min(10, 'Enter a valid Nigerian phone number.').optional().or(z.literal('')),
+  latitude: z.coerce.number().optional(),
+  longitude: z.coerce.number().optional(),
 });
 
 type ActionResult =
@@ -36,13 +38,15 @@ export async function completeOnboarding(formData: FormData): Promise<ActionResu
       return { ok: false, error: { code: 'invalid_input', message: 'Please check your entries.', fieldErrors } };
     }
 
-    const updateData: Record<string, string> = {
+    const updateData: Record<string, string | number> = {
       address: parsed.data.address,
     };
     if (parsed.data.name) updateData.name = parsed.data.name;
     if (parsed.data.lga) updateData.lga = parsed.data.lga;
     if (parsed.data.email) updateData.email = parsed.data.email;
     if (parsed.data.phoneNumber) updateData.phoneNumber = parsed.data.phoneNumber;
+    if (parsed.data.latitude !== undefined) updateData.latitude = parsed.data.latitude;
+    if (parsed.data.longitude !== undefined) updateData.longitude = parsed.data.longitude;
 
     await db.resident.update({
       where: { id: session.residentId },

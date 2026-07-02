@@ -215,7 +215,7 @@
 @media (min-width: 860px) {
   .splitLayout {
     flex-direction: row;
-    align-items: flex-start;
+    align-items: stretch;
     gap: 28px;
   }
 }
@@ -230,20 +230,22 @@
 
 .splitRight {
   width: 100%;
+  display: flex;
 }
 
 @media (min-width: 860px) {
   .splitRight {
     width: 300px;
     flex-shrink: 0;
-    position: sticky;
-    top: 24px;
   }
 }
 
 /* ── Bin preview card ── */
 
 .previewCard {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
   background: var(--color-surface-container-low);
   border: 1px solid var(--color-outline-variant);
   border-radius: 16px;

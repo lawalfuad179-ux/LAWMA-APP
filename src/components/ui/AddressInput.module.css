@@ -1,0 +1,92 @@
+.wrap {
+  position: relative;
+}
+
+.inputRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.inputGrow {
+  flex: 1;
+  min-width: 0;
+}
+
+.locateBtn {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  /* Matches the label's line-height (21px) + the 4px gap above the input box in
+     Input.module.css, so this stays aligned with the input regardless of whether
+     helpText/error text below it changes the column's total height. */
+  margin-top: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid var(--color-outline-variant);
+  border-radius: 10px;
+  background: var(--color-surface);
+  color: var(--color-primary);
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.locateBtn:hover:not(:disabled) {
+  border-color: var(--color-primary);
+  background: hsla(24, 98%, 50%, 0.06);
+}
+
+.locateBtn:disabled {
+  color: var(--color-outline);
+  cursor: not-allowed;
+}
+
+.spin {
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.locateError {
+  margin-top: 4px;
+  font-size: var(--body-small-font-size);
+  color: var(--color-error);
+}
+
+.suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 56px;
+  margin-top: 4px;
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-outline-variant);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  list-style: none;
+  z-index: 20;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.suggestionItem {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 10px 14px;
+  background: none;
+  border: none;
+  font-size: var(--body-large-font-size);
+  color: var(--color-on-surface);
+  border-bottom: 1px solid var(--color-outline-variant);
+}
+
+.suggestionItem:last-child {
+  border-bottom: none;
+}
+
+.suggestionItem:hover {
+  background: hsla(24, 98%, 50%, 0.06);
+}

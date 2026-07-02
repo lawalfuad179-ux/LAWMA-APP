@@ -4,8 +4,8 @@
   align-items: center;
   gap: 6px;
   padding: 28px 24px;
-  background: hsl(24, 98%, 97%);
-  border-color: transparent !important;
+  background: var(--color-primary-container);
+  border: 1px solid var(--color-outline-variant) !important;
   border-radius: 18px !important;
   box-shadow: 0 4px 20px hsla(24, 98%, 50%, 0.14);
 }
@@ -15,7 +15,8 @@
   font-weight: 700;
   letter-spacing: 1px;
   text-transform: uppercase;
-  color: var(--color-text-secondary);
+  color: var(--color-on-primary-container);
+  opacity: 0.75;
 }
 
 .amountRow {

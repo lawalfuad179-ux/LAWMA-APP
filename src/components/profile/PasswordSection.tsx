@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { Lock } from 'lucide-react';
 
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
@@ -12,9 +11,10 @@ import styles from './PasswordSection.module.css';
 
 type Props = {
   hasPassword: boolean;
+  onSuccess?: () => void;
 };
 
-export function PasswordSection({ hasPassword: initialHasPassword }: Props) {
+export function PasswordSection({ hasPassword: initialHasPassword, onSuccess }: Props) {
   const toast = useToast();
   const [hasPassword, setHasPassword] = useState(initialHasPassword);
   const [currentPassword, setCurrentPassword] = useState('');
@@ -83,6 +83,7 @@ export function PasswordSection({ hasPassword: initialHasPassword }: Props) {
       );
       if (!hasPassword) setHasPassword(true);
       reset();
+      onSuccess?.();
     } catch {
       toast('Network error. Please try again.', 'error');
     } finally {
@@ -92,10 +93,6 @@ export function PasswordSection({ hasPassword: initialHasPassword }: Props) {
 
   return (
     <form onSubmit={handleSubmit} className={styles.form}>
-      <div className={styles.heading}>
-        <Lock size={15} strokeWidth={1.5} />
-        <span>{hasPassword ? 'Change Password' : 'Create a Password'}</span>
-      </div>
       <p className={styles.description}>
         {hasPassword
           ? 'Update your password to keep your account secure.'

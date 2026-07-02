@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { Truck, Bell, CreditCard, FileText, ChevronRight, Settings, Lock, BadgeCheck, MessageCircle } from 'lucide-react';
+import { Truck, Bell, CreditCard, FileText, ChevronRight, Settings, BadgeCheck, MessageCircle } from 'lucide-react';
 
 import { getSession } from '@/lib/auth';
 import { db } from '@/lib/db';
@@ -8,7 +8,7 @@ import { Card } from '@/components/ui/Card';
 import { Reveal } from '@/components/ui/Reveal';
 import { ProfileEditForm } from '@/components/profile/ProfileEditForm';
 import { AvatarUpload } from '@/components/profile/AvatarUpload';
-import { PasswordSection } from '@/components/profile/PasswordSection';
+import { PasswordQuickAccess } from '@/components/profile/PasswordQuickAccess';
 import styles from './page.module.css';
 
 function Badge({ label, variant }: { label: string; variant: 'green' | 'orange' | 'blue' }) {
@@ -139,6 +139,7 @@ export default async function ProfilePage() {
             label="Collection Schedule"
             description="Your next pickup time and PSP info"
           />
+          <PasswordQuickAccess hasPassword={!!resident.passwordHash} />
         </Card>
       </div>
 
@@ -184,17 +185,6 @@ export default async function ProfilePage() {
           </Card>
         </div>
       )}
-
-      {/* ── Security ── */}
-      <div className={styles.section}>
-        <div className={styles.sectionHeader}>
-          <Lock size={15} strokeWidth={1.5} />
-          <span className={styles.sectionTitle}>Security</span>
-        </div>
-        <Card className={styles.card}>
-          <PasswordSection hasPassword={!!resident.passwordHash} />
-        </Card>
-      </div>
 
       {/* ── Settings ── */}
       <div className={styles.section}>

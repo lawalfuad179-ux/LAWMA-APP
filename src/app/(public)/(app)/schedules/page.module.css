@@ -109,6 +109,12 @@
   border-radius: 100px;
 }
 
+.todayMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
 .todayTime {
   font-size: var(--headline-small-font-size);
   font-weight: 700;

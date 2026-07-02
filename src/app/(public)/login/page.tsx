@@ -8,6 +8,7 @@ import { ArrowLeft, Mail, Phone, Lock, Hash, User, MapPin, Check } from 'lucide-
 import { AuroraBackground } from '@/components/ui/AuroraBackground';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { AddressInput } from '@/components/ui/AddressInput';
 import { Select } from '@/components/ui/Select';
 import { LAGOS_LGAS } from '@/constants';
 import { validateEmailOrPhone, validateEmail, passwordRules, getPasswordErrors, type FieldErrors } from '@/lib/validators/validation';
@@ -41,6 +42,7 @@ function AuthContent() {
   const [name, setName] = useState('');
   const [lga, setLga] = useState('');
   const [address, setAddress] = useState('');
+  const [addressCoords, setAddressCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [resetSent, setResetSent] = useState(false);
@@ -300,6 +302,10 @@ function AuthContent() {
     formData.set('name', name);
     formData.set('lga', lga);
     formData.set('address', address);
+    if (addressCoords) {
+      formData.set('latitude', String(addressCoords.lat));
+      formData.set('longitude', String(addressCoords.lng));
+    }
 
     try {
       const result = await completeOnboarding(formData);
@@ -569,11 +575,12 @@ function AuthContent() {
               value={lga}
               onChange={(e) => setLga(e.target.value)}
             />
-            <Input
+            <AddressInput
               label="Street Address"
               placeholder="Your home or estate address"
               value={address}
-              onChange={(e) => setAddress(e.target.value)}
+              onChange={setAddress}
+              onLocationSelect={setAddressCoords}
               error={error}
               icon={<MapPin size={16} strokeWidth={1.5} />}
               autoComplete="street-address"

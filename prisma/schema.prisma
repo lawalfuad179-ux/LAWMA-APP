@@ -70,6 +70,8 @@ model Resident {
   name                   String?       @map("name")
   address                String?       @map("address")
   lga                    String?       @map("lga")
+  latitude               Float?        @map("latitude")
+  longitude              Float?        @map("longitude")
   passwordHash           String?       @map("password_hash")
   avatarUrl             String?       @map("avatar_url")
   onboardingVersion      Int           @default(0) @map("onboarding_version")

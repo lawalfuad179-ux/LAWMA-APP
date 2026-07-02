@@ -7,6 +7,7 @@ import { User, MapPin, Home, ChevronLeft, Mail } from 'lucide-react';
 import { AuroraBackground } from '@/components/ui/AuroraBackground';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { AddressInput } from '@/components/ui/AddressInput';
 import { Select } from '@/components/ui/Select';
 import { LAGOS_LGAS } from '@/constants';
 import { completeOnboarding } from './actions';
@@ -130,6 +131,7 @@ function OnboardingContent() {
   const [name, setName] = useState('');
   const [lga, setLga] = useState('');
   const [address, setAddress] = useState('');
+  const [addressCoords, setAddressCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [contactEmail, setContactEmail] = useState('');
   const [errors, setErrors] = useState<Record<string, string | undefined>>({});
   const [serverError, setServerError] = useState('');
@@ -168,6 +170,13 @@ function OnboardingContent() {
     const formData = new FormData();
     formData.set('address', address.trim());
     formData.set('lga', lga);
+    // Edge case: resident typed a free-text address without selecting a suggestion or
+    // using "current location" — addressCoords stays null and we simply skip these
+    // fields, matching how email/phoneNumber are already conditionally appended below.
+    if (addressCoords) {
+      formData.set('latitude', String(addressCoords.lat));
+      formData.set('longitude', String(addressCoords.lng));
+    }
 
     if (method === 'phone' && contactEmail.trim()) {
       formData.set('email', contactEmail.trim().toLowerCase());
@@ -299,6 +308,7 @@ function OnboardingContent() {
                   onChange={(e) => {
                     setLga(e.target.value);
                     setAddress('');
+                    setAddressCoords(null);
                     if (errors.lga) setErrors((prev) => ({ ...prev, lga: undefined }));
                   }}
                   error={errors.lga}
@@ -306,14 +316,15 @@ function OnboardingContent() {
                 />
                 {lga && (
                   <>
-                    <Input
+                    <AddressInput
                       label="Street Address"
                       placeholder={`e.g. Bode Thomas Street, ${lga}`}
                       value={address}
-                      onChange={(e) => {
-                        setAddress(e.target.value);
+                      onChange={(val) => {
+                        setAddress(val);
                         if (errors.address) setErrors((prev) => ({ ...prev, address: undefined }));
                       }}
+                      onLocationSelect={setAddressCoords}
                       error={errors.address}
                       icon={<Home size={16} strokeWidth={1.5} />}
                       autoComplete="street-address"

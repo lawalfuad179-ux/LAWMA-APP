@@ -1,10 +1,8 @@
 'use client';
 
-import { useState } from 'react';
-import { AnimatePresence } from 'framer-motion';
+import Link from 'next/link';
 import { Plus } from 'lucide-react';
 import { ComplaintList } from './ComplaintList';
-import { ReportFormModal } from './ReportFormModal';
 import styles from '../complaints/ComplaintsPageClient.module.css';
 
 type ComplaintData = {
@@ -16,25 +14,17 @@ type Props = {
 };
 
 export function ComplaintsPageClient({ complaints }: Props) {
-  const [showModal, setShowModal] = useState(false);
-
   return (
     <>
       <div className={styles.header}>
         <h1 className={styles.title}>Reports</h1>
-        <button className={styles.newReportBtn} onClick={() => setShowModal(true)} type="button">
+        <Link href="/complaints/report" className={styles.newReportBtn}>
           <Plus size={20} strokeWidth={2.5} />
           File a report
-        </button>
+        </Link>
       </div>
 
-      <ComplaintList complaints={complaints} onNewReport={() => setShowModal(true)} />
-
-      <AnimatePresence>
-        {showModal && (
-          <ReportFormModal onClose={() => setShowModal(false)} />
-        )}
-      </AnimatePresence>
+      <ComplaintList complaints={complaints} />
     </>
   );
 }

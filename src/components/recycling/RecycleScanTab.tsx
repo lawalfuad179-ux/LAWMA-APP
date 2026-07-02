@@ -157,6 +157,23 @@ export function RecycleScanTab() {
       }
 
       setPhase({ kind: 'report', imageUrl: json.data.imageUrl, report: json.data.report });
+
+      // Persist the scan so it shows up in history. Best-effort: a guard
+      // rejection (cooldown/duplicate) or network hiccup here shouldn't take
+      // away the analysis the resident already got back.
+      try {
+        await fetch('/api/recycle/confirm', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            imageUrl: json.data.imageUrl,
+            imageHash: json.data.imageHash,
+            report: json.data.report,
+          }),
+        });
+      } catch {
+        // silent — history just won't show this one
+      }
     } catch {
       setNetworkError(true);
       setPhase({ kind: 'idle' });
