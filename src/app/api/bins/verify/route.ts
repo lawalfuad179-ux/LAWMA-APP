@@ -1,7 +1,41 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import { getSession } from '@/lib/auth';
+import { db } from '@/lib/db';
 import { logger } from '@/lib/logger';
+
+const BIN_PRICE_KOBO = 1_000_000; // ₦10,000 — mirrors bins/order/route.ts
+
+async function persistOrder(params: {
+  residentId: string;
+  txRef: string;
+  binType: string;
+  binLabel: string;
+  quantity: number;
+  amountKobo: number;
+  deliveryAddress: string;
+}) {
+  // Idempotent: the client polls this endpoint on the redirect page, so the
+  // same successful verification can arrive more than once.
+  try {
+    await db.binOrder.upsert({
+      where: { txRef: params.txRef },
+      update: {},
+      create: {
+        residentId: params.residentId,
+        txRef: params.txRef,
+        binType: params.binType,
+        binLabel: params.binLabel,
+        quantity: params.quantity,
+        amountKobo: params.amountKobo,
+        deliveryAddress: params.deliveryAddress,
+        status: 'SUCCESSFUL',
+      },
+    });
+  } catch (err) {
+    logger.error('bins.verify.persist_failed', { txRef: params.txRef, error: String(err) });
+  }
+}
 
 type BinVerifySuccess = {
   status: 'SUCCESSFUL';
@@ -74,19 +108,46 @@ export async function GET(req: NextRequest) {
 
       logger.info('bins.verify.successful', { txRef, transactionId });
 
+      const binType = meta.bin_type || 'green';
+      const binLabel = meta.bin_label || 'Smart Bin';
+      const quantity = parseInt(meta.quantity || '1', 10);
+      const amountNaira = txData.amount as number;
+      const deliveryAddress = meta.delivery_address || '';
+
+      await persistOrder({
+        residentId: session.residentId,
+        txRef,
+        binType,
+        binLabel,
+        quantity,
+        amountKobo: Math.round(amountNaira * 100),
+        deliveryAddress,
+      });
+
       return NextResponse.json<BinVerifySuccess>({
         status: 'SUCCESSFUL',
-        binType: meta.bin_type || 'green',
-        binLabel: meta.bin_label || 'Smart Bin',
-        quantity: parseInt(meta.quantity || '1', 10),
-        amountNaira: txData.amount as number,
-        deliveryAddress: meta.delivery_address || '',
+        binType,
+        binLabel,
+        quantity,
+        amountNaira,
+        deliveryAddress,
       });
     }
 
     // Dev-mode fallback: sandbox verify is unreliable; trust the redirect status param
     if (process.env.NODE_ENV === 'development' && urlStatus === 'successful') {
       logger.info('bins.verify.dev_auto_confirmed', { txRef });
+
+      await persistOrder({
+        residentId: session.residentId,
+        txRef,
+        binType: 'green',
+        binLabel: 'Keep Lagos Clean (Green)',
+        quantity: 1,
+        amountKobo: BIN_PRICE_KOBO,
+        deliveryAddress: '',
+      });
+
       return NextResponse.json<BinVerifySuccess>({
         status: 'SUCCESSFUL',
         binType: 'green',

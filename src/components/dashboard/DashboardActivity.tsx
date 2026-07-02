@@ -3,12 +3,18 @@ import { Clock, ArrowRight } from 'lucide-react';
 import styles from './DashboardActivity.module.css';
 
 type ActivityItem = {
-  kind: 'complaint' | 'payment';
+  kind: 'complaint' | 'payment' | 'bin_order';
   id: string;
   title: string;
   subtitle: string;
   status: string;
   date: Date;
+};
+
+const ACTIVITY_HREF: Record<ActivityItem['kind'], (id: string) => string> = {
+  complaint: (id) => `/complaints/${id}`,
+  payment: () => '/payments',
+  bin_order: () => '/smart-bins',
 };
 
 type Props = { activities: ActivityItem[] };
@@ -21,6 +27,12 @@ function statusClass(status: string): string {
 }
 
 export function DashboardActivity({ activities }: Props) {
+  // No single page lists every kind together, so "View all" follows
+  // whichever kind is most recent — each destination already has its own
+  // history section (Bill History, Smart Bins, My Reports).
+  const mostRecentKind = activities[0]?.kind ?? 'complaint';
+  const viewAllHref = mostRecentKind === 'complaint' ? '/complaints' : mostRecentKind === 'payment' ? '/payments' : '/smart-bins';
+
   return (
     <div>
       <div className={styles.header}>
@@ -28,9 +40,11 @@ export function DashboardActivity({ activities }: Props) {
           <Clock size={16} strokeWidth={1.5} />
           <span className={styles.title}>Recent Activity</span>
         </div>
-        <Link href="/complaints" className={styles.viewAll}>
-          View all <ArrowRight size={14} strokeWidth={1.5} />
-        </Link>
+        {activities.length > 0 && (
+          <Link href={viewAllHref} className={styles.viewAll}>
+            View all <ArrowRight size={14} strokeWidth={1.5} />
+          </Link>
+        )}
       </div>
 
       {activities.length === 0 ? (
@@ -40,7 +54,7 @@ export function DashboardActivity({ activities }: Props) {
           {activities.map((item) => (
             <Link
               key={item.id}
-              href={item.kind === 'complaint' ? `/complaints/${item.id}` : '/payments'}
+              href={ACTIVITY_HREF[item.kind](item.id)}
               className={styles.activityItem}
             >
               <div>

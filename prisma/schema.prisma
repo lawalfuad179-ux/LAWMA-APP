@@ -83,6 +83,7 @@ model Resident {
   complaints             Complaint[]
   bills                  Bill[]
   payments               Payment[]
+  binOrders              BinOrder[]
   notifications          Notification[]
   recycleActivities      RecycleActivity[]
   pointTransactions      PointTransaction[]
@@ -224,6 +225,24 @@ model Payment {
   @@index([residentId])
   @@index([residentId, status])
   @@map("payments")
+}
+
+model BinOrder {
+  id              String        @id @default(uuid())
+  residentId      String        @map("resident_id")
+  resident        Resident      @relation(fields: [residentId], references: [id], onDelete: Restrict)
+  binType         String        @map("bin_type")
+  binLabel        String        @map("bin_label")
+  quantity        Int           @map("quantity")
+  amountKobo      Int           @map("amount_kobo")
+  deliveryAddress String        @map("delivery_address")
+  status          PaymentStatus @default(PENDING) @map("status")
+  txRef           String        @unique @map("tx_ref")
+  createdAt       DateTime      @default(now()) @map("created_at")
+
+  @@index([txRef])
+  @@index([residentId])
+  @@map("bin_orders")
 }
 
 model Notification {

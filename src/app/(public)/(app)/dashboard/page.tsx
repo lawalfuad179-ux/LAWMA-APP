@@ -59,6 +59,7 @@ export default async function DashboardPage() {
     overdueBillsCount,
     recentComplaints,
     recentPayments,
+    recentBinOrders,
     unreadCount,
   ] = await Promise.all([
     resident.lga ? getNextSchedule(resident.lga) : null,
@@ -74,6 +75,11 @@ export default async function DashboardPage() {
       take: 5,
     }),
     db.payment.findMany({
+      where: { residentId: session.residentId },
+      orderBy: { createdAt: 'desc' },
+      take: 5,
+    }),
+    db.binOrder.findMany({
       where: { residentId: session.residentId },
       orderBy: { createdAt: 'desc' },
       take: 5,
@@ -101,6 +107,14 @@ export default async function DashboardPage() {
       subtitle: `${p.createdAt.toLocaleDateString('en-NG')} · ${formatKobo(p.amountKobo)}`,
       status: p.status === 'SUCCESSFUL' ? 'Confirmed' : (PAYMENT_STATUS_LABELS[p.status] || p.status),
       date: p.createdAt,
+    })),
+    ...recentBinOrders.map((o) => ({
+      kind: 'bin_order' as const,
+      id: o.id,
+      title: `${o.binLabel} ordered`,
+      subtitle: `${o.createdAt.toLocaleDateString('en-NG')} · ${o.quantity} bin${o.quantity !== 1 ? 's' : ''} · ${formatKobo(o.amountKobo)}`,
+      status: o.status === 'SUCCESSFUL' ? 'Confirmed' : (PAYMENT_STATUS_LABELS[o.status] || o.status),
+      date: o.createdAt,
     })),
   ].sort((a, b) => b.date.getTime() - a.date.getTime()).slice(0, 3);
 
