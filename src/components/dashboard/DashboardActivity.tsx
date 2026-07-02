@@ -27,12 +27,6 @@ function statusClass(status: string): string {
 }
 
 export function DashboardActivity({ activities }: Props) {
-  // No single page lists every kind together, so "View all" follows
-  // whichever kind is most recent — each destination already has its own
-  // history section (Bill History, Smart Bins, My Reports).
-  const mostRecentKind = activities[0]?.kind ?? 'complaint';
-  const viewAllHref = mostRecentKind === 'complaint' ? '/complaints' : mostRecentKind === 'payment' ? '/payments' : '/smart-bins';
-
   return (
     <div>
       <div className={styles.header}>
@@ -41,7 +35,7 @@ export function DashboardActivity({ activities }: Props) {
           <span className={styles.title}>Recent Activity</span>
         </div>
         {activities.length > 0 && (
-          <Link href={viewAllHref} className={styles.viewAll}>
+          <Link href="/activities" className={styles.viewAll}>
             View all <ArrowRight size={14} strokeWidth={1.5} />
           </Link>
         )}

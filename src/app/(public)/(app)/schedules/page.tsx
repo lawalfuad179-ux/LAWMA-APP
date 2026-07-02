@@ -73,7 +73,7 @@ export default async function SchedulesPage() {
         {resident.lga && <p className={styles.subtitle}>{resident.lga} · Lagos</p>}
       </div>
 
-      <Reveal delay={0.04}>
+      <Reveal delay={0.04} immediate>
         <PspContactCard
           lga={(resident.lga as LagosLga | null) || null}
         />

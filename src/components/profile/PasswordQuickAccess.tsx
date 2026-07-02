@@ -18,7 +18,11 @@ export function PasswordQuickAccess({ hasPassword }: Props) {
 
   return (
     <>
-      <button type="button" className={pageStyles.quickLink} onClick={() => setOpen(true)}>
+      <button
+        type="button"
+        className={`${styles.triggerBtn} ${pageStyles.quickLink}`}
+        onClick={() => setOpen(true)}
+      >
         <div className={pageStyles.quickLinkIcon}>
           <Lock size={18} strokeWidth={1.5} />
         </div>

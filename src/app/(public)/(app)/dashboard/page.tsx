@@ -146,7 +146,7 @@ export default async function DashboardPage() {
           </div>
         </Link>
         {/* Collection Schedule */}
-        <Reveal className={styles.dashboardSection} delay={0.04}>
+        <Reveal className={styles.dashboardSection} delay={0.04} immediate>
           <div className={styles.sectionHeader}>
             <div className={styles.sectionEyebrow}>
               <CalendarDays size={16} strokeWidth={1.5} />
@@ -218,7 +218,7 @@ export default async function DashboardPage() {
         </Reveal>
 
         {/* Recent Activity */}
-        <Reveal className={styles.dashboardSection} delay={0.1}>
+        <Reveal className={styles.dashboardSection} delay={0.1} immediate>
           <DashboardActivity activities={activities} />
         </Reveal>
 

@@ -50,7 +50,7 @@ export default async function PaymentsPage() {
       <PaymentVerifySheet />
       <h1 className={styles.title}>Payments</h1>
 
-      <Reveal delay={0.04}>
+      <Reveal delay={0.04} immediate>
         <BalanceCard
           totalKobo={totalOutstanding}
           pendingCount={pendingCount}

@@ -71,7 +71,7 @@ export default async function ProfilePage() {
   return (
     <div className={styles.page}>
       {/* ── Hero ── */}
-      <Reveal className={styles.hero} delay={0.04}>
+      <Reveal className={styles.hero} delay={0.04} immediate>
         <AvatarUpload name={resident.name || ''} avatarUrl={resident.avatarUrl} />
         <div className={styles.heroMeta}>
           <h1 className={styles.heroName}>
@@ -89,7 +89,7 @@ export default async function ProfilePage() {
       </Reveal>
 
       {/* ── Stats Row ── */}
-      <Reveal className={styles.statsRow} delay={0.1}>
+      <Reveal className={styles.statsRow} delay={0.1} immediate>
         <StatCard
           value={complaintCount}
           label="Reports"
