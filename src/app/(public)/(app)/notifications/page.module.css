@@ -18,10 +18,35 @@
   gap: 12px;
 }
 
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
 .title {
   font-size: var(--headline-small-font-size);
   font-weight: 700;
   letter-spacing: -0.3px;
   color: var(--color-on-surface);
   margin: 0;
+}
+
+.back {
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-surface-container-high);
+  border: 1px solid var(--color-outline-variant);
+  border-radius: 12px;
+  color: var(--color-on-surface-variant);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+
+.back:hover {
+  background: var(--color-surface-container-highest);
 }

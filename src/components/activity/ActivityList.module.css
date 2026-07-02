@@ -1,7 +1,4 @@
-/* Resets default <button> chrome (border, background, centered text) so it
-   matches the <Link>-based QuickLink rows it sits alongside — quickLink's
-   own styles were written assuming an anchor, which has none of that. */
-.triggerBtn {
+.itemBtn {
   appearance: none;
   background: none;
   border: none;
@@ -26,7 +23,7 @@
 .modal {
   z-index: 101;
   width: 100%;
-  max-width: 420px;
+  max-width: 440px;
   max-height: calc(100vh - 48px);
   overflow-y: auto;
   background: var(--color-surface);
@@ -63,10 +60,74 @@
   color: var(--color-on-surface-variant);
   font-size: var(--body-small-font-size);
   font-weight: 500;
+  cursor: pointer;
   transition: background 0.15s, color 0.15s;
 }
 
 .cancelBtn:hover {
   background: var(--color-surface-container-low);
   color: var(--color-on-surface);
+}
+
+.statusRow {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 16px;
+}
+
+.rows {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--color-outline-variant);
+  border-radius: 14px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--color-outline-variant);
+}
+
+.row:last-child {
+  border-bottom: none;
+}
+
+.rowLabel {
+  font-size: var(--body-small-font-size);
+  color: var(--color-on-surface-variant);
+  flex-shrink: 0;
+}
+
+.rowValue {
+  font-size: var(--body-medium-font-size);
+  font-weight: 600;
+  color: var(--color-on-surface);
+  text-align: right;
+}
+
+.downloadBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 48px;
+  border-radius: 12px;
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  font-size: var(--body-medium-font-size);
+  font-weight: 600;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.downloadBtn:hover {
+  opacity: 0.9;
 }

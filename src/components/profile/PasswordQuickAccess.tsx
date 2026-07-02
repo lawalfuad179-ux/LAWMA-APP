@@ -39,15 +39,14 @@ export function PasswordQuickAccess({ hasPassword }: Props) {
 
       <AnimatePresence>
         {open && (
-          <>
-            <motion.div
-              className={styles.backdrop}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.18 }}
-              onClick={() => setOpen(false)}
-            />
+          <motion.div
+            className={styles.backdrop}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.18 }}
+            onClick={() => setOpen(false)}
+          >
             <motion.div
               className={styles.modal}
               role="dialog"
@@ -57,6 +56,7 @@ export function PasswordQuickAccess({ hasPassword }: Props) {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: reduced ? 1 : 0.96 }}
               transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+              onClick={(e) => e.stopPropagation()}
             >
               <div className={styles.header}>
                 <div className={styles.headerTitle}>
@@ -75,7 +75,7 @@ export function PasswordQuickAccess({ hasPassword }: Props) {
               </div>
               <PasswordSection hasPassword={hasPassword} onSuccess={() => setOpen(false)} />
             </motion.div>
-          </>
+          </motion.div>
         )}
       </AnimatePresence>
     </>

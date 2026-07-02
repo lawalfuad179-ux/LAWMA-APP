@@ -7,6 +7,7 @@ import { db } from '@/lib/db';
 import { DashboardActivity } from '@/components/dashboard/DashboardActivity';
 import { ProfileCompletionCard } from '@/components/dashboard/ProfileCompletionCard';
 import { Reveal } from '@/components/ui/Reveal';
+import type { ActivityItem } from '@/components/activity/types';
 import { COMPLAINT_STATUS_LABELS, PAYMENT_STATUS_LABELS, RECYCLING_TIPS, DAYS_OF_WEEK, COLLECTION_STATUS_LABELS } from '@/constants';
 import styles from './page.module.css';
 
@@ -78,6 +79,7 @@ export default async function DashboardPage() {
       where: { residentId: session.residentId },
       orderBy: { createdAt: 'desc' },
       take: 5,
+      include: { bill: { select: { periodStart: true, periodEnd: true, discountKobo: true } } },
     }),
     db.binOrder.findMany({
       where: { residentId: session.residentId },
@@ -91,7 +93,7 @@ export default async function DashboardPage() {
 
   const nextSchedule = nextScheduleResult;
 
-  const activities = [
+  const activities: ActivityItem[] = [
     ...recentComplaints.map((c) => ({
       kind: 'complaint' as const,
       id: c.id,
@@ -99,6 +101,14 @@ export default async function DashboardPage() {
       subtitle: `${c.createdAt.toLocaleDateString('en-NG')} · ${c.address}`,
       status: COMPLAINT_STATUS_LABELS[c.status] || c.status,
       date: c.createdAt,
+      complaint: {
+        ticketId: c.ticketId,
+        issueType: c.issueType,
+        lga: c.lga,
+        area: c.area,
+        address: c.address,
+        description: c.description,
+      },
     })),
     ...recentPayments.map((p) => ({
       kind: 'payment' as const,
@@ -107,6 +117,17 @@ export default async function DashboardPage() {
       subtitle: `${p.createdAt.toLocaleDateString('en-NG')} · ${formatKobo(p.amountKobo)}`,
       status: p.status === 'SUCCESSFUL' ? 'Confirmed' : (PAYMENT_STATUS_LABELS[p.status] || p.status),
       date: p.createdAt,
+      payment: {
+        billId: p.billId,
+        amountKobo: p.amountKobo,
+        discountKobo: p.bill.discountKobo,
+        paidAt: p.paidAt,
+        periodStart: p.bill.periodStart,
+        periodEnd: p.bill.periodEnd,
+        receiptNumber: p.receiptNumber,
+        txRef: p.txRef,
+        rawStatus: p.status,
+      },
     })),
     ...recentBinOrders.map((o) => ({
       kind: 'bin_order' as const,
@@ -115,6 +136,15 @@ export default async function DashboardPage() {
       subtitle: `${o.createdAt.toLocaleDateString('en-NG')} · ${o.quantity} bin${o.quantity !== 1 ? 's' : ''} · ${formatKobo(o.amountKobo)}`,
       status: o.status === 'SUCCESSFUL' ? 'Confirmed' : (PAYMENT_STATUS_LABELS[o.status] || o.status),
       date: o.createdAt,
+      binOrder: {
+        binLabel: o.binLabel,
+        binType: o.binType,
+        quantity: o.quantity,
+        amountKobo: o.amountKobo,
+        deliveryAddress: o.deliveryAddress,
+        txRef: o.txRef,
+        rawStatus: o.status,
+      },
     })),
   ].sort((a, b) => b.date.getTime() - a.date.getTime()).slice(0, 3);
 

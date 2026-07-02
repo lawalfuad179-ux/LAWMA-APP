@@ -362,3 +362,13 @@
     grid-template-columns: 1fr;
   }
 }
+
+@media (min-width: 1024px) {
+  .pickupDay {
+    font-size: calc(var(--title-large-font-size) + 8px);
+  }
+
+  .pickupMeta {
+    margin-top: 20px;
+  }
+}
