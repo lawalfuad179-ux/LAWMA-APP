@@ -136,6 +136,15 @@
   font-size: var(--body-small-font-size);
   font-weight: 600;
   letter-spacing: 0.1px;
+  /* .sheetContent already applies a 14px flex gap above this — trim it
+     down to the 8px the design calls for between address and bin tag. */
+  margin-top: -6px;
+}
+
+.doneBtn {
+  /* Same trim as .binChip, applied to the gap between the bin tag and
+     the CTA below it. */
+  margin-top: -6px;
 }
 
 .failedActions {

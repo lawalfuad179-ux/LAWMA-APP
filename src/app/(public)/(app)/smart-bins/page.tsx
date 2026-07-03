@@ -178,7 +178,7 @@ function BinVerifyContent() {
               }}>
                 {order.binType === 'green' ? '● Green Bin' : '● Blue Bin'} · {order.binLabel}
               </div>
-              <Button size="lg" onClick={close}>Done</Button>
+              <Button size="lg" onClick={close} className={styles.doneBtn}>Done</Button>
             </>
           )}
 
