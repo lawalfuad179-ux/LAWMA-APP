@@ -16,8 +16,14 @@ async function persistOrder(params: {
   deliveryAddress: string;
 }) {
   // Idempotent: the client polls this endpoint on the redirect page, so the
-  // same successful verification can arrive more than once.
+  // same successful verification can arrive more than once. Only the first
+  // call actually inserts a row — the notification below should mirror that.
   try {
+    const existing = await db.binOrder.findUnique({
+      where: { txRef: params.txRef },
+      select: { id: true },
+    });
+
     await db.binOrder.upsert({
       where: { txRef: params.txRef },
       update: {},
@@ -32,6 +38,18 @@ async function persistOrder(params: {
         status: 'SUCCESSFUL',
       },
     });
+
+    if (!existing) {
+      await db.notification.create({
+        data: {
+          residentId: params.residentId,
+          type: 'PAYMENT_CONFIRMATION',
+          title: 'Bin Order Confirmed',
+          body: `Your order for ${params.quantity} ${params.binLabel} bin${params.quantity !== 1 ? 's' : ''} (₦${(params.amountKobo / 100).toLocaleString('en-NG')}) has been confirmed and is on its way.`,
+          referenceId: params.txRef,
+        },
+      }).catch(() => {});
+    }
   } catch (err) {
     logger.error('bins.verify.persist_failed', { txRef: params.txRef, error: String(err) });
   }

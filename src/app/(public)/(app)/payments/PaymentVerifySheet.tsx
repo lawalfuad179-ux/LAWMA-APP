@@ -124,7 +124,7 @@ function PaymentVerifyContent() {
                   loop={false}
                   autoplay
                   style={{ width: 160, height: 160 }}
-                  onComplete={() => setEntranceDone(true)}
+                  onComplete={() => requestAnimationFrame(() => setEntranceDone(true))}
                 />
               ) : (
                 <LottiePlayer
