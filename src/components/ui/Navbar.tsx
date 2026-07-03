@@ -9,7 +9,6 @@ import {
   CalendarDays,
   AlertCircle,
   CreditCard,
-  Bell,
   User,
   LogOut,
   ChevronLeft,
@@ -21,6 +20,8 @@ import {
 } from 'lucide-react';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { AiRecycleIcon } from '@/components/ui/icons/AiRecycleIcon';
+import FilledBellIcon from '@/components/icons/filled-bell-icon';
+import type { AnimatedIconHandle } from '@/components/icons/types';
 import styles from './Navbar.module.css';
 
 // Desktop sidebar nav items
@@ -93,6 +94,19 @@ export function Navbar() {
     window.addEventListener('notifications:unread-changed', onUnreadChanged);
     return () => window.removeEventListener('notifications:unread-changed', onUnreadChanged);
   }, []);
+
+  // Ring both bell instances (mobile topbar + desktop sheet) only when the
+  // count goes up — never on first mount, never when it drops from a read.
+  const mobileBellRef = useRef<AnimatedIconHandle>(null);
+  const sheetBellRef = useRef<AnimatedIconHandle>(null);
+  const prevUnreadCount = useRef<number | null>(null);
+  useEffect(() => {
+    if (prevUnreadCount.current !== null && unreadCount > prevUnreadCount.current) {
+      mobileBellRef.current?.startAnimation();
+      sheetBellRef.current?.startAnimation();
+    }
+    prevUnreadCount.current = unreadCount;
+  }, [unreadCount]);
 
   useEffect(() => {
     const stored = localStorage.getItem('lawma-sidebar');
@@ -292,7 +306,7 @@ export function Navbar() {
           <Image src="/logo-dark.png"  alt="LAWMA" width={90} height={22} className={styles.mobileLogoDark} style={{ width: 'auto', height: 'auto' }} />
         </Link>
         <Link href="/notifications" aria-label="Notifications" className={styles.mobileTopbarBell}>
-          <Bell size={22} strokeWidth={1.5} />
+          <FilledBellIcon ref={mobileBellRef} size={22} />
           {unreadCount > 0 && (
             <span className={styles.mobileTopbarBadge}>{unreadCount > 9 ? '9+' : unreadCount}</span>
           )}
@@ -360,7 +374,7 @@ export function Navbar() {
             <div className={styles.sheetBody}>
               <Link href="/notifications" className={styles.sheetItem}>
                 <span className={styles.sheetItemIcon}>
-                  <Bell size={20} strokeWidth={1.5} />
+                  <FilledBellIcon ref={sheetBellRef} size={20} />
                   {unreadCount > 0 && (
                     <span className={styles.badge}>{unreadCount > 9 ? '9+' : unreadCount}</span>
                   )}

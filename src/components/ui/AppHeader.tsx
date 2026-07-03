@@ -1,10 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Bell } from 'lucide-react';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
+import FilledBellIcon from '@/components/icons/filled-bell-icon';
+import type { AnimatedIconHandle } from '@/components/icons/types';
 import styles from './AppHeader.module.css';
 
 const PAGE_TITLES: Record<string, string> = {
@@ -20,6 +21,8 @@ const PAGE_TITLES: Record<string, string> = {
 export function AppHeader() {
   const pathname = usePathname();
   const [unreadCount, setUnreadCount] = useState(0);
+  const bellRef = useRef<AnimatedIconHandle>(null);
+  const prevUnreadCount = useRef<number | null>(null);
 
   useEffect(() => {
     fetch('/api/notifications/unread-count')
@@ -41,6 +44,15 @@ export function AppHeader() {
     return () => window.removeEventListener('notifications:unread-changed', onUnreadChanged);
   }, []);
 
+  // Ring the bell only when the count goes up (a new notification actually
+  // arrived) — never on first mount, and never when it drops from being read.
+  useEffect(() => {
+    if (prevUnreadCount.current !== null && unreadCount > prevUnreadCount.current) {
+      bellRef.current?.startAnimation();
+    }
+    prevUnreadCount.current = unreadCount;
+  }, [unreadCount]);
+
   const title = PAGE_TITLES[pathname] || 'LAWMA';
 
   return (
@@ -50,7 +62,7 @@ export function AppHeader() {
       </div>
       <div className={styles.actions}>
         <Link href="/notifications" className={styles.bellButton} aria-label="Notifications">
-          <Bell size={20} strokeWidth={1.5} />
+          <FilledBellIcon ref={bellRef} size={20} />
           {unreadCount > 0 && (
             <span className={styles.badge}>{unreadCount > 9 ? '9+' : unreadCount}</span>
           )}

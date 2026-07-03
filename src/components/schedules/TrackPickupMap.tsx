@@ -2,8 +2,10 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { GoogleMap, Marker, Polyline } from '@react-google-maps/api';
-import { Truck, ChevronDown, ChevronUp, Info } from 'lucide-react';
+import { ChevronDown, ChevronUp, Info } from 'lucide-react';
 import { useGoogleMapsLoader, LAGOS_CENTER } from '@/lib/mapsLoader';
+import TruckElectricIcon from '@/components/icons/truck-electric-icon';
+import type { AnimatedIconHandle } from '@/components/icons/types';
 import styles from './TrackPickupMap.module.css';
 
 type Props = {
@@ -36,6 +38,7 @@ export function TrackPickupMap({ pspName, windowStart, windowEnd, children }: Pr
   const [progress, setProgress] = useState(0);
   const startRef = useRef<number | null>(null);
   const frameRef = useRef<number | null>(null);
+  const truckIconRef = useRef<AnimatedIconHandle>(null);
 
   useEffect(() => {
     if (!expanded) {
@@ -73,13 +76,16 @@ export function TrackPickupMap({ pspName, windowStart, windowEnd, children }: Pr
           onClick={() =>
             setExpanded((v) => {
               const next = !v;
-              if (next) setHasOpened(true);
+              if (next) {
+                setHasOpened(true);
+                truckIconRef.current?.startAnimation();
+              }
               return next;
             })
           }
           aria-expanded={expanded}
         >
-          <Truck size={15} strokeWidth={1.5} />
+          <TruckElectricIcon ref={truckIconRef} size={15} strokeWidth={1.5} />
           <span>Track my pickup</span>
           {expanded ? <ChevronUp size={15} strokeWidth={1.5} /> : <ChevronDown size={15} strokeWidth={1.5} />}
         </button>

@@ -2,7 +2,8 @@
 
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Star } from 'lucide-react';
+import StarIcon from '@/components/icons/star-icon';
+import type { AnimatedIconHandle } from '@/components/icons/types';
 
 import { Button } from '@/components/ui/Button';
 import { LottiePlayer } from '@/components/ui/LottiePlayer';
@@ -37,6 +38,17 @@ function PaymentVerifyContent() {
   const MAX_RETRIES = 10;
   const sheetRef = useRef<HTMLDivElement>(null);
   const handleRef = useRef<HTMLDivElement>(null);
+  const starRef = useRef<AnimatedIconHandle>(null);
+
+  // Play the star fill-in once the reward chip actually has something to
+  // celebrate — a short delay so it lands just after the chip appears
+  // rather than competing with the main success checkmark's own entrance.
+  useEffect(() => {
+    if (paymentDetails && paymentDetails.pointsAwarded > 0) {
+      const t = setTimeout(() => starRef.current?.startAnimation(), 300);
+      return () => clearTimeout(t);
+    }
+  }, [paymentDetails]);
 
   const checkStatus = useCallback(async () => {
     if (!txRef) return;
@@ -155,7 +167,7 @@ function PaymentVerifyContent() {
               </p>
               {paymentDetails && paymentDetails.pointsAwarded > 0 && (
                 <div className={styles.rewardChip} role="status">
-                  <Star size={15} strokeWidth={1.8} className={styles.rewardChipIcon} />
+                  <StarIcon ref={starRef} size={15} strokeWidth={1.8} className={styles.rewardChipIcon} />
                   <span>
                     <strong>+{paymentDetails.pointsAwarded} reward points</strong>
                     {paymentDetails.newBalance > 0 ? ` · balance ${paymentDetails.newBalance} pts` : null}
