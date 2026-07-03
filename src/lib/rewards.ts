@@ -105,6 +105,30 @@ export function computeAutoRedeem(
 }
 
 /**
+ * Read-only projection of the total reward discount that would be applied
+ * across a set of bills if they were all paid via "Pay All" right now —
+ * mirrors the cascading redemption loop in /api/payments/initialize-all
+ * (each bill capped at its own 50% headroom, remaining points carrying into
+ * the next bill in the given order). Does not mutate anything; for display
+ * purposes only (e.g. the outstanding-balance summary).
+ */
+export function projectCascadingDiscountKobo(
+  bills: { amountKobo: number; discountKobo: number }[],
+  availablePoints: number,
+): number {
+  let pointsLeft = availablePoints;
+  let totalDiscountKobo = 0;
+  for (const b of bills) {
+    const pts = computeAutoRedeem(b.amountKobo, b.discountKobo, pointsLeft);
+    if (pts > 0) {
+      totalDiscountKobo += pointsToKobo(pts);
+      pointsLeft -= pts;
+    }
+  }
+  return totalDiscountKobo;
+}
+
+/**
  * Apply a redemption inside a Prisma transaction.
  * Updates Bill.discountKobo, decrements RewardAccount.balance, and writes
  * a REDEEMED_BILL_DISCOUNT PointTransaction. Returns the discount in kobo

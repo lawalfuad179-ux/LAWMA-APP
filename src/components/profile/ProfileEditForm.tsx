@@ -312,7 +312,18 @@ export function ProfileEditForm({
 
         <div className={styles.editActions}>
           <Button variant="ghost" size="md" onClick={handleCancel} type="button">Cancel</Button>
-          <Button size="md" isLoading={saving} onClick={handleSave} type="button">Save changes</Button>
+          <Button
+            size="md"
+            isLoading={saving}
+            onClick={handleSave}
+            type="button"
+            disabled={
+              !name.trim() || !address.trim() || !lga.trim() || !phone.trim() ||
+              !!nameError || !!addressError || !!emailError || !!phoneError
+            }
+          >
+            Save changes
+          </Button>
         </div>
       </div>
 

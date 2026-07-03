@@ -348,7 +348,17 @@ function OnboardingContent() {
                   </>
                 )}
                 {serverError && <p className={styles.serverError}>{serverError}</p>}
-                <Button type="submit" size="lg" isLoading={loading} disabled={!lga}>Finish Setup</Button>
+                <Button
+                  type="submit"
+                  size="lg"
+                  isLoading={loading}
+                  disabled={
+                    !name.trim() || !lga || !address.trim() ||
+                    (method === 'phone' && !contactEmail.trim())
+                  }
+                >
+                  Finish Setup
+                </Button>
                 <button className={styles.skipLink} onClick={() => router.push('/dashboard')} type="button">
                   Skip for now
                 </button>

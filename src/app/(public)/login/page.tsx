@@ -3,7 +3,7 @@
 import { useState, useRef, useCallback, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
-import { ArrowLeft, Mail, Phone, Lock, Hash, User, MapPin, Check } from 'lucide-react';
+import { ArrowLeft, Mail, Phone, Lock, User, MapPin, Check } from 'lucide-react';
 
 import { AuroraBackground } from '@/components/ui/AuroraBackground';
 import { Button } from '@/components/ui/Button';
@@ -919,16 +919,10 @@ function AuthContent() {
             }}
             className={styles.form}
           >
-            <Input
-              label="Verification Code"
-              type="text"
-              inputMode="numeric"
-              placeholder="000000"
+            <OtpInput
               value={code}
-              onChange={(e) => { setCode(e.target.value.replace(/\D/g, '').slice(0, 6)); setFieldErrors({}); }}
+              onChange={(val) => { setCode(val); setFieldErrors({}); }}
               error={fieldErrors.code || error}
-              icon={<Hash size={16} strokeWidth={1.5} />}
-              maxLength={6}
               autoFocus
             />
             <Input

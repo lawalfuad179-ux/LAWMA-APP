@@ -134,7 +134,16 @@ export function PasswordSection({ hasPassword: initialHasPassword, onSuccess }: 
         autoComplete="new-password"
       />
 
-      <Button type="submit" size="md" isLoading={loading}>
+      <Button
+        type="submit"
+        size="md"
+        isLoading={loading}
+        disabled={
+          getPasswordErrors(newPassword).length > 0 ||
+          confirmFieldState !== 'success' ||
+          (hasPassword && !currentPassword.trim())
+        }
+      >
         {hasPassword ? 'Update Password' : 'Create Password'}
       </Button>
     </form>

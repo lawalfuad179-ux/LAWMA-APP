@@ -123,7 +123,7 @@ export function EditComplaintForm({
 
       {error && <p className={styles.error}>{error}</p>}
 
-      <Button type="submit" size="lg" isLoading={loading}>
+      <Button type="submit" size="lg" isLoading={loading} disabled={!issueType || !area || !address}>
         Update Report
       </Button>
     </form>

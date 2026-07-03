@@ -8,7 +8,7 @@ import { EmptyBillsState } from './EmptyBillsState';
 import { PaymentVerifySheet } from './PaymentVerifySheet';
 import { BillHistoryList } from './BillHistoryList';
 import { Reveal } from '@/components/ui/Reveal';
-import { pointsToKobo } from '@/lib/rewards';
+import { pointsToKobo, projectCascadingDiscountKobo } from '@/lib/rewards';
 import styles from './page.module.css';
 
 export default async function PaymentsPage() {
@@ -30,10 +30,12 @@ export default async function PaymentsPage() {
   const rewardCreditKobo = pointsToKobo(rewardBalance);
 
   // Outstanding = amount the resident actually owes after any discount
-  // already applied to a bill.
-  const totalOutstanding = bills
-    .filter((b) => b.status === 'PENDING' || b.status === 'OVERDUE')
-    .reduce((sum, b) => sum + (b.amountKobo - b.discountKobo), 0);
+  // already applied to a bill, minus the reward credit that would be
+  // auto-applied if they paid everything now via "Pay All".
+  const outstandingBills = bills.filter((b) => b.status === 'PENDING' || b.status === 'OVERDUE');
+  const outstandingBeforeRewards = outstandingBills.reduce((sum, b) => sum + (b.amountKobo - b.discountKobo), 0);
+  const projectedRewardDiscountKobo = projectCascadingDiscountKobo(outstandingBills, rewardBalance);
+  const totalOutstanding = outstandingBeforeRewards - projectedRewardDiscountKobo;
 
   const pendingCount = bills.filter((b) => b.status === 'PENDING').length;
   const overdueCount = bills.filter((b) => b.status === 'OVERDUE').length;

@@ -338,7 +338,7 @@ export default function SmartBinsPage() {
                   </div>
                 )}
 
-                <Button size="lg" isLoading={loading} type="submit">
+                <Button size="lg" isLoading={loading} type="submit" disabled={!address.trim() || prefilling}>
                   Pay ₦{totalNaira.toLocaleString('en-NG')} — Order Now
                 </Button>
 
