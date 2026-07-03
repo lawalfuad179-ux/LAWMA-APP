@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import type { Bill } from '@prisma/client';
-import { Download, ChevronDown, Star } from 'lucide-react';
+import { Download, ChevronDown, Star, Receipt } from 'lucide-react';
 
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -34,18 +34,24 @@ export function BillHistoryList({ bills, rewardBalance }: { bills: Bill[]; rewar
 
   return (
     <>
-      <div className={styles.filterSelectWrap}>
-        <select
-          className={styles.filterSelect}
-          value={filter}
-          onChange={(e) => setFilter(e.target.value as FilterValue)}
-          aria-label="Filter bill history"
-        >
-          {FILTERS.map((f) => (
-            <option key={f.value} value={f.value}>{f.label}</option>
-          ))}
-        </select>
-        <ChevronDown size={14} strokeWidth={2} className={styles.filterSelectIcon} />
+      <div className={styles.sectionHeader}>
+        <div className={styles.sectionEyebrow}>
+          <Receipt size={15} strokeWidth={1.5} />
+          <span>Bill History</span>
+        </div>
+        <div className={styles.filterSelectWrap}>
+          <select
+            className={styles.filterSelect}
+            value={filter}
+            onChange={(e) => setFilter(e.target.value as FilterValue)}
+            aria-label="Filter bill history"
+          >
+            {FILTERS.map((f) => (
+              <option key={f.value} value={f.value}>{f.label}</option>
+            ))}
+          </select>
+          <ChevronDown size={14} strokeWidth={2} className={styles.filterSelectIcon} />
+        </div>
       </div>
 
       {filtered.length === 0 ? (

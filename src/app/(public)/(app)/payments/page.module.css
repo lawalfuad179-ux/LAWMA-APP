@@ -83,8 +83,6 @@
   position: relative;
   display: inline-flex;
   align-items: center;
-  align-self: flex-start;
-  margin-bottom: 4px;
 }
 
 .filterSelect {

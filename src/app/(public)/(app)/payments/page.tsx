@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { Receipt, Star } from 'lucide-react';
+import { Star } from 'lucide-react';
 
 import { getSession } from '@/lib/auth';
 import { db } from '@/lib/db';
@@ -71,12 +71,6 @@ export default async function PaymentsPage() {
 
       {bills.length > 0 ? (
         <Reveal className={styles.section} delay={0.1}>
-          <div className={styles.sectionHeader}>
-            <div className={styles.sectionEyebrow}>
-              <Receipt size={15} strokeWidth={1.5} />
-              <span>Bill History</span>
-            </div>
-          </div>
           <BillHistoryList bills={bills} rewardBalance={rewardBalance} />
         </Reveal>
       ) : (
