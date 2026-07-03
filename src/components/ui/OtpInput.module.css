@@ -4,6 +4,13 @@
   gap: 6px;
 }
 
+.label {
+  font-size: var(--label-large-font-size);
+  font-weight: 500;
+  color: var(--color-on-surface-variant);
+  line-height: var(--label-large-line-height);
+}
+
 .boxes {
   display: flex;
   gap: 10px;

@@ -415,6 +415,22 @@ function AuthContent() {
               <p className={styles.subtitle}>Set a password for your account so you can sign in faster next time.</p>
             </div>
           )}
+
+          {step === 'reset' && !resetSent && (
+            <div className={styles.header}>
+              <h1 className={styles.title}>Reset your password</h1>
+              <p className={styles.subtitle}>Enter your email or phone number and we&apos;ll send you a reset code.</p>
+            </div>
+          )}
+
+          {step === 'reset' && resetSent && (
+            <div className={styles.header}>
+              <h1 className={styles.title}>Enter verification code</h1>
+              <p className={styles.subtitle}>
+                We sent a 6-digit code to your {(phone || email).includes('@') ? 'email address' : 'phone number'}. Enter it below and choose a new password.
+              </p>
+            </div>
+          )}
         </div>
 
 
@@ -920,6 +936,7 @@ function AuthContent() {
             className={styles.form}
           >
             <OtpInput
+              label="Enter OTP"
               value={code}
               onChange={(val) => { setCode(val); setFieldErrors({}); }}
               error={fieldErrors.code || error}

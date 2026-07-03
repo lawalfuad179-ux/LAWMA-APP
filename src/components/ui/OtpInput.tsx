@@ -8,9 +8,10 @@ type Props = {
   onChange: (value: string) => void;
   error?: string;
   autoFocus?: boolean;
+  label?: string;
 };
 
-export function OtpInput({ value, onChange, error, autoFocus }: Props) {
+export function OtpInput({ value, onChange, error, autoFocus, label }: Props) {
   const refs = useRef<(HTMLInputElement | null)[]>([]);
   const digits = Array.from({ length: 6 }, (_, i) => value[i] ?? '');
 
@@ -49,6 +50,7 @@ export function OtpInput({ value, onChange, error, autoFocus }: Props) {
 
   return (
     <div className={styles.root}>
+      {label && <span className={styles.label}>{label}</span>}
       <div className={styles.boxes}>
         {digits.map((digit, i) => (
           <input
