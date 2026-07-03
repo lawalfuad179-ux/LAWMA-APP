@@ -142,9 +142,10 @@
 }
 
 .doneBtn {
-  /* Same trim as .binChip, applied to the gap between the bin tag and
-     the CTA below it. */
-  margin-top: -6px;
+  /* .sheetContent applies a 14px flex gap above this — add on top of
+     that to reach the 24px the design calls for between the bin tag
+     and the CTA. */
+  margin-top: 10px;
 }
 
 .failedActions {
