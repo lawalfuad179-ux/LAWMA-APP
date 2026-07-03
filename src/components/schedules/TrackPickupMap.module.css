@@ -27,6 +27,21 @@
   background: hsla(24, 98%, 50%, 0.06);
 }
 
+.collapse {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 240ms ease-in-out;
+}
+
+.collapseOpen {
+  grid-template-rows: 1fr;
+}
+
+.collapseInner {
+  overflow: hidden;
+  min-height: 0;
+}
+
 .panel {
   margin-top: 10px;
   display: flex;

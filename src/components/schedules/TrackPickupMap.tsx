@@ -28,6 +28,11 @@ function lerp(a: number, b: number, t: number) {
 export function TrackPickupMap({ pspName, windowStart, windowEnd, children }: Props) {
   const { isLoaded, loadError } = useGoogleMapsLoader();
   const [expanded, setExpanded] = useState(false);
+  // Tracks whether the panel has ever been opened, so the map only mounts
+  // (and Google Maps only loads) the first time it's needed — the grid-rows
+  // collapse below keeps the wrapper in the DOM at all times for the
+  // animation, independent of this.
+  const [hasOpened, setHasOpened] = useState(false);
   const [progress, setProgress] = useState(0);
   const startRef = useRef<number | null>(null);
   const frameRef = useRef<number | null>(null);
@@ -65,7 +70,13 @@ export function TrackPickupMap({ pspName, windowStart, windowEnd, children }: Pr
         <button
           type="button"
           className={styles.toggle}
-          onClick={() => setExpanded((v) => !v)}
+          onClick={() =>
+            setExpanded((v) => {
+              const next = !v;
+              if (next) setHasOpened(true);
+              return next;
+            })
+          }
           aria-expanded={expanded}
         >
           <Truck size={15} strokeWidth={1.5} />
@@ -74,46 +85,53 @@ export function TrackPickupMap({ pspName, windowStart, windowEnd, children }: Pr
         </button>
       </div>
 
-      {expanded && (
-        <div className={styles.panel}>
-          {loadError ? (
-            <div className={styles.fallback}>Map preview unavailable right now.</div>
-          ) : !isLoaded ? (
-            <div className={styles.fallback}>Loading map…</div>
-          ) : (
-            <>
-              <div className={styles.mapWrap}>
-                <GoogleMap
-                  mapContainerStyle={{ width: '100%', height: '100%' }}
-                  center={truckPosition}
-                  zoom={14}
-                  options={{ disableDefaultUI: true, gestureHandling: 'greedy' }}
-                >
-                  <Polyline
-                    path={[ROUTE_ORIGIN, ROUTE_DESTINATION]}
-                    options={{ strokeColor: '#F97316', strokeOpacity: 0.4, strokeWeight: 3 }}
-                  />
-                  <Marker position={truckPosition} label={{ text: '🚛', fontSize: '18px' }} />
-                  <Marker
-                    position={ROUTE_DESTINATION}
-                    label={{ text: '📍', fontSize: '16px' }}
-                  />
-                </GoogleMap>
-              </div>
-              <div className={styles.metaRow}>
-                <span className={styles.eta}>~{etaMinutes} min away</span>
-                <span className={styles.window}>{windowStart} – {windowEnd} · {pspName}</span>
-              </div>
-              <div className={styles.disclaimer}>
-                <Info size={13} strokeWidth={1.5} />
-                <span>
-                  Simulated preview — live truck tracking rolls out once PSP drivers share GPS location (Phase 3).
-                </span>
-              </div>
-            </>
-          )}
+      {/* Grid-rows collapse: animating height:auto isn't possible in CSS, so
+          the wrapper stays mounted and transitions grid-template-rows between
+          0fr (collapsed) and 1fr (expanded) instead — smooth open AND close
+          with no JS height measurement. */}
+      <div className={`${styles.collapse} ${expanded ? styles.collapseOpen : ''}`}>
+        <div className={styles.collapseInner}>
+          <div className={styles.panel}>
+            {hasOpened &&
+              (loadError ? (
+                <div className={styles.fallback}>Map preview unavailable right now.</div>
+              ) : !isLoaded ? (
+                <div className={styles.fallback}>Loading map…</div>
+              ) : (
+                <>
+                  <div className={styles.mapWrap}>
+                    <GoogleMap
+                      mapContainerStyle={{ width: '100%', height: '100%' }}
+                      center={truckPosition}
+                      zoom={14}
+                      options={{ disableDefaultUI: true, gestureHandling: 'greedy' }}
+                    >
+                      <Polyline
+                        path={[ROUTE_ORIGIN, ROUTE_DESTINATION]}
+                        options={{ strokeColor: '#F97316', strokeOpacity: 0.4, strokeWeight: 3 }}
+                      />
+                      <Marker position={truckPosition} label={{ text: '🚛', fontSize: '18px' }} />
+                      <Marker
+                        position={ROUTE_DESTINATION}
+                        label={{ text: '📍', fontSize: '16px' }}
+                      />
+                    </GoogleMap>
+                  </div>
+                  <div className={styles.metaRow}>
+                    <span className={styles.eta}>~{etaMinutes} min away</span>
+                    <span className={styles.window}>{windowStart} – {windowEnd} · {pspName}</span>
+                  </div>
+                  <div className={styles.disclaimer}>
+                    <Info size={13} strokeWidth={1.5} />
+                    <span>
+                      Simulated preview — live truck tracking rolls out once PSP drivers share GPS location (Phase 3).
+                    </span>
+                  </div>
+                </>
+              ))}
+          </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }
