@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Pencil, X } from 'lucide-react';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Button } from '@/components/ui/Button';
 import { OtpInput } from '@/components/ui/OtpInput';
 import { LAGOS_LGAS } from '@/constants';
+import { useSwipeDownToClose } from '@/hooks/useSwipeDownToClose';
 import {
   validateName,
   validateAddress,
@@ -64,8 +65,13 @@ export function ProfileEditForm({
   const [otpModal, setOtpModal] = useState<OtpModal | null>(null);
   const [otpCode, setOtpCode] = useState('');
   const [otpCountdown, setOtpCountdown] = useState(0);
+  const otpSheetRef = useRef<HTMLDivElement>(null);
+  const otpHandleRef = useRef<HTMLDivElement>(null);
 
   const lgaOptions = LAGOS_LGAS.map((l) => ({ value: l, label: l }));
+
+  const closeOtpModal = () => { setOtpModal(null); setOtpCode(''); };
+  useSwipeDownToClose(otpHandleRef, otpSheetRef, closeOtpModal);
 
   useEffect(() => {
     if (otpCountdown <= 0) return;
@@ -334,8 +340,10 @@ export function ProfileEditForm({
           role="dialog"
           aria-modal="true"
           aria-label={`Verify your ${otpModal.type === 'email' ? 'email' : 'phone number'}`}
+          onClick={closeOtpModal}
         >
-          <div className={styles.otpSheet}>
+          <div ref={otpSheetRef} className={styles.otpSheet} onClick={(e) => e.stopPropagation()}>
+            <div ref={otpHandleRef} className={styles.otpHandle} />
             <div className={styles.otpHeader}>
               <span className={styles.otpTitle}>
                 Verify your {otpModal.type === 'email' ? 'email' : 'phone number'}
@@ -344,7 +352,7 @@ export function ProfileEditForm({
                 className={styles.cancelIcon}
                 type="button"
                 aria-label="Close"
-                onClick={() => { setOtpModal(null); setOtpCode(''); }}
+                onClick={closeOtpModal}
               >
                 <X size={18} strokeWidth={1.5} />
               </button>

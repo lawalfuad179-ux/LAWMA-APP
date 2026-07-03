@@ -143,6 +143,14 @@
   to   { transform: translateY(0); }
 }
 
+.otpHandle {
+  width: 40px;
+  height: 4px;
+  background: var(--color-outline-variant);
+  border-radius: 2px;
+  margin: -8px auto 4px;
+}
+
 .otpHeader {
   display: flex;
   align-items: center;
@@ -197,5 +205,10 @@
   .otpSheet {
     max-width: 480px;
     border-radius: 20px;
+  }
+
+  /* The drag handle is a mobile bottom-sheet affordance — hide on desktop. */
+  .otpHandle {
+    display: none;
   }
 }

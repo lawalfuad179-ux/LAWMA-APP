@@ -6,6 +6,7 @@ import { Star } from 'lucide-react';
 
 import { Button } from '@/components/ui/Button';
 import { LottiePlayer } from '@/components/ui/LottiePlayer';
+import { useSwipeDownToClose } from '@/hooks/useSwipeDownToClose';
 import paymentSuccessData from '@/../public/animations/payment-success.json';
 import paymentSuccessPulseData from '@/../public/animations/payment-success-pulse.json';
 import paymentFailedData from '@/../public/animations/payment-failed.json';
@@ -34,6 +35,8 @@ function PaymentVerifyContent() {
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const retriesRef = useRef(0);
   const MAX_RETRIES = 10;
+  const sheetRef = useRef<HTMLDivElement>(null);
+  const handleRef = useRef<HTMLDivElement>(null);
 
   const checkStatus = useCallback(async () => {
     if (!txRef) return;
@@ -93,6 +96,10 @@ function PaymentVerifyContent() {
     if (refreshPage) router.refresh();
   }, [router]);
 
+  useSwipeDownToClose(handleRef, sheetRef, () => {
+    if (status !== 'verifying') close(status === 'success');
+  });
+
   if (!open) return null;
 
   return (
@@ -103,8 +110,8 @@ function PaymentVerifyContent() {
           if (status !== 'verifying') close(status === 'success');
         }}
       />
-      <div className={styles.sheet} role="dialog" aria-modal="true">
-        <div className={styles.handle} />
+      <div ref={sheetRef} className={styles.sheet} role="dialog" aria-modal="true">
+        <div ref={handleRef} className={styles.handle} />
         <div className={styles.content}>
 
           {status === 'verifying' && (
