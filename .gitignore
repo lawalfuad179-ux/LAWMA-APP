@@ -43,3 +43,6 @@ next-env.d.ts
 # sentry
 .sentryclirc
 .env.sentry-build-plugin
+
+# business/pitch documents — not app code, tracked in ai-workspace instead
+/LinqLabs x Lawma Presentation Files/
