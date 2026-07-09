@@ -1,0 +1,17 @@
+{
+  "name": "LAWMA — Lagos Waste Management",
+  "short_name": "LAWMA",
+  "description": "Pickup schedules, bill payments, and waste reporting for Lagos residents.",
+  "start_url": "/dashboard",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#0a5d3a",
+  "lang": "en",
+  "categories": ["utilities", "government", "lifestyle"],
+  "icons": [
+    { "src": "/favicon.png", "sizes": "656x672", "type": "image/png", "purpose": "any" },
+    { "src": "/favicon.png", "sizes": "656x672", "type": "image/png", "purpose": "maskable" }
+  ]
+}

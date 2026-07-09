@@ -11,8 +11,8 @@
 - **`decisions/`** — append-only ADRs (Vercel deploy stall fix, brand glyph, pitch plan)
 - **`docs/`** — feature-level documentation
 - **`Brand Assets/`** — logos, brand kit (orange-dot cluster is the intentional LAWMA glyph — see `decisions/0001`)
-- **`~/ai-workspace/wiki/projects/lawma/`** — LAWMA-specific cross-session memory (pitch context, brand notes)
-- **`~/ai-workspace/standards/ai-collaboration.md`** — universal AI operating rules (token discipline, plan-first, audit-and-rate, etc.)
+- **`~/A.I-Workspace-Second-Brain/wiki/projects/lawma/`** — LAWMA-specific cross-session memory (pitch context, brand notes)
+- **`~/A.I-Workspace-Second-Brain/standards/ai-collaboration.md`** — universal AI operating rules (token discipline, plan-first, audit-and-rate, etc.)
 
 ## Project Overview
 

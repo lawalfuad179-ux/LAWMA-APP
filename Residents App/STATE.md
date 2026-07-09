@@ -72,11 +72,11 @@ None.
 - Deck spine, ask numbers, contradictions, pilot data, scaling plan — already vetted and ready
 
 ### Next action
-**Meeting today.** After the meeting, trigger `LAWMA-PITCH-GO` to produce the MD pitch deck. Key demo talking points in `~/ai-workspace/logs/2026-06-29.md`.
+**Meeting today.** After the meeting, trigger `LAWMA-PITCH-GO` to produce the MD pitch deck. Key demo talking points in `~/A.I-Workspace-Second-Brain/logs/2026-06-29.md`.
 
 ### Source
-Full plan: `~/ai-workspace/wiki/projects/lawma/project_lawma_pitch_plan_locked.md`
-Context: `~/ai-workspace/wiki/projects/lawma/project_lawma_pitch_context.md`
+Full plan: `~/A.I-Workspace-Second-Brain/wiki/projects/lawma/project_lawma_pitch_plan_locked.md`
+Context: `~/A.I-Workspace-Second-Brain/wiki/projects/lawma/project_lawma_pitch_context.md`
 
 ---
 
@@ -97,4 +97,4 @@ Context: `~/ai-workspace/wiki/projects/lawma/project_lawma_pitch_context.md`
 
 - `AGENTS.md` (this repo) — product principles
 - `AGENT_CONTEXT.md` (this repo) — deep technical briefing
-- `~/ai-workspace/standards/ai-collaboration.md` — universal AI operating rules
+- `~/A.I-Workspace-Second-Brain/standards/ai-collaboration.md` — universal AI operating rules
