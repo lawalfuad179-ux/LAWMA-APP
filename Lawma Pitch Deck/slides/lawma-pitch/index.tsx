@@ -429,7 +429,7 @@ const Cover: Page = () => (
       }}
     >
       <span>Prepared for Dr Muyiwa Gbadegesin, Managing Director, LAWMA</span>
-      <span>July 2026</span>
+      <span>13 July 2026</span>
     </div>
   </div>
 );
@@ -545,7 +545,10 @@ const Scale: Page = () => (
 
 // ─── 03 — The problem (pull-quote list) ───────────────────────────────────────
 const PainRow = ({ text }: { text: string }) => (
-  <div style={{ borderBottom: `1px solid ${line}`, padding: '20px 0', fontSize: 36, color: ink }}>{text}</div>
+  <div style={{ borderBottom: `1px solid ${line}`, padding: '20px 0', fontSize: 36, color: ink, display: 'flex', alignItems: 'baseline', gap: 18 }}>
+    <span style={{ color: sky, flex: 'none' }}>•</span>
+    <span>{text}</span>
+  </div>
 );
 
 const Problem: Page = () => (
@@ -557,9 +560,9 @@ const Problem: Page = () => (
       Visibility is zero.
     </h2>
     <div style={{ maxWidth: 1200 }}>
-      <PainRow text="Bills arrive with no easy verification path" />
+      <PainRow text="Bills are manually handed to residents" />
       <PainRow text="Payments have no instant confirmation trail" />
-      <PainRow text="Missed pickups go unreported" />
+      <PainRow text="Missed pickups, waste burning and public waste dumping go unreported" />
       <PainRow text="Recycling participation is unmeasured" />
     </div>
     <p style={{ fontSize: 26, color: caption, marginTop: 48, maxWidth: 1100 }}>
@@ -602,7 +605,7 @@ const JourneyStep = ({ n, label, still }: { n: number; label: string; still: str
       <StillPreview src={still} height={420} />
     </div>
     <div style={{ fontFamily: mono, fontSize: 28, color: teal, fontWeight: 700, marginTop: 20, ...numeralStyle(28) }}>{n}</div>
-    <div style={{ fontSize: 26, color: ink, marginTop: 8, maxWidth: 260 }}>{label}</div>
+    <div style={{ fontSize: 21, lineHeight: 1.35, color: ink, marginTop: 8, maxWidth: 270 }}>{label}</div>
   </div>
 );
 
@@ -629,7 +632,7 @@ const ResidentsComplaint: Page = () => (
       <JourneyStep n={1} label="Files a report with photo evidence and a map location" still={stillFileReport} />
       <JourneyStep n={2} label="Tracks resolution status in real time" still={stillTrackStatus} />
       <JourneyStep n={3} label="Checks status — resolved" still={stillNotificationResolved} />
-      <JourneyStep n={4} label="Gets notified about orders and payments" still={stillPaymentConfirmed} />
+      <JourneyStep n={4} label="Notifications for pickup days, environmental sanitation, orders and payments." still={stillPaymentConfirmed} />
     </div>
     <ContentFooter />
   </div>
@@ -1076,7 +1079,7 @@ const WhoWeAre: Page = () => (
       LinqLabs — Connected by Design.
     </h2>
     <p style={{ fontSize: 32, color: caption, marginBottom: 16 }}>
-      A Lagos-based product studio. We redesign web and mobile apps that solve users' pain points.
+      A Lagos-based product studio. We design web and mobile apps that solve users' pain points.
     </p>
     <p style={{ fontSize: 26, color: caption, maxWidth: 1100, marginBottom: 48 }}>
       Our focus: civic and institutional platforms — digital infrastructure built for the millions of Nigerians who have never been properly served by software before.
@@ -1131,7 +1134,7 @@ const TheOffer: Page = () => (
       {[
         { label: 'Revenue visibility', text: 'Every bill payment confirmed instantly. Compliance rates trackable per LCDA, per PSP, per street.' },
         { label: 'Operational intelligence', text: 'Pickup routes, complaint queues, and field-officer locations — in one control room, not scattered across spreadsheets and phone calls.' },
-        { label: 'Lagos owns the model', text: "A platform built by Lagos, for Lagos — and licensed to every state that follows. LAWMA earns the royalty. Not a pilot. The originator." },
+        { label: 'Lagos owns the model', text: "A platform built by Lagos, for Lagos — and licensed to every state that follows. LAWMA earns the royalty." },
       ].map((item) => (
         <div key={item.label} style={{ background: cream, border: `1px solid ${line}`, borderLeft: `4px solid ${teal}`, padding: '30px 32px' }}>
           <div style={{ fontSize: 24, fontWeight: 700, color: navy, marginBottom: 12 }}>{item.label}</div>

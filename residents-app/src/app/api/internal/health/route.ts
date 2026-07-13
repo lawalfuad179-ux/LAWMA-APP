@@ -11,7 +11,7 @@ const REQUIRED_ENV = [
   'SMTP_HOST',
   'SMTP_USER',
   'INTERNAL_CRON_SECRET',
-  'GEMINI_API_KEY',
+  'GITHUB_TOKEN',
 ] as const;
 
 type HealthCheck = {

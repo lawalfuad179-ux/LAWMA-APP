@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import OpenAI from 'openai';
 
 import { logger } from '@/lib/logger';
 
@@ -65,17 +65,20 @@ For a blank, dark, or non-waste image return exactly:
   "tips": []
 }`;
 
-function getClient(): GoogleGenerativeAI {
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey || apiKey === 'your_gemini_api_key_here') {
-    throw new Error('GEMINI_API_KEY is not configured.');
+function getClient(): OpenAI {
+  const token = process.env.GITHUB_TOKEN;
+  if (!token) {
+    throw new Error('GITHUB_TOKEN is not configured. Get one at https://github.com/settings/tokens (no scopes needed for GitHub Models).');
   }
-  return new GoogleGenerativeAI(apiKey);
+  return new OpenAI({
+    baseURL: 'https://models.inference.ai.azure.com',
+    apiKey: token,
+  });
 }
 
 export async function analyzeWasteImage(imageUrl: string): Promise<RecycleAiReport> {
-  const modelName = process.env.GEMINI_VISION_MODEL || 'gemini-2.0-flash';
-  const genAI = getClient();
+  const modelName = process.env.GH_MODEL || 'gpt-4o-mini';
+  const client = getClient();
 
   const imgResp = await fetch(imageUrl);
   if (!imgResp.ok) throw new Error(`Failed to fetch image for analysis: ${imgResp.status}`);
@@ -99,37 +102,26 @@ export async function analyzeWasteImage(imageUrl: string): Promise<RecycleAiRepo
     mime = 'image/jpeg';
   }
 
-  const model = genAI.getGenerativeModel({
+  const response = await client.chat.completions.create({
     model: modelName,
-    systemInstruction: SYSTEM_PROMPT,
-  });
-
-  const result = await model.generateContent({
-    contents: [
+    max_tokens: 2048,
+    messages: [
+      { role: 'system', content: SYSTEM_PROMPT },
       {
         role: 'user',
-        parts: [
-          { inlineData: { mimeType: mime, data: buffer.toString('base64') } },
-          { text: USER_PROMPT },
+        content: [
+          { type: 'image_url', image_url: { url: `data:${mime};base64,${buffer.toString('base64')}`, detail: 'auto' } },
+          { type: 'text', text: USER_PROMPT },
         ],
       },
     ],
   });
 
-  const response = result.response;
-  const raw = response.text();
+  const raw = response.choices[0]?.message?.content || '';
 
   if (!raw) {
     logger.error('ai.analyze_waste.empty_response', { model: modelName });
     throw new Error('AI returned an empty response. Please try again.');
-  }
-
-  if (response.promptFeedback?.blockReason) {
-    logger.error('ai.analyze_waste.blocked', {
-      blockReason: response.promptFeedback.blockReason,
-      model: modelName,
-    });
-    throw new Error('AI response was blocked by safety filters. Please try a different image.');
   }
 
   const jsonMatch = raw.match(/\{[\s\S]*\}/);

@@ -97,21 +97,21 @@ What we depend on from each external service, what shape we expect the data in, 
 
 ---
 
-## Google Gemini — recycling AI
+## GitHub Models (GPT-4o-mini) — recycling AI
 
 **What we use it for**
-- `analyzeWasteImage()` in `src/lib/ai.ts`. Vision model (default `gemini-2.0-flash`) classifies image into recyclable / non-recyclable items, returns structured JSON.
+- `analyzeWasteImage()` in `src/lib/ai.ts`. Vision model (default `gpt-4o-mini`) classifies image into recyclable / non-recyclable items, returns structured JSON.
 
 **What we expect**
-- `GEMINI_API_KEY` set (get one free at aistudio.google.com → "Get API key"). No credit card required.
-- Model defaults to `gemini-2.0-flash`. Override with `GEMINI_VISION_MODEL` env var.
+- `GITHUB_TOKEN` set. Get one at https://github.com/settings/tokens — create a classic PAT, no scopes needed. Free, 50 requests/day for `gpt-4o-mini`.
+- Override model with `GH_MODEL` env var (e.g. `gpt-4o` for higher quality, same rate limit).
 - Image must be `image/jpeg | image/png | image/webp | image/gif` — HEIC from iPhones is converted in-process with `heic-convert`.
 - Model returns JSON parseable from a `{...}` substring of the response.
 
 **What would break us**
-- Gemini API key exhausted (free tier has generous rate limits, safe for a demo).
+- `GITHUB_TOKEN` missing or expired.
+- Rate limit hit (50 req/day for `gpt-4o-mini`, 5 req/10s — fine for a demo).
 - Model hallucinating recyclable items in an empty image. Mitigated by an `imageValid: false` hard rule in the system prompt + abuse guards on the scan endpoint.
-- Safety filter blocking legitimate waste images. Mitigated by the `blockReason` check that throws a clear error to the user.
 
 ---
 
