@@ -1,4 +1,4 @@
-import Anthropic from '@anthropic-ai/sdk';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 import { logger } from '@/lib/logger';
 
@@ -65,17 +65,17 @@ For a blank, dark, or non-waste image return exactly:
   "tips": []
 }`;
 
-function getClient(): Anthropic {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey || apiKey === 'your_anthropic_api_key_here') {
-    throw new Error('ANTHROPIC_API_KEY is not configured.');
+function getClient(): GoogleGenerativeAI {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey || apiKey === 'your_gemini_api_key_here') {
+    throw new Error('GEMINI_API_KEY is not configured.');
   }
-  return new Anthropic({ apiKey });
+  return new GoogleGenerativeAI(apiKey);
 }
 
 export async function analyzeWasteImage(imageUrl: string): Promise<RecycleAiReport> {
-  const model = process.env.CLAUDE_VISION_MODEL || 'claude-haiku-4-5-20251001';
-  const client = getClient();
+  const modelName = process.env.GEMINI_VISION_MODEL || 'gemini-2.0-flash';
+  const genAI = getClient();
 
   const imgResp = await fetch(imageUrl);
   if (!imgResp.ok) throw new Error(`Failed to fetch image for analysis: ${imgResp.status}`);
@@ -83,9 +83,7 @@ export async function analyzeWasteImage(imageUrl: string): Promise<RecycleAiRepo
   let buffer = Buffer.from(await imgResp.arrayBuffer());
   const rawMime = (imgResp.headers.get('content-type') || 'image/jpeg').split(';')[0].trim().toLowerCase();
 
-  // Anthropic vision only accepts jpeg/png/webp/gif. iPhone uploads are HEIC/HEIF —
-  // convert to JPEG before sending, otherwise the API rejects them.
-  let mime: 'image/jpeg' | 'image/png' | 'image/webp' | 'image/gif';
+  let mime: string;
   if (rawMime === 'image/heic' || rawMime === 'image/heif') {
     const { default: heicConvert } = await import('heic-convert');
     const converted = await heicConvert({
@@ -101,34 +99,37 @@ export async function analyzeWasteImage(imageUrl: string): Promise<RecycleAiRepo
     mime = 'image/jpeg';
   }
 
-  const response = await client.messages.create({
-    model,
-    max_tokens: 2048,
-    system: SYSTEM_PROMPT,
-    messages: [
+  const model = genAI.getGenerativeModel({
+    model: modelName,
+    systemInstruction: SYSTEM_PROMPT,
+  });
+
+  const result = await model.generateContent({
+    contents: [
       {
         role: 'user',
-        content: [
-          {
-            type: 'image',
-            source: {
-              type: 'base64',
-              media_type: mime,
-              data: buffer.toString('base64'),
-            },
-          },
-          { type: 'text', text: USER_PROMPT },
+        parts: [
+          { inlineData: { mimeType: mime, data: buffer.toString('base64') } },
+          { text: USER_PROMPT },
         ],
       },
     ],
   });
 
-  const raw = response.content[0]?.type === 'text' ? response.content[0].text : '';
+  const response = result.response;
+  const raw = response.text();
 
-  // Guard against truncated responses (stop_reason === 'max_tokens' mid-JSON)
-  if (response.stop_reason === 'max_tokens') {
-    logger.error('ai.analyze_waste.truncated', { rawLength: raw.length, model });
-    throw new Error('The AI response was too long to process. Please try with a simpler image.');
+  if (!raw) {
+    logger.error('ai.analyze_waste.empty_response', { model: modelName });
+    throw new Error('AI returned an empty response. Please try again.');
+  }
+
+  if (response.promptFeedback?.blockReason) {
+    logger.error('ai.analyze_waste.blocked', {
+      blockReason: response.promptFeedback.blockReason,
+      model: modelName,
+    });
+    throw new Error('AI response was blocked by safety filters. Please try a different image.');
   }
 
   const jsonMatch = raw.match(/\{[\s\S]*\}/);
@@ -145,13 +146,12 @@ export async function analyzeWasteImage(imageUrl: string): Promise<RecycleAiRepo
     throw new Error('AI response could not be read. Please try again.');
   }
 
-  // Normalise imageValid in case the model omitted it
   if (typeof parsed.imageValid !== 'boolean') {
     parsed.imageValid = parsed.items.length > 0;
   }
 
   logger.info('ai.analyze_waste.success', {
-    model,
+    model: modelName,
     imageValid: parsed.imageValid,
     itemCount: parsed.items.length,
   });

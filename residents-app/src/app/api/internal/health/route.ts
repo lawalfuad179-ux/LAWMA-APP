@@ -11,7 +11,7 @@ const REQUIRED_ENV = [
   'SMTP_HOST',
   'SMTP_USER',
   'INTERNAL_CRON_SECRET',
-  'ANTHROPIC_API_KEY',
+  'GEMINI_API_KEY',
 ] as const;
 
 type HealthCheck = {

@@ -97,20 +97,21 @@ What we depend on from each external service, what shape we expect the data in, 
 
 ---
 
-## Anthropic (Claude) — recycling AI
+## Google Gemini — recycling AI
 
 **What we use it for**
-- `analyzeWasteImage()` in `src/lib/ai.ts`. Vision model classifies image into recyclable / non-recyclable items, returns structured JSON.
+- `analyzeWasteImage()` in `src/lib/ai.ts`. Vision model (default `gemini-2.0-flash`) classifies image into recyclable / non-recyclable items, returns structured JSON.
 
 **What we expect**
-- `ANTHROPIC_API_KEY` set, model defaults to `claude-haiku-4-5-20251001`.
+- `GEMINI_API_KEY` set (get one free at aistudio.google.com → "Get API key"). No credit card required.
+- Model defaults to `gemini-2.0-flash`. Override with `GEMINI_VISION_MODEL` env var.
 - Image must be `image/jpeg | image/png | image/webp | image/gif` — HEIC from iPhones is converted in-process with `heic-convert`.
 - Model returns JSON parseable from a `{...}` substring of the response.
 
 **What would break us**
-- Anthropic rejecting our model id (deprecated). Set `CLAUDE_VISION_MODEL` env var to override.
+- Gemini API key exhausted (free tier has generous rate limits, safe for a demo).
 - Model hallucinating recyclable items in an empty image. Mitigated by an `imageValid: false` hard rule in the system prompt + abuse guards on the scan endpoint.
-- Per-request cost spike. Not a near-term concern; recycling no longer earns rewards so volume stays low.
+- Safety filter blocking legitimate waste images. Mitigated by the `blockReason` check that throws a clear error to the user.
 
 ---
 
