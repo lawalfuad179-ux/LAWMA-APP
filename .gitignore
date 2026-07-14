@@ -46,3 +46,6 @@ next-env.d.ts
 
 # business/pitch documents — not app code, tracked in ai-workspace instead
 /LinqLabs x Lawma Presentation Files/
+
+# Local meeting transcript (private, do not push)
+MD-meeting-2026-07-13-transcript.txt
