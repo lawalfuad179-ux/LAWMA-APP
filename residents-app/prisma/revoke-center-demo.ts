@@ -40,7 +40,15 @@ async function main() {
   });
   console.log(`Revoked ${sessions.count} open kiosk session(s).`);
 
-  console.log('\nDemo access revoked. Drop-off history and centres left intact.');
+  // The throwaway resident used to verify the money path against production.
+  // Deleting it cascades its drop-offs and point transactions. This is the one
+  // row we do remove, because it is a test fixture rather than real activity.
+  const probe = await prisma.resident.deleteMany({
+    where: { phoneNumber: '+2348099999999', name: 'Prod Check' },
+  });
+  console.log(`Removed ${probe.count} verification fixture resident(s).`);
+
+  console.log('\nDemo access revoked. Real drop-off history and centres left intact.');
   console.log('Re-enable any time with: npx tsx prisma/seed-centers.ts');
 }
 
