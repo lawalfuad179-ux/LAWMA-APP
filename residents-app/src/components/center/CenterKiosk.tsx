@@ -318,7 +318,10 @@ export function CenterKiosk({ operatorName, centerName, initialToday }: Props) {
 
               <form className={styles.form} onSubmit={handleWeigh}>
                 <div>
-                  <span className={styles.label}>Material</span>
+                  <span className={styles.label}>
+                    Material
+                    <span className={styles.labelNote}>Indicative rates — LAWMA sets final pricing</span>
+                  </span>
                   <div className={styles.materials}>
                     {rates.map((r) => (
                       <button

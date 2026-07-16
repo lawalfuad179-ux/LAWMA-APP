@@ -206,9 +206,21 @@
 /* ── material grid ────────────────────────────────────────────────────── */
 
 .label {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
   font-size: 13px;
   font-weight: 600;
   color: var(--color-on-surface-variant);
+}
+
+/* The seeded per-kg prices are placeholders, not LAWMA's. Say so where they are
+   read, so nobody mistakes them for an agreed rate card. */
+.labelNote {
+  font-weight: 400;
+  font-size: 11px;
+  opacity: 0.75;
 }
 
 .materials {
