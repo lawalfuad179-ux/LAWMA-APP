@@ -188,6 +188,16 @@ function AuthContent() {
         if (data.error?.code === 'cooldown_active') {
           const seconds = parseInt(data.error.message.match(/\d+/)?.[0] || '60');
           startCooldown(seconds);
+          setError(data.error.message);
+          return;
+        }
+        // OTP is the primary path, but if the code can't be delivered (SMS
+        // provider down, unreachable number) a resident who already has a
+        // password shouldn't be stranded on the sign-in screen — fall through
+        // to the password step instead of dead-ending on an error.
+        if (mode === 'signin' && checkData.hasPassword) {
+          switchStep('password-signin');
+          return;
         }
         setError(data.error?.message || 'Something went wrong.');
         return;

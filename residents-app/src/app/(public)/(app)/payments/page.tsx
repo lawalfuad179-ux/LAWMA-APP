@@ -63,7 +63,9 @@ export default async function PaymentsPage() {
             </>
           ) : (
             <>
-              <strong>Earn 5 reward points</strong> every time you pay your bill through the LAWMA app — automatically credited to your next bill.
+              <strong>Earn credit two ways</strong> — 5 points every time you pay a bill in the
+              app, plus ₦ for every kilo of sorted recyclables you drop at a LAWMA collection
+              centre. It comes off your next bill automatically.
             </>
           )}
         </p>

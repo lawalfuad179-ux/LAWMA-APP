@@ -58,9 +58,27 @@ enum RecycleActivityStatus {
 enum PointTransactionType {
   EARNED_RECYCLING
   EARNED_BILL_PAYMENT
+  EARNED_CENTER_DROPOFF
   REDEEMED_BILL_DISCOUNT
   BONUS_FIRST_SCAN
   ADMIN_ADJUSTMENT
+}
+
+// Buy-back materials accepted over the counter at a collection centre.
+// Deliberately narrower than the AI scanner's categories (src/lib/ai.ts):
+// a centre only pays for what it can resell.
+enum DropOffMaterial {
+  PLASTIC
+  PAPER
+  CARDBOARD
+  METAL
+  GLASS
+}
+
+enum DropOffStatus {
+  CONFIRMED
+  FLAGGED // over a cap / outlier — credited but queued for supervisor review
+  VOIDED  // reversed by a supervisor
 }
 
 model Resident {
@@ -88,6 +106,7 @@ model Resident {
   recycleActivities      RecycleActivity[]
   pointTransactions      PointTransaction[]
   rewardAccount          RewardAccount?
+  dropOffs               DropOff[]
 
   @@index([lga])
   @@map("residents")
@@ -327,6 +346,8 @@ model PointTransaction {
   activityId  String?              @map("activity_id")
   activity    RecycleActivity?     @relation(fields: [activityId], references: [id], onDelete: SetNull)
   billId      String?              @map("bill_id")
+  dropOffId   String?              @map("drop_off_id")
+  dropOff     DropOff?             @relation(fields: [dropOffId], references: [id], onDelete: SetNull)
   createdAt   DateTime             @default(now()) @map("created_at")
 
   @@index([residentId])
@@ -350,4 +371,96 @@ model NotificationPreference {
   updatedAt                DateTime @updatedAt @map("updated_at")
 
   @@map("notification_preferences")
+}
+
+// ─── Collection centres (buy-back) ────────────────────────────────────────
+// A staffed facility where residents drop off sorted recyclables, staff weigh
+// them, and the resident is credited. Physical staffing is the primary
+// anti-abuse control; see src/lib/dropoff-guard.ts for the software layer.
+
+model CollectionCenter {
+  id        String   @id @default(uuid())
+  name      String   @map("name")
+  address   String   @map("address")
+  lga       String   @map("lga")
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  operators CenterOperator[]
+  dropOffs  DropOff[]
+
+  @@index([lga])
+  @@map("collection_centers")
+}
+
+model CenterOperator {
+  id           String           @id @default(uuid())
+  name         String           @map("name")
+  staffCode    String           @unique @map("staff_code")
+  passcodeHash String           @map("passcode_hash")
+  centerId     String           @map("center_id")
+  center       CollectionCenter @relation(fields: [centerId], references: [id], onDelete: Restrict)
+  isActive     Boolean          @default(true) @map("is_active")
+  createdAt    DateTime         @default(now()) @map("created_at")
+
+  sessions CenterSession[]
+  dropOffs DropOff[]
+
+  @@index([centerId])
+  @@map("center_operators")
+}
+
+model CenterSession {
+  id         String         @id @default(uuid())
+  operatorId String         @map("operator_id")
+  operator   CenterOperator @relation(fields: [operatorId], references: [id], onDelete: Cascade)
+  token      String         @unique @map("token")
+  expiresAt  DateTime       @map("expires_at")
+  createdAt  DateTime       @default(now()) @map("created_at")
+
+  @@map("center_sessions")
+}
+
+// Buy-back price per material, in kobo per kg. Rates live in the DB rather
+// than in code so LAWMA can reprice without a redeploy.
+model MaterialRate {
+  id         String          @id @default(uuid())
+  material   DropOffMaterial @unique @map("material")
+  koboPerKg  Int             @map("kobo_per_kg")
+  isActive   Boolean         @default(true) @map("is_active")
+  updatedAt  DateTime        @updatedAt @map("updated_at")
+
+  @@map("material_rates")
+}
+
+// One weigh-in at the counter. Immutable financial record: the rate applied
+// is copied onto the row so a later reprice never rewrites history.
+model DropOff {
+  id             String           @id @default(uuid())
+  centerId       String           @map("center_id")
+  center         CollectionCenter @relation(fields: [centerId], references: [id], onDelete: Restrict)
+  operatorId     String           @map("operator_id")
+  operator       CenterOperator   @relation(fields: [operatorId], references: [id], onDelete: Restrict)
+  residentId     String           @map("resident_id")
+  resident       Resident         @relation(fields: [residentId], references: [id], onDelete: Cascade)
+
+  material       DropOffMaterial  @map("material")
+  weightGrams    Int              @map("weight_grams")
+  rateKoboPerKg  Int              @map("rate_kobo_per_kg")
+  amountKobo     Int              @map("amount_kobo")
+  pointsAwarded  Int              @map("points_awarded")
+
+  status         DropOffStatus    @default(CONFIRMED) @map("status")
+  flagReason     String?          @map("flag_reason")
+  receiptCode    String           @unique @map("receipt_code")
+  createdAt      DateTime         @default(now()) @map("created_at")
+
+  pointTransactions PointTransaction[]
+
+  @@index([residentId])
+  @@index([residentId, createdAt])
+  @@index([centerId, createdAt])
+  @@index([operatorId, createdAt])
+  @@index([status])
+  @@map("drop_offs")
 }

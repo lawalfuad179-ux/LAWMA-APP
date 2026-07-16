@@ -1,0 +1,387 @@
+/* Counter kiosk. Sized for a tablet on a desk with a queue in front of it:
+   large hit targets, high contrast, no decoration that costs a tap. */
+
+.shell {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-surface-container-low);
+}
+
+/* ── header ───────────────────────────────────────────────────────────── */
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 14px 20px;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-outline-variant);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.brandMark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  flex-shrink: 0;
+}
+
+.brandText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.brandTitle {
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--color-on-surface);
+}
+
+.brandSub {
+  font-size: 12px;
+  color: var(--color-on-surface-variant);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.shiftStats {
+  display: flex;
+  gap: 20px;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  line-height: 1.15;
+}
+
+.statValue {
+  font-size: 15px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-on-surface);
+}
+
+.statLabel {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  color: var(--color-on-surface-variant);
+}
+
+/* ── body ─────────────────────────────────────────────────────────────── */
+
+.body {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  padding: 24px 20px 40px;
+}
+
+.panel {
+  width: 100%;
+  max-width: 560px;
+}
+
+.steps {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.stepDot {
+  flex: 1;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--color-outline-variant);
+}
+
+.stepDotActive {
+  background: var(--color-primary);
+}
+
+.stepDotDone {
+  background: var(--color-secondary);
+}
+
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-outline-variant);
+  border-radius: 16px;
+  padding: 24px;
+}
+
+.title {
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--color-on-surface);
+}
+
+.subtitle {
+  margin-top: 6px;
+  font-size: 14px;
+  color: var(--color-on-surface-variant);
+}
+
+.form {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Button's own .root sets width:100%. Giving the flex items a basis of 0 makes
+   flex sizing win over that width, so the pair shares the row predictably
+   instead of each demanding full width. */
+.actions {
+  display: flex;
+  gap: 12px;
+}
+
+.actions > * {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.actions > .grow {
+  flex: 2 1 0;
+}
+
+/* ── resident banner ──────────────────────────────────────────────────── */
+
+.resident {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: var(--color-secondary-container);
+  color: var(--color-on-secondary-container);
+}
+
+.residentName {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.residentMeta {
+  font-size: 13px;
+  opacity: 0.85;
+  font-variant-numeric: tabular-nums;
+}
+
+.capWarn {
+  color: var(--color-on-status-warning-container);
+  background: var(--color-status-warning-container);
+}
+
+/* ── material grid ────────────────────────────────────────────────────── */
+
+.label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-on-surface-variant);
+}
+
+.materials {
+  margin-top: 8px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
+  gap: 10px;
+}
+
+.material {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 14px 12px;
+  border-radius: 12px;
+  border: 2px solid var(--color-outline-variant);
+  background: var(--color-surface);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.12s ease, background 0.12s ease;
+}
+
+.material:hover {
+  border-color: var(--color-outline);
+}
+
+.materialActive {
+  border-color: var(--color-primary);
+  background: var(--color-primary-container);
+  color: var(--color-on-primary-container);
+}
+
+.materialName {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.materialRate {
+  font-size: 12px;
+  opacity: 0.8;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── payout preview ───────────────────────────────────────────────────── */
+
+.payout {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 12px;
+  background: var(--color-surface-container);
+}
+
+.payoutLabel {
+  font-size: 13px;
+  color: var(--color-on-surface-variant);
+}
+
+.payoutValue {
+  font-size: 30px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-on-surface);
+  line-height: 1;
+}
+
+.payoutMuted {
+  color: var(--color-on-surface-variant);
+  opacity: 0.5;
+}
+
+/* ── receipt ──────────────────────────────────────────────────────────── */
+
+.receiptTop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+  padding: 8px 0 4px;
+}
+
+.tick {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--color-status-success-container);
+  color: var(--color-on-status-success-container);
+}
+
+.receiptAmount {
+  font-size: 40px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  color: var(--color-on-surface);
+}
+
+.receiptWho {
+  font-size: 15px;
+  color: var(--color-on-surface-variant);
+}
+
+.receiptRows {
+  margin-top: 18px;
+  border-top: 1px solid var(--color-outline-variant);
+}
+
+.receiptRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--color-outline-variant);
+  font-size: 14px;
+}
+
+.receiptKey {
+  color: var(--color-on-surface-variant);
+}
+
+.receiptVal {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-on-surface);
+}
+
+.code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  letter-spacing: 0.06em;
+}
+
+.flag {
+  margin-top: 16px;
+  display: flex;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: var(--color-status-warning-container);
+  color: var(--color-on-status-warning-container);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.flagIcon {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.flagTitle {
+  font-weight: 700;
+}
+
+.error {
+  margin-top: 14px;
+  padding: 11px 14px;
+  border-radius: 10px;
+  background: var(--color-status-error-container);
+  color: var(--color-on-status-error-container);
+  font-size: 13px;
+}
+
+@media (max-width: 560px) {
+  .shiftStats { gap: 14px; }
+  .headerRight { gap: 12px; }
+  .card { padding: 18px; }
+  .receiptAmount { font-size: 34px; }
+}
