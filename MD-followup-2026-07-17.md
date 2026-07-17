@@ -25,10 +25,10 @@ Maps 1:1 onto his four verbs.
 
 | His words | What it does |
 |---|---|
-| "take in waste" | Operator kiosk at `/center` — staffed counter, tablet-shaped, 4 taps per resident |
+| "take in waste" | Operator kiosk at `/center` — staffed counter, tablet-shaped, one screen per resident |
 | "register people" | Phone lookup; if unknown, one-step walk-up registration |
-| "weigh it" | Material + kg, live naira payout as you type |
-| "give them incentives" | Credits the resident's wallet instantly, receipt code handed over |
+| "weigh it" | Tally every material in one go — 5kg metal + 3kg plastic + 2kg paper is **one visit**, with live naira per line and a running total |
+| "give them incentives" | Credits the resident's wallet instantly, one itemised receipt handed over |
 
 ### The line worth leading with
 **The incentive isn't cash — it's their waste bill paying itself.**
