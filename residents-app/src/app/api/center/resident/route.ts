@@ -62,7 +62,7 @@ export async function GET(req: NextRequest) {
         status: { in: ['CONFIRMED', 'FLAGGED'] },
         createdAt: { gte: dayWindow },
       },
-      _sum: { weightGrams: true },
+      _sum: { totalWeightGrams: true },
     });
 
     return NextResponse.json({
@@ -72,7 +72,7 @@ export async function GET(req: NextRequest) {
         phoneNumber,
         resident: { id: resident.id, name: resident.name },
         today: {
-          weightGrams: todays._sum.weightGrams ?? 0,
+          weightGrams: todays._sum.totalWeightGrams ?? 0,
           capGrams: DROPOFF_GUARD.DAILY_KG_CAP * 1000,
         },
       },

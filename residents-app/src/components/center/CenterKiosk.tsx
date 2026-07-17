@@ -11,12 +11,19 @@ type Material = 'PLASTIC' | 'PAPER' | 'CARDBOARD' | 'METAL' | 'GLASS';
 type Rate = { material: Material; koboPerKg: number };
 type Resident = { id: string; name: string | null };
 
+type ReceiptLine = {
+  material: Material;
+  weightGrams: number;
+  rateKoboPerKg: number;
+  amountKobo: number;
+};
+
 type Receipt = {
   receiptCode: string;
   residentName: string | null;
-  material: Material;
-  weightGrams: number;
-  amountKobo: number;
+  lines: ReceiptLine[];
+  totalWeightGrams: number;
+  totalAmountKobo: number;
   pointsAwarded: number;
   newBalance: number;
   flagged: boolean;
@@ -38,6 +45,15 @@ const naira = (kobo: number) =>
 
 const kg = (grams: number) => `${(grams / 1000).toFixed(1)}kg`;
 
+const titleCase = (m: string) => m.charAt(0) + m.slice(1).toLowerCase();
+
+/** Whole grams from the operator's kg entry — money never rides on a float. */
+function gramsFrom(input: string): number | null {
+  const n = parseFloat(input);
+  if (!Number.isFinite(n) || n <= 0) return null;
+  return Math.round(n * 1000);
+}
+
 export function CenterKiosk({ operatorName, centerName, initialToday }: Props) {
   const [step, setStep] = useState<Step>('lookup');
   const [rates, setRates] = useState<Rate[]>([]);
@@ -48,8 +64,9 @@ export function CenterKiosk({ operatorName, centerName, initialToday }: Props) {
   const [resident, setResident] = useState<Resident | null>(null);
   const [residentToday, setResidentToday] = useState<{ weightGrams: number; capGrams: number } | null>(null);
 
-  const [material, setMaterial] = useState<Material | null>(null);
-  const [weightKg, setWeightKg] = useState('');
+  // Raw kg strings keyed by material — a resident brings one sack holding
+  // several materials, so the counter tallies them all before committing.
+  const [weights, setWeights] = useState<Partial<Record<Material, string>>>({});
   const [receipt, setReceipt] = useState<Receipt | null>(null);
 
   const [busy, setBusy] = useState(false);
@@ -75,8 +92,7 @@ export function CenterKiosk({ operatorName, centerName, initialToday }: Props) {
     setName('');
     setResident(null);
     setResidentToday(null);
-    setMaterial(null);
-    setWeightKg('');
+    setWeights({});
     setReceipt(null);
     setError(null);
     // Put the cursor straight back in the phone field — the next person in the
@@ -139,19 +155,17 @@ export function CenterKiosk({ operatorName, centerName, initialToday }: Props) {
 
   async function handleWeigh(e: React.FormEvent) {
     e.preventDefault();
-    if (!resident || !material) return;
-    const grams = Math.round(parseFloat(weightKg) * 1000);
-    if (!Number.isFinite(grams) || grams <= 0) {
-      setError('Enter the weight in kilograms.');
-      return;
-    }
+    if (!resident || tallyLines.length === 0) return;
     setBusy(true);
     setError(null);
     try {
       const res = await fetch('/api/center/dropoff', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ residentId: resident.id, material, weightGrams: grams }),
+        body: JSON.stringify({
+          residentId: resident.id,
+          lines: tallyLines.map((l) => ({ material: l.material, weightGrams: l.weightGrams })),
+        }),
       });
       const json = await res.json();
       if (!json.ok) {
@@ -168,12 +182,22 @@ export function CenterKiosk({ operatorName, centerName, initialToday }: Props) {
     }
   }
 
-  const activeRate = rates.find((r) => r.material === material) ?? null;
-  const parsedKg = parseFloat(weightKg);
-  const previewKobo =
-    activeRate && Number.isFinite(parsedKg) && parsedKg > 0
-      ? Math.floor(parsedKg * activeRate.koboPerKg)
-      : null;
+  // Priced client-side purely to show the operator a live total; the server
+  // re-prices from the rate table and its numbers are the ones that count.
+  const tallyLines = rates.flatMap((r) => {
+    const grams = gramsFrom(weights[r.material] ?? '');
+    if (grams === null) return [];
+    return [{
+      material: r.material,
+      weightGrams: grams,
+      amountKobo: Math.floor((grams / 1000) * r.koboPerKg),
+    }];
+  });
+
+  const previewKobo = tallyLines.length
+    ? tallyLines.reduce((s, l) => s + l.amountKobo, 0)
+    : null;
+  const previewGrams = tallyLines.reduce((s, l) => s + l.weightGrams, 0);
 
   const overCap =
     residentToday && residentToday.weightGrams >= residentToday.capGrams;
@@ -319,43 +343,69 @@ export function CenterKiosk({ operatorName, centerName, initialToday }: Props) {
               <form className={styles.form} onSubmit={handleWeigh}>
                 <div>
                   <span className={styles.label}>
-                    Material
+                    Weigh each material
                     <span className={styles.labelNote}>Indicative rates — LAWMA sets final pricing</span>
                   </span>
                   <div className={styles.materials}>
-                    {rates.map((r) => (
-                      <button
-                        key={r.material}
-                        type="button"
-                        onClick={() => setMaterial(r.material)}
-                        className={[
-                          styles.material,
-                          material === r.material ? styles.materialActive : '',
-                        ].filter(Boolean).join(' ')}
-                        aria-pressed={material === r.material}
-                      >
-                        <span className={styles.materialName}>
-                          {r.material.charAt(0) + r.material.slice(1).toLowerCase()}
-                        </span>
-                        <span className={styles.materialRate}>{naira(r.koboPerKg)}/kg</span>
-                      </button>
-                    ))}
+                    {rates.map((r) => {
+                      const raw = weights[r.material] ?? '';
+                      const grams = gramsFrom(raw);
+                      const amount = grams === null ? null : Math.floor((grams / 1000) * r.koboPerKg);
+                      const fieldId = `kg-${r.material.toLowerCase()}`;
+                      return (
+                        <div
+                          key={r.material}
+                          className={[
+                            styles.material,
+                            grams !== null ? styles.materialActive : '',
+                          ].filter(Boolean).join(' ')}
+                        >
+                          <label className={styles.materialHead} htmlFor={fieldId}>
+                            <span className={styles.materialName}>{titleCase(r.material)}</span>
+                            <span className={styles.materialRate}>{naira(r.koboPerKg)}/kg</span>
+                          </label>
+
+                          <span className={styles.kgField}>
+                            <input
+                              id={fieldId}
+                              className={styles.kgInput}
+                              type="number"
+                              inputMode="decimal"
+                              step="0.1"
+                              min="0"
+                              placeholder="0.0"
+                              value={raw}
+                              onChange={(e) =>
+                                setWeights((w) => ({ ...w, [r.material]: e.target.value }))
+                              }
+                              aria-label={`${titleCase(r.material)} weight in kilograms`}
+                            />
+                            <span className={styles.kgSuffix}>kg</span>
+                          </span>
+
+                          <span
+                            className={[
+                              styles.lineAmount,
+                              amount === null ? styles.lineAmountEmpty : '',
+                            ].filter(Boolean).join(' ')}
+                          >
+                            {amount === null ? '—' : naira(amount)}
+                          </span>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
 
-                <Input
-                  label="Weight (kg)"
-                  type="number"
-                  inputMode="decimal"
-                  step="0.1"
-                  min="0"
-                  placeholder="0.0"
-                  value={weightKg}
-                  onChange={(e) => setWeightKg(e.target.value)}
-                />
-
                 <div className={styles.payout}>
-                  <span className={styles.payoutLabel}>Credit to resident</span>
+                  <span className={styles.payoutLabel}>
+                    Credit to resident
+                    {tallyLines.length > 0 && (
+                      <span className={styles.payoutBreakdown}>
+                        {tallyLines.length} material{tallyLines.length > 1 ? 's' : ''} · {kg(previewGrams)}
+                      </span>
+                    )}
+                  </span>
                   <span
                     className={`${styles.payoutValue} ${previewKobo === null ? styles.payoutMuted : ''}`}
                   >
@@ -372,7 +422,7 @@ export function CenterKiosk({ operatorName, centerName, initialToday }: Props) {
                     size="lg"
                     className={styles.grow}
                     isLoading={busy}
-                    disabled={!material || previewKobo === null}
+                    disabled={previewKobo === null}
                   >
                     Confirm drop-off
                   </Button>
@@ -389,7 +439,7 @@ export function CenterKiosk({ operatorName, centerName, initialToday }: Props) {
                 <span className={styles.tick}>
                   <Check size={26} strokeWidth={2.5} />
                 </span>
-                <div className={styles.receiptAmount}>{naira(receipt.amountKobo)}</div>
+                <div className={styles.receiptAmount}>{naira(receipt.totalAmountKobo)}</div>
                 <div className={styles.receiptWho}>
                   credited to {receipt.residentName ?? 'resident'}
                 </div>
@@ -400,12 +450,24 @@ export function CenterKiosk({ operatorName, centerName, initialToday }: Props) {
                   <span className={styles.receiptKey}>Receipt</span>
                   <span className={`${styles.receiptVal} ${styles.code}`}>{receipt.receiptCode}</span>
                 </div>
-                <div className={styles.receiptRow}>
-                  <span className={styles.receiptKey}>Material</span>
-                  <span className={styles.receiptVal}>
-                    {receipt.material.charAt(0) + receipt.material.slice(1).toLowerCase()} · {kg(receipt.weightGrams)}
-                  </span>
-                </div>
+
+                {/* Itemised, so the resident can check what they were paid for. */}
+                {receipt.lines.map((l) => (
+                  <div className={styles.receiptRow} key={l.material}>
+                    <span className={styles.receiptKey}>
+                      {titleCase(l.material)} · {kg(l.weightGrams)}
+                    </span>
+                    <span className={styles.receiptVal}>{naira(l.amountKobo)}</span>
+                  </div>
+                ))}
+
+                {receipt.lines.length > 1 && (
+                  <div className={styles.receiptRow}>
+                    <span className={styles.receiptKey}>Total weighed</span>
+                    <span className={styles.receiptVal}>{kg(receipt.totalWeightGrams)}</span>
+                  </div>
+                )}
+
                 <div className={styles.receiptRow}>
                   <span className={styles.receiptKey}>Wallet balance</span>
                   <span className={styles.receiptVal}>{naira(receipt.newBalance * 100)}</span>

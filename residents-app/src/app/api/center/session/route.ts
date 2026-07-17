@@ -27,7 +27,8 @@ export async function GET() {
         status: { in: ['CONFIRMED', 'FLAGGED'] },
         createdAt: { gte: startOfDay },
       },
-      _sum: { weightGrams: true, amountKobo: true },
+      _sum: { totalWeightGrams: true, totalAmountKobo: true },
+      // Counts visits, i.e. people served — not materials weighed.
       _count: { _all: true },
     });
 
@@ -38,8 +39,8 @@ export async function GET() {
         centerName: session.centerName,
         today: {
           dropOffs: totals._count._all,
-          weightGrams: totals._sum.weightGrams ?? 0,
-          amountKobo: totals._sum.amountKobo ?? 0,
+          weightGrams: totals._sum.totalWeightGrams ?? 0,
+          amountKobo: totals._sum.totalAmountKobo ?? 0,
         },
       },
     });

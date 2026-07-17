@@ -9,14 +9,16 @@ import { db } from '@/lib/db';
 // guard always credits, marks the row FLAGGED, and leaves it for a supervisor
 // to VOID out-of-band. Staffing is the real control; this is the audit trail.
 export const DROPOFF_GUARD = {
-  // A single hand-carried weigh-in above this is implausible and likely a
-  // mis-keyed weight (e.g. grams typed into the kg field).
+  // A single visit above this is implausible and likely a mis-keyed weight
+  // (e.g. grams typed into the kg field).
   MAX_SINGLE_KG: 100,
   // Per-resident, per-rolling-24h. Generous enough for a genuine household
   // bulk clear-out; tight enough that recycling the same sack all day shows up.
   DAILY_KG_CAP: 50,
-  // Same resident weighed again inside this window — consistent with a sack
-  // being carried back around to the queue.
+  // Same resident back at the counter inside this window. Measured per VISIT,
+  // not per material — a resident who sorted metal, plastic and paper into one
+  // sack is one visit, and flagging them would punish exactly the behaviour the
+  // scheme exists to encourage.
   REENTRY_WINDOW_MS: 10 * 60 * 1000,
   DAILY_WINDOW_MS: 24 * 60 * 60 * 1000,
 };
@@ -27,9 +29,11 @@ export type GuardVerdict = {
 };
 
 /**
- * Evaluates a proposed weigh-in against the abuse heuristics.
- * Never throws and never rejects — returns whether the row should be written
+ * Evaluates a proposed VISIT against the abuse heuristics.
+ * Never throws and never rejects — returns whether the visit should be written
  * as FLAGGED, and why. Reasons are written to DropOff.flagReason for review.
+ *
+ * `weightGrams` is the total across every material in the visit.
  */
 export async function evaluateDropOff(args: {
   residentId: string;
@@ -38,11 +42,11 @@ export async function evaluateDropOff(args: {
   const { residentId, weightGrams } = args;
   const reasons: string[] = [];
 
-  // ── Layer 1: implausible single weight ──────────────────────────────────
+  // ── Layer 1: implausible visit weight ───────────────────────────────────
   const kg = weightGrams / 1000;
   if (kg > DROPOFF_GUARD.MAX_SINGLE_KG) {
     reasons.push(
-      `Single weigh-in of ${kg.toFixed(1)}kg exceeds the ${DROPOFF_GUARD.MAX_SINGLE_KG}kg plausibility limit`,
+      `Visit total of ${kg.toFixed(1)}kg exceeds the ${DROPOFF_GUARD.MAX_SINGLE_KG}kg plausibility limit`,
     );
   }
 
@@ -54,9 +58,9 @@ export async function evaluateDropOff(args: {
       status: { in: ['CONFIRMED', 'FLAGGED'] },
       createdAt: { gte: dayWindow },
     },
-    _sum: { weightGrams: true },
+    _sum: { totalWeightGrams: true },
   });
-  const priorGrams = todays._sum.weightGrams ?? 0;
+  const priorGrams = todays._sum.totalWeightGrams ?? 0;
   const totalKg = (priorGrams + weightGrams) / 1000;
   if (totalKg > DROPOFF_GUARD.DAILY_KG_CAP) {
     reasons.push(
@@ -77,7 +81,7 @@ export async function evaluateDropOff(args: {
   });
   if (recent) {
     const minsAgo = Math.round((Date.now() - recent.createdAt.getTime()) / 60000);
-    reasons.push(`Resident already weighed in ${minsAgo} min ago`);
+    reasons.push(`Resident already visited the counter ${minsAgo} min ago`);
   }
 
   return {

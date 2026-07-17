@@ -433,8 +433,12 @@ model MaterialRate {
   @@map("material_rates")
 }
 
-// One weigh-in at the counter. Immutable financial record: the rate applied
-// is copied onto the row so a later reprice never rewrites history.
+// One VISIT to the counter: a person, a sack, one handover, one payment.
+//
+// A resident who sorted their waste properly arrives with several materials.
+// That is one visit with several lines — not several visits — otherwise the
+// re-entry guard flags the best-behaved residents, the queue pays for repeated
+// lookups, and "residents served today" counts sacks instead of people.
 model DropOff {
   id             String           @id @default(uuid())
   centerId       String           @map("center_id")
@@ -444,17 +448,16 @@ model DropOff {
   residentId     String           @map("resident_id")
   resident       Resident         @relation(fields: [residentId], references: [id], onDelete: Cascade)
 
-  material       DropOffMaterial  @map("material")
-  weightGrams    Int              @map("weight_grams")
-  rateKoboPerKg  Int              @map("rate_kobo_per_kg")
-  amountKobo     Int              @map("amount_kobo")
-  pointsAwarded  Int              @map("points_awarded")
+  totalWeightGrams Int            @map("total_weight_grams")
+  totalAmountKobo  Int            @map("total_amount_kobo")
+  pointsAwarded    Int            @map("points_awarded")
 
   status         DropOffStatus    @default(CONFIRMED) @map("status")
   flagReason     String?          @map("flag_reason")
   receiptCode    String           @unique @map("receipt_code")
   createdAt      DateTime         @default(now()) @map("created_at")
 
+  lines             DropOffLine[]
   pointTransactions PointTransaction[]
 
   @@index([residentId])
@@ -463,4 +466,26 @@ model DropOff {
   @@index([operatorId, createdAt])
   @@index([status])
   @@map("drop_offs")
+}
+
+// One material weighed within a visit. Immutable financial record: the rate
+// applied is copied onto the line so a later reprice never rewrites history.
+// Kept per-material (rather than folded into the visit total) because LAWMA
+// needs to know how much metal a centre actually bought.
+model DropOffLine {
+  id            String          @id @default(uuid())
+  dropOffId     String          @map("drop_off_id")
+  dropOff       DropOff         @relation(fields: [dropOffId], references: [id], onDelete: Cascade)
+
+  material      DropOffMaterial @map("material")
+  weightGrams   Int             @map("weight_grams")
+  rateKoboPerKg Int             @map("rate_kobo_per_kg")
+  amountKobo    Int             @map("amount_kobo")
+
+  // One line per material per visit: two sacks of plastic are summed at the
+  // counter, which keeps the receipt readable and the tally unambiguous.
+  @@unique([dropOffId, material])
+  @@index([dropOffId])
+  @@index([material])
+  @@map("drop_off_lines")
 }

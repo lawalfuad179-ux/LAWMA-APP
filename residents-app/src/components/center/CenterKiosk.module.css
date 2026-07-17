@@ -100,7 +100,7 @@
   flex: 1;
   display: flex;
   justify-content: center;
-  padding: 24px 20px 40px;
+  padding: 16px 20px 24px;
 }
 
 .panel {
@@ -112,7 +112,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 20px;
+  margin-bottom: 12px;
 }
 
 .stepDot {
@@ -134,7 +134,7 @@
   background: var(--color-surface);
   border: 1px solid var(--color-outline-variant);
   border-radius: 16px;
-  padding: 24px;
+  padding: 18px;
 }
 
 .title {
@@ -151,10 +151,10 @@
 }
 
 .form {
-  margin-top: 20px;
+  margin-top: 16px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
 }
 
 /* Button's own .root sets width:100%. Giving the flex items a basis of 0 makes
@@ -181,7 +181,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 14px 16px;
+  padding: 10px 14px;
   border-radius: 12px;
   background: var(--color-secondary-container);
   color: var(--color-on-secondary-container);
@@ -223,47 +223,116 @@
   opacity: 0.75;
 }
 
+/* Tally: one row per material with an inline kg field. A resident who sorted
+   their waste is one visit with several lines, so the operator types into the
+   rows that apply and confirms once — rather than running the whole flow again
+   per material while a queue waits. */
 .materials {
   margin-top: 8px;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
-  gap: 10px;
-}
-
-.material {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 2px;
-  padding: 14px 12px;
-  border-radius: 12px;
+  gap: 6px;
+}
+
+/* Compact on purpose: all five materials, the total and Confirm must fit
+   without scrolling on a counter tablet. Scrolling to reach the pay button
+   while a queue waits is exactly the friction this flow exists to avoid. */
+.material {
+  display: grid;
+  grid-template-columns: 1fr 96px 76px;
+  align-items: center;
+  gap: 12px;
+  padding: 7px 12px;
+  border-radius: 10px;
   border: 2px solid var(--color-outline-variant);
   background: var(--color-surface);
-  cursor: pointer;
-  text-align: left;
   transition: border-color 0.12s ease, background 0.12s ease;
 }
 
-.material:hover {
-  border-color: var(--color-outline);
-}
-
+/* A row lights up once it has weight on it, so the basket is readable at a
+   glance before the operator commits real money. */
 .materialActive {
   border-color: var(--color-primary);
   background: var(--color-primary-container);
-  color: var(--color-on-primary-container);
+}
+
+/* Name and rate on one line — reads like a rate card, and keeps the row height
+   driven by the input rather than by stacked text. */
+.materialHead {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+  cursor: pointer;
 }
 
 .materialName {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
   letter-spacing: 0.01em;
+  color: var(--color-on-surface);
 }
 
 .materialRate {
   font-size: 12px;
-  opacity: 0.8;
+  opacity: 0.75;
   font-variant-numeric: tabular-nums;
+  color: var(--color-on-surface-variant);
+}
+
+.kgField {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.kgInput {
+  width: 100%;
+  padding: 7px 28px 7px 10px;
+  border-radius: 9px;
+  border: 1px solid var(--color-outline-variant);
+  background: var(--color-surface);
+  color: var(--color-on-surface);
+  font-size: 15px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  /* Spinners steal width and nobody nudges a weight by 0.1 with a mouse. */
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+.kgInput::-webkit-outer-spin-button,
+.kgInput::-webkit-inner-spin-button {
+  appearance: none;
+  margin: 0;
+}
+
+.kgInput:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px hsla(24, 98%, 50%, 0.12);
+}
+
+.kgSuffix {
+  position: absolute;
+  right: 10px;
+  font-size: 12px;
+  pointer-events: none;
+  color: var(--color-on-surface-variant);
+}
+
+.lineAmount {
+  font-size: 14px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  color: var(--color-on-surface);
+}
+
+.lineAmountEmpty {
+  font-weight: 400;
+  opacity: 0.35;
 }
 
 /* ── payout preview ───────────────────────────────────────────────────── */
@@ -273,14 +342,23 @@
   align-items: baseline;
   justify-content: space-between;
   gap: 12px;
-  padding: 16px;
+  padding: 12px 14px;
   border-radius: 12px;
   background: var(--color-surface-container);
 }
 
 .payoutLabel {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
   font-size: 13px;
   color: var(--color-on-surface-variant);
+}
+
+.payoutBreakdown {
+  font-size: 12px;
+  opacity: 0.8;
+  font-variant-numeric: tabular-nums;
 }
 
 .payoutValue {
