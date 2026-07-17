@@ -30,6 +30,15 @@ Maps 1:1 onto his four verbs.
 | "weigh it" | Tally every material in one go — 5kg metal + 3kg plastic + 2kg paper is **one visit**, with live naira per line and a running total |
 | "give them incentives" | Credits the resident's wallet instantly, one itemised receipt handed over |
 
+### New since the last build
+- The resident **sees the money land**: a reward-wallet card on their home screen and a
+  full wallet ledger under Payments, updated the moment the counter confirms.
+- **Every payout notifies on three channels** — in-app notification, SMS, and email receipt
+  (queued, preference-aware). Tricycle operators get SMS for fees, arrears and top-ups.
+- Staff consoles got a proper **navigation rail** (bottom bar on phones), one LAWMA-branded
+  sign-in with a per-portal identifier, and operators are now **locked to their own console**
+  (a station attendant can't trade as a buy-back counter).
+
 ### The line worth leading with
 **The incentive isn't cash — it's their waste bill paying itself.**
 Credit lands in the same wallet the app already applies to bills. Bring 6kg of plastic to
