@@ -1,7 +1,16 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { AlertTriangle, Check, Recycle, Search } from 'lucide-react';
+import {
+  AlertTriangle,
+  Banknote,
+  Check,
+  History,
+  LogOut,
+  Recycle,
+  Search,
+  Wallet,
+} from 'lucide-react';
 
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -18,6 +27,8 @@ type ReceiptLine = {
   amountKobo: number;
 };
 
+type PayoutMethod = 'CREDIT' | 'CASH';
+
 type Receipt = {
   receiptCode: string;
   residentName: string | null;
@@ -25,12 +36,25 @@ type Receipt = {
   totalWeightGrams: number;
   totalAmountKobo: number;
   pointsAwarded: number;
+  payoutMethod: PayoutMethod;
   newBalance: number;
   flagged: boolean;
   flagReason: string | null;
 };
 
-type Step = 'lookup' | 'register' | 'weigh' | 'receipt';
+type HistoryVisit = {
+  id: string;
+  receiptCode: string;
+  residentName: string | null;
+  totalWeightGrams: number;
+  totalAmountKobo: number;
+  payoutMethod: PayoutMethod;
+  status: 'CONFIRMED' | 'FLAGGED' | 'VOIDED';
+  createdAt: string;
+  summary: string;
+};
+
+type Step = 'lookup' | 'register' | 'weigh' | 'receipt' | 'history';
 
 type Props = {
   operatorName: string;
@@ -67,7 +91,13 @@ export function CenterKiosk({ operatorName, centerName, initialToday }: Props) {
   // Raw kg strings keyed by material — a resident brings one sack holding
   // several materials, so the counter tallies them all before committing.
   const [weights, setWeights] = useState<Partial<Record<Material, string>>>({});
+  // Wallet credit is the default and the story; cash exists for residents who
+  // want the money in hand today.
+  const [payout, setPayout] = useState<PayoutMethod>('CREDIT');
   const [receipt, setReceipt] = useState<Receipt | null>(null);
+
+  const [history, setHistory] = useState<HistoryVisit[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
 
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -93,6 +123,7 @@ export function CenterKiosk({ operatorName, centerName, initialToday }: Props) {
     setResident(null);
     setResidentToday(null);
     setWeights({});
+    setPayout('CREDIT');
     setReceipt(null);
     setError(null);
     // Put the cursor straight back in the phone field — the next person in the
@@ -164,6 +195,7 @@ export function CenterKiosk({ operatorName, centerName, initialToday }: Props) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           residentId: resident.id,
+          payoutMethod: payout,
           lines: tallyLines.map((l) => ({ material: l.material, weightGrams: l.weightGrams })),
         }),
       });
@@ -180,6 +212,17 @@ export function CenterKiosk({ operatorName, centerName, initialToday }: Props) {
     } finally {
       setBusy(false);
     }
+  }
+
+  function openHistory() {
+    setStep('history');
+    setError(null);
+    setHistoryLoading(true);
+    fetch('/api/center/history')
+      .then((r) => r.json())
+      .then((j) => { if (j.ok) setHistory(j.data.visits); })
+      .catch(() => {})
+      .finally(() => setHistoryLoading(false));
   }
 
   // Priced client-side purely to show the operator a live total; the server
@@ -202,7 +245,7 @@ export function CenterKiosk({ operatorName, centerName, initialToday }: Props) {
   const overCap =
     residentToday && residentToday.weightGrams >= residentToday.capGrams;
 
-  const stepIndex = { lookup: 0, register: 0, weigh: 1, receipt: 2 }[step];
+  const stepIndex = { lookup: 0, register: 0, weigh: 1, receipt: 2, history: -1 }[step];
 
   return (
     <div className={styles.shell}>
@@ -232,34 +275,54 @@ export function CenterKiosk({ operatorName, centerName, initialToday }: Props) {
               <span className={styles.statLabel}>Paid out</span>
             </div>
           </div>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={async () => {
-              await fetch('/api/center/session', { method: 'DELETE' });
-              window.location.reload();
-            }}
-          >
-            Sign out
-          </Button>
+          <span className={styles.headerDivider} aria-hidden="true" />
+
+          <div className={styles.headerActions}>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => (step === 'history' ? reset() : openHistory())}
+            >
+              <span className={styles.btnWithIcon}>
+                <History size={15} strokeWidth={1.8} />
+                History
+              </span>
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={async () => {
+                await fetch('/api/center/session', { method: 'DELETE' });
+                window.location.reload();
+              }}
+            >
+              <span className={styles.btnWithIcon}>
+                <LogOut size={15} strokeWidth={1.8} />
+                Sign out
+              </span>
+            </Button>
+          </div>
         </div>
       </header>
 
       <main className={styles.body}>
         <div className={styles.panel}>
-          <div className={styles.steps} aria-hidden="true">
-            {[0, 1, 2].map((i) => (
-              <span
-                key={i}
-                className={[
-                  styles.stepDot,
-                  i === stepIndex ? styles.stepDotActive : '',
-                  i < stepIndex ? styles.stepDotDone : '',
-                ].filter(Boolean).join(' ')}
-              />
-            ))}
-          </div>
+          {step !== 'history' && (
+            <div className={styles.steps} aria-hidden="true">
+              {[0, 1, 2].map((i) => (
+                <span
+                  key={i}
+                  className={[
+                    styles.stepDot,
+                    i === stepIndex ? styles.stepDotActive : '',
+                    i < stepIndex ? styles.stepDotDone : '',
+                  ].filter(Boolean).join(' ')}
+                />
+              ))}
+            </div>
+          )}
 
           {/* ── Step 1: find the person ───────────────────────────────── */}
           {step === 'lookup' && (
@@ -418,14 +481,40 @@ export function CenterKiosk({ operatorName, centerName, initialToday }: Props) {
                 </div>
 
                 <div className={styles.payout}>
-                  <span className={styles.payoutLabel}>
-                    Credit to resident
-                    {tallyLines.length > 0 && (
-                      <span className={styles.payoutBreakdown}>
-                        {tallyLines.length} material{tallyLines.length > 1 ? 's' : ''} · {kg(previewGrams)}
-                      </span>
-                    )}
-                  </span>
+                  <div className={styles.payoutLeft}>
+                    {/* Credit is the default and the story — the waste bill pays
+                        itself. Cash is one tap away for residents who want the
+                        money in hand today. */}
+                    <div className={styles.segment} role="radiogroup" aria-label="Payout method">
+                      <button
+                        type="button"
+                        role="radio"
+                        aria-checked={payout === 'CREDIT'}
+                        className={payout === 'CREDIT' ? styles.segActive : ''}
+                        onClick={() => setPayout('CREDIT')}
+                      >
+                        <Wallet size={13} strokeWidth={1.8} />
+                        App credit
+                      </button>
+                      <button
+                        type="button"
+                        role="radio"
+                        aria-checked={payout === 'CASH'}
+                        className={payout === 'CASH' ? styles.segActive : ''}
+                        onClick={() => setPayout('CASH')}
+                      >
+                        <Banknote size={13} strokeWidth={1.8} />
+                        Cash
+                      </button>
+                    </div>
+                    <span className={styles.payoutBreakdown}>
+                      {tallyLines.length > 0
+                        ? `${tallyLines.length} material${tallyLines.length > 1 ? 's' : ''} · ${kg(previewGrams)} · ${
+                            payout === 'CREDIT' ? 'goes to their waste bill' : 'pay from the till'
+                          }`
+                        : 'Weigh a material to begin'}
+                    </span>
+                  </div>
                   <span
                     className={`${styles.payoutValue} ${previewKobo === null ? styles.payoutMuted : ''}`}
                   >
@@ -461,16 +550,14 @@ export function CenterKiosk({ operatorName, centerName, initialToday }: Props) {
                 </span>
                 <div className={styles.receiptAmount}>{naira(receipt.totalAmountKobo)}</div>
                 <div className={styles.receiptWho}>
-                  credited to {receipt.residentName ?? 'resident'}
+                  {receipt.payoutMethod === 'CASH'
+                    ? <>pay <strong>cash</strong> to {receipt.residentName ?? 'resident'}</>
+                    : <>credited to {receipt.residentName ?? 'resident'}</>}
                 </div>
+                <span className={styles.codeChip}>{receipt.receiptCode}</span>
               </div>
 
               <div className={styles.receiptRows}>
-                <div className={styles.receiptRow}>
-                  <span className={styles.receiptKey}>Receipt</span>
-                  <span className={`${styles.receiptVal} ${styles.code}`}>{receipt.receiptCode}</span>
-                </div>
-
                 {/* Itemised, so the resident can check what they were paid for. */}
                 {receipt.lines.map((l) => (
                   <div className={styles.receiptRow} key={l.material}>
@@ -489,9 +576,18 @@ export function CenterKiosk({ operatorName, centerName, initialToday }: Props) {
                 )}
 
                 <div className={styles.receiptRow}>
-                  <span className={styles.receiptKey}>Wallet balance</span>
-                  <span className={styles.receiptVal}>{naira(receipt.newBalance * 100)}</span>
+                  <span className={styles.receiptKey}>Payout</span>
+                  <span className={styles.receiptVal}>
+                    {receipt.payoutMethod === 'CASH' ? 'Cash at counter' : 'Wallet credit'}
+                  </span>
                 </div>
+
+                {receipt.payoutMethod === 'CREDIT' && (
+                  <div className={styles.receiptRow}>
+                    <span className={styles.receiptKey}>Wallet balance</span>
+                    <span className={styles.receiptVal}>{naira(receipt.newBalance * 100)}</span>
+                  </div>
+                )}
               </div>
 
               {receipt.flagged && (
@@ -499,7 +595,8 @@ export function CenterKiosk({ operatorName, centerName, initialToday }: Props) {
                   <AlertTriangle size={16} className={styles.flagIcon} />
                   <span>
                     <span className={styles.flagTitle}>Flagged for supervisor review. </span>
-                    {receipt.flagReason} — the resident has still been credited.
+                    {receipt.flagReason} — the resident has still been{' '}
+                    {receipt.payoutMethod === 'CASH' ? 'paid' : 'credited'}.
                   </span>
                 </div>
               )}
@@ -507,6 +604,63 @@ export function CenterKiosk({ operatorName, centerName, initialToday }: Props) {
               <div className={styles.form}>
                 <Button size="lg" onClick={reset} autoFocus>
                   Next resident
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* ── History: this operator's shift ────────────────────────── */}
+          {step === 'history' && (
+            <div className={styles.card}>
+              <div className={styles.historyHead}>
+                <h1 className={styles.title}>Today&apos;s weigh-ins</h1>
+                <span className={styles.historyCount}>
+                  {historyLoading ? '…' : `${history.length} visit${history.length === 1 ? '' : 's'}`}
+                </span>
+              </div>
+
+              {historyLoading ? (
+                <p className={styles.subtitle}>Loading your shift…</p>
+              ) : history.length === 0 ? (
+                <p className={styles.subtitle}>
+                  Nothing weighed yet this shift. Your visits will appear here as you record them.
+                </p>
+              ) : (
+                <div className={styles.historyList}>
+                  {history.map((v) => (
+                    <div className={styles.historyRow} key={v.id}>
+                      <span className={styles.historyAvatar} aria-hidden="true">
+                        {(v.residentName?.trim().charAt(0) || 'R').toUpperCase()}
+                      </span>
+                      <div className={styles.historyMeta}>
+                        <span className={styles.historyName}>{v.residentName ?? 'Resident'}</span>
+                        <span className={styles.historySub}>
+                          {new Date(v.createdAt).toLocaleTimeString('en-NG', {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}{' '}
+                          · {v.summary}
+                        </span>
+                      </div>
+                      <div className={styles.historyRight}>
+                        <span className={styles.historyAmt}>{naira(v.totalAmountKobo)}</span>
+                        <span className={styles.historyChips}>
+                          <span className={`${styles.chip} ${v.payoutMethod === 'CASH' ? styles.chipCash : styles.chipCredit}`}>
+                            {v.payoutMethod === 'CASH' ? 'Cash' : 'Credit'}
+                          </span>
+                          {v.status === 'FLAGGED' && (
+                            <span className={`${styles.chip} ${styles.chipFlag}`}>Flagged</span>
+                          )}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <div className={styles.form}>
+                <Button size="lg" onClick={reset}>
+                  Back to counter
                 </Button>
               </div>
             </div>

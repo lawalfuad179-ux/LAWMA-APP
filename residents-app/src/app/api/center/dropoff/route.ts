@@ -13,6 +13,9 @@ const MATERIALS = ['PLASTIC', 'PAPER', 'CARDBOARD', 'METAL', 'GLASS'] as const;
 
 const schema = z.object({
   residentId: z.string().uuid(),
+  // CREDIT lands in the app wallet; CASH is handed over at the counter and the
+  // visit is recorded for reconciliation only — no wallet movement.
+  payoutMethod: z.enum(['CREDIT', 'CASH']).default('CREDIT'),
   // One entry per material. The kiosk converts the operator's kg entry to whole
   // grams before sending, so money never depends on a float round-trip.
   lines: z
@@ -63,7 +66,7 @@ export async function POST(req: NextRequest) {
         { status: 400 },
       );
     }
-    const { residentId, lines } = parsed.data;
+    const { residentId, payoutMethod, lines } = parsed.data;
 
     const [resident, rates] = await Promise.all([
       db.resident.findUnique({ where: { id: residentId }, select: { id: true, name: true } }),
@@ -102,7 +105,9 @@ export async function POST(req: NextRequest) {
 
     const totalWeightGrams = priced.reduce((s, l) => s + l.weightGrams, 0);
     const totalAmountKobo = priced.reduce((s, l) => s + l.amountKobo, 0);
-    const pointsAwarded = koboToPoints(totalAmountKobo);
+    // Cash leaves the till, not the wallet — a cash visit earns no points, it
+    // just gets recorded so the shift's cash reconciles to receipts.
+    const pointsAwarded = payoutMethod === 'CREDIT' ? koboToPoints(totalAmountKobo) : 0;
 
     // Evaluated against the visit total. Flags, never blocks — see the design
     // note in dropoff-guard.ts.
@@ -117,6 +122,7 @@ export async function POST(req: NextRequest) {
           totalWeightGrams,
           totalAmountKobo,
           pointsAwarded,
+          payoutMethod,
           status: verdict.flagged ? 'FLAGGED' : 'CONFIRMED',
           flagReason: verdict.reason,
           receiptCode: buildReceiptCode(session.centerName),
@@ -125,9 +131,9 @@ export async function POST(req: NextRequest) {
         include: { lines: true },
       });
 
-      // Zero-value visits (a few grams) still get a row for the audit trail, but
-      // must not write a 0-point ledger entry — that would litter the resident's
-      // history with meaningless lines.
+      // Cash visits and zero-value visits (a few grams) still get a row for the
+      // audit trail, but write nothing to the wallet or ledger — cash left the
+      // till physically, and a 0-point ledger entry would just be noise.
       let newBalance: number;
       if (pointsAwarded > 0) {
         const account = await tx.rewardAccount.upsert({
@@ -178,6 +184,7 @@ export async function POST(req: NextRequest) {
       lineCount: priced.length,
       totalWeightGrams,
       totalAmountKobo,
+      payoutMethod,
       flagged: verdict.flagged,
     });
 
@@ -190,6 +197,7 @@ export async function POST(req: NextRequest) {
         totalWeightGrams,
         totalAmountKobo,
         pointsAwarded,
+        payoutMethod,
         newBalance: result.newBalance,
         flagged: verdict.flagged,
         flagReason: verdict.reason,

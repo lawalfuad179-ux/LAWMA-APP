@@ -81,6 +81,14 @@ enum DropOffStatus {
   VOIDED  // reversed by a supervisor
 }
 
+// How the resident took their payout at the counter. CREDIT lands in the app
+// wallet (and auto-applies to their waste bill); CASH is handed over
+// physically — recorded so every cash naira reconciles to an operator + receipt.
+enum PayoutMethod {
+  CREDIT
+  CASH
+}
+
 model Resident {
   id                     String        @id @default(uuid())
   phoneNumber            String?       @unique @map("phone_number")
@@ -451,6 +459,7 @@ model DropOff {
   totalWeightGrams Int            @map("total_weight_grams")
   totalAmountKobo  Int            @map("total_amount_kobo")
   pointsAwarded    Int            @map("points_awarded")
+  payoutMethod     PayoutMethod   @default(CREDIT) @map("payout_method")
 
   status         DropOffStatus    @default(CONFIRMED) @map("status")
   flagReason     String?          @map("flag_reason")
