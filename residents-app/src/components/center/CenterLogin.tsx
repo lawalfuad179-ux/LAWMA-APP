@@ -7,7 +7,23 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import styles from './CenterLogin.module.css';
 
-export function CenterLogin() {
+type Props = {
+  // The station reuses this sign-in wholesale — same operators, same session,
+  // different copy and landing route.
+  title?: string;
+  subtitle?: string;
+  cta?: string;
+  redirectTo?: string;
+  placeholderCode?: string;
+};
+
+export function CenterLogin({
+  title = 'Collection centre',
+  subtitle = 'Staff sign-in for the buy-back counter.',
+  cta = 'Open counter',
+  redirectTo = '/center',
+  placeholderCode = 'SIM01',
+}: Props) {
   const [staffCode, setStaffCode] = useState('');
   const [passcode, setPasscode] = useState('');
   const [busy, setBusy] = useState(false);
@@ -29,7 +45,7 @@ export function CenterLogin() {
         return;
       }
       // Full reload so the server component re-reads the new session cookie.
-      window.location.href = '/center';
+      window.location.href = redirectTo;
     } catch {
       setError('Network problem. Check the connection and try again.');
     } finally {
@@ -43,8 +59,8 @@ export function CenterLogin() {
         <span className={styles.mark}>
           <Recycle size={22} strokeWidth={2} />
         </span>
-        <h1 className={styles.title}>Collection centre</h1>
-        <p className={styles.subtitle}>Staff sign-in for the buy-back counter.</p>
+        <h1 className={styles.title}>{title}</h1>
+        <p className={styles.subtitle}>{subtitle}</p>
 
         <form className={styles.form} onSubmit={handleSubmit}>
           <Input
@@ -52,7 +68,7 @@ export function CenterLogin() {
             autoFocus
             autoCapitalize="characters"
             autoComplete="off"
-            placeholder="SIM01"
+            placeholder={placeholderCode}
             value={staffCode}
             onChange={(e) => setStaffCode(e.target.value.toUpperCase())}
           />
@@ -71,7 +87,7 @@ export function CenterLogin() {
             isLoading={busy}
             disabled={!staffCode || !passcode}
           >
-            Open counter
+            {cta}
           </Button>
         </form>
 

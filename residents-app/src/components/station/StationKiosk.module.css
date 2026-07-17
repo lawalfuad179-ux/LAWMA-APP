@@ -1,0 +1,843 @@
+/* Weighbridge console. Same tablet-on-a-desk assumptions as the centre kiosk:
+   large hit targets, high contrast, everything above the fold. */
+
+.shell {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-surface-container-low);
+}
+
+/* ── header (mirrors CenterKiosk) ─────────────────────────────────────── */
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 14px 20px;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-outline-variant);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.brandMark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  flex-shrink: 0;
+}
+
+.brandText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.brandTitle {
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--color-on-surface);
+}
+
+.brandSub {
+  font-size: 12px;
+  color: var(--color-on-surface-variant);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.headerDivider {
+  width: 1px;
+  height: 30px;
+  background: var(--color-outline-variant);
+  flex-shrink: 0;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.btnWithIcon {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.shiftStats {
+  display: flex;
+  gap: 12px;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  min-width: 76px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--color-outline-variant);
+  background: var(--color-surface-container-low);
+  line-height: 1;
+}
+
+.statValue {
+  font-size: 15px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-on-surface);
+}
+
+.statLabel {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  color: var(--color-on-surface-variant);
+}
+
+/* ── body ─────────────────────────────────────────────────────────────── */
+
+.body {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  padding: 14px 20px 12px;
+}
+
+.panel {
+  width: 100%;
+  max-width: 560px;
+}
+
+.steps {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.stepDot {
+  flex: 1;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--color-outline-variant);
+}
+
+.stepDotActive {
+  background: var(--color-primary);
+}
+
+.stepDotDone {
+  background: var(--color-secondary);
+}
+
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-outline-variant);
+  border-radius: 16px;
+  padding: 18px;
+}
+
+.title {
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--color-on-surface);
+}
+
+.subtitle {
+  margin-top: 10px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: var(--color-surface-container-low);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-on-surface-variant);
+}
+
+.form {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.actions {
+  margin-top: 16px;
+  display: flex;
+  gap: 12px;
+}
+
+.actions > * {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.actions > .grow {
+  flex: 2 1 0;
+}
+
+.form .actions {
+  margin-top: 0;
+}
+
+/* ── armed state ──────────────────────────────────────────────────────── */
+
+.armedTop {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+/* The "listening" antenna. Quiet ripple while armed; tightens into a busy
+   spin-free shimmer while a tag is being read. */
+.pulseRing {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: color-mix(in srgb, var(--color-primary-container) 55%, var(--color-surface));
+  color: var(--color-primary);
+}
+
+.pulseRing::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid color-mix(in srgb, var(--color-primary) 55%, transparent);
+  animation: ripple 2.2s ease-out infinite;
+}
+
+.pulseReading {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+.pulseReading::after {
+  animation-duration: 0.8s;
+}
+
+@keyframes ripple {
+  0% { transform: scale(1); opacity: 0.9; }
+  100% { transform: scale(1.55); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pulseRing::after { animation: none; opacity: 0.4; }
+}
+
+.armedText {
+  min-width: 0;
+}
+
+.armedSub {
+  margin-top: 4px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--color-on-surface-variant);
+}
+
+/* ── fleet cards (the simulator's "approaching tricycles") ────────────── */
+
+.fleet {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.fleetCard {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 9px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--color-outline-variant);
+  background: var(--color-surface);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.12s ease, background 0.12s ease;
+}
+
+.fleetCard:hover:not(:disabled) {
+  border-color: color-mix(in srgb, var(--color-primary) 45%, var(--color-outline-variant));
+  background: color-mix(in srgb, var(--color-primary-container) 30%, var(--color-surface));
+}
+
+.fleetCard:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.fleetAvatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: color-mix(in srgb, var(--color-secondary-container) 45%, var(--color-surface));
+  color: var(--color-on-secondary-container);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.fleetInfo {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.fleetName {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-on-surface);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fleetMeta {
+  font-size: 12px;
+  color: var(--color-on-surface-variant);
+  font-variant-numeric: tabular-nums;
+}
+
+.fleetRight {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+/* RFID tag as a mono chip — reads like the printed label on the vehicle. */
+.tagChip {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--color-surface-container);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--color-on-surface-variant);
+}
+
+.balance {
+  font-size: 13px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-on-surface);
+}
+
+.balanceLow {
+  color: var(--color-on-status-warning-container);
+}
+
+.balanceNegative {
+  color: var(--color-error);
+}
+
+.tagForm {
+  margin-top: 14px;
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+/* Button's own root sets width:100%; zero flex-bases make the row split
+   predictably (same trick as .actions in the centre kiosk). */
+.tagForm > :first-child {
+  flex: 3 1 0;
+  min-width: 0;
+}
+
+.tagForm > :last-child {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+/* ── vehicle banner (mirrors the resident banner) ─────────────────────── */
+
+.vehicle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--color-secondary-container) 30%, var(--color-surface));
+  color: var(--color-on-secondary-container);
+}
+
+.vehicleNegative {
+  background: color-mix(in srgb, var(--color-status-warning-container) 55%, var(--color-surface));
+  color: var(--color-on-status-warning-container);
+}
+
+.vehicleMark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--color-secondary);
+  color: var(--color-on-secondary);
+}
+
+.vehicleInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.vehicleName {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.vehicleMeta {
+  font-size: 13px;
+  opacity: 0.85;
+  font-variant-numeric: tabular-nums;
+}
+
+.vehicleRight {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.vehicleRight .balance {
+  font-size: 15px;
+}
+
+/* ── the scale ────────────────────────────────────────────────────────── */
+
+.scale {
+  display: flex;
+  flex-direction: column;
+}
+
+.scaleLabel {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-on-surface-variant);
+}
+
+.labelNote {
+  font-weight: 400;
+  font-size: 11px;
+  opacity: 0.75;
+}
+
+.scaleRow {
+  margin-top: 8px;
+  display: flex;
+  align-items: stretch;
+  gap: 12px;
+}
+
+/* The bridge readout: a dark instrument panel, deliberately the one element
+   that doesn't sit on a paper-white surface — it's hardware, not UI. */
+.scaleDisplay {
+  flex: 1;
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: 6px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: var(--color-on-surface);
+  color: var(--color-surface);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 34px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.scaleSettling {
+  color: color-mix(in srgb, var(--color-primary) 80%, var(--color-surface));
+}
+
+.scaleUnit {
+  font-size: 14px;
+  font-weight: 600;
+  opacity: 0.7;
+}
+
+.kgInput {
+  width: 120px;
+  padding: 7px 12px;
+  border-radius: 9px;
+  border: 1px solid var(--color-outline-variant);
+  background: var(--color-surface);
+  color: var(--color-on-surface);
+  font-size: 18px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+.kgInput::-webkit-outer-spin-button,
+.kgInput::-webkit-inner-spin-button {
+  appearance: none;
+  margin: 0;
+}
+
+.kgInput:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px hsla(24, 98%, 50%, 0.12);
+}
+
+/* ── fee preview (mirrors the centre's payout box) ────────────────────── */
+
+.payout {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--color-surface-container);
+}
+
+.payoutLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.payoutTitle {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-on-surface);
+}
+
+.payoutBreakdown {
+  font-size: 12px;
+  opacity: 0.8;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-on-surface-variant);
+}
+
+.payoutValue {
+  font-size: 36px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-on-surface);
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.payoutMuted {
+  color: var(--color-on-surface-variant);
+  opacity: 0.5;
+}
+
+/* ── receipt ──────────────────────────────────────────────────────────── */
+
+.receiptTop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+  padding: 8px 0 4px;
+}
+
+.tick {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--color-status-success-container);
+  color: var(--color-on-status-success-container);
+}
+
+.tickWarn {
+  background: var(--color-status-warning-container);
+  color: var(--color-on-status-warning-container);
+}
+
+.receiptAmount {
+  font-size: 40px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  color: var(--color-on-surface);
+}
+
+.receiptWho {
+  font-size: 15px;
+  color: var(--color-on-surface-variant);
+}
+
+.codeChip {
+  display: inline-block;
+  margin-top: 4px;
+  padding: 5px 14px;
+  border-radius: 999px;
+  background: var(--color-surface-container);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--color-on-surface);
+}
+
+.receiptRows {
+  margin-top: 16px;
+  padding: 2px 14px;
+  border-radius: 12px;
+  background: var(--color-surface-container-low);
+}
+
+.receiptRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 11px 0;
+  border-bottom: 1px dashed var(--color-outline-variant);
+  font-size: 14px;
+}
+
+.receiptRow:last-child {
+  border-bottom: none;
+}
+
+.receiptKey {
+  color: var(--color-on-surface-variant);
+}
+
+.receiptVal {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-on-surface);
+}
+
+/* Must out-rank .receiptVal, which is defined later than .balanceNegative. */
+.receiptVal.balanceNegative {
+  color: var(--color-error);
+}
+
+.flag {
+  margin-top: 16px;
+  display: flex;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: var(--color-status-warning-container);
+  color: var(--color-on-status-warning-container);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.flagIcon {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.flagTitle {
+  font-weight: 700;
+}
+
+.error {
+  margin-top: 14px;
+  padding: 11px 14px;
+  border-radius: 10px;
+  background: var(--color-status-error-container);
+  color: var(--color-on-status-error-container);
+  font-size: 13px;
+}
+
+/* ── top-up presets ───────────────────────────────────────────────────── */
+
+.presets {
+  display: flex;
+  gap: 8px;
+}
+
+.preset {
+  flex: 1;
+  padding: 12px 8px;
+  border-radius: 10px;
+  border: 1px solid var(--color-outline-variant);
+  background: var(--color-surface);
+  font-size: 15px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-on-surface);
+  cursor: pointer;
+  transition: border-color 0.12s ease, background 0.12s ease;
+}
+
+.presetActive {
+  border-color: color-mix(in srgb, var(--color-primary) 55%, var(--color-outline-variant));
+  background: color-mix(in srgb, var(--color-primary-container) 50%, var(--color-surface));
+}
+
+/* ── bridge log ───────────────────────────────────────────────────────── */
+
+.historyHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.historyCount {
+  font-size: 13px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-on-surface-variant);
+}
+
+.historyList {
+  margin-top: 14px;
+  max-height: 430px;
+  overflow-y: auto;
+  border-radius: 12px;
+  background: var(--color-surface-container-low);
+  padding: 2px 12px;
+}
+
+.historyRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 2px;
+  border-bottom: 1px dashed var(--color-outline-variant);
+}
+
+.historyRow:last-child {
+  border-bottom: none;
+}
+
+.historyAvatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: color-mix(in srgb, var(--color-secondary-container) 45%, var(--color-surface));
+  color: var(--color-on-secondary-container);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.historyMeta {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.historyName {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-on-surface);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.historySub {
+  font-size: 12px;
+  color: var(--color-on-surface-variant);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.historyRight {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+/* Fees leave the wallet — the log shows them signed and red-tinged so the
+   column scans as money out, not money in. */
+.historyFee {
+  font-size: 14px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-error);
+}
+
+.chip {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.chipFlag {
+  background: var(--color-status-warning-container);
+  color: var(--color-on-status-warning-container);
+}
+
+@media (max-width: 560px) {
+  .shiftStats { gap: 14px; }
+  .headerRight { gap: 12px; }
+  .card { padding: 18px; }
+  .receiptAmount { font-size: 34px; }
+  .tagForm { flex-direction: column; align-items: stretch; }
+}

@@ -59,17 +59,28 @@ the database and can be repriced without a code change. He should give us the re
 
 ---
 
-## Module B — Tricycle + RFID weighbridge (NOT built — deliberately)
+## Module B — Tricycle + RFID weighbridge (BUILT)
 
-He raised this as thinking-aloud ("I'm just thinking of how we can use technology to apply to
-different models"), not as the ask. Building both properly in the time available meant doing
-neither well. Say plainly: Module A is done and usable; Module B is next, and the same ledger
-primitives (wallets, weigh events, per-actor attribution) already carry it.
+He raised this thinking-aloud ("I'm just thinking of how we can use technology to apply to
+different models") — it's now a working console at `/station`, same design language and the same
+ledger primitives as Module A.
 
-For the conversation: tricycle compactor carries an RFID chip + wallet → resident pays PAYG at
-pickup → at the mini transfer station the weighbridge auto-detects the tricycle, weighs the load,
-and auto-docks payment from the wallet. Live already at Ebute-Ero (~₦800/building); model seen in
-Ghana.
+**Live link:** https://lawma-app.vercel.app/station (credentials sent separately).
+
+The flow, exactly as he described it: each tricycle compactor carries an RFID tag and a prepaid
+wallet. The console sits "armed"; a tricycle drives on, the tag reads automatically (simulated in
+the demo — tap a tricycle or type its tag), the bridge weighs the load, and the tipping fee is
+**auto-docked from the tricycle's wallet** with a receipt showing balance before/after. Cash
+top-ups onto the wallet are recorded at the same counter, and the bridge log reconciles the day's
+tonnage and fees.
+
+Two design points worth saying out loud:
+- **A loaded tricycle is never turned away.** If the wallet can't cover the fee it goes into
+  arrears — settled, flagged for supervisor review, debt shown in red until the next top-up.
+  Same flag-not-block philosophy as the centre.
+- The demo's RFID read and scale are simulated; in the field this is a tag reader + weighbridge
+  feeding the exact same API. The tipping rate (indicative, labelled) lives in the database and
+  reprices without a redeploy — same as the buy-back rates.
 
 ---
 

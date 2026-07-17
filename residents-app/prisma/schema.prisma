@@ -386,16 +386,25 @@ model NotificationPreference {
 // them, and the resident is credited. Physical staffing is the primary
 // anti-abuse control; see src/lib/dropoff-guard.ts for the software layer.
 
-model CollectionCenter {
-  id        String   @id @default(uuid())
-  name      String   @map("name")
-  address   String   @map("address")
-  lga       String   @map("lga")
-  isActive  Boolean  @default(true) @map("is_active")
-  createdAt DateTime @default(now()) @map("created_at")
+// A facility is either a buy-back counter (Module A) or a transfer station
+// with a weighbridge (Module B). Same staffing/auth model either way.
+enum CenterKind {
+  BUYBACK
+  TRANSFER_STATION
+}
 
-  operators CenterOperator[]
-  dropOffs  DropOff[]
+model CollectionCenter {
+  id        String     @id @default(uuid())
+  name      String     @map("name")
+  address   String     @map("address")
+  lga       String     @map("lga")
+  kind      CenterKind @default(BUYBACK) @map("kind")
+  isActive  Boolean    @default(true) @map("is_active")
+  createdAt DateTime   @default(now()) @map("created_at")
+
+  operators   CenterOperator[]
+  dropOffs    DropOff[]
+  weighEvents WeighEvent[]
 
   @@index([lga])
   @@map("collection_centers")
@@ -411,8 +420,9 @@ model CenterOperator {
   isActive     Boolean          @default(true) @map("is_active")
   createdAt    DateTime         @default(now()) @map("created_at")
 
-  sessions CenterSession[]
-  dropOffs DropOff[]
+  sessions    CenterSession[]
+  dropOffs    DropOff[]
+  weighEvents WeighEvent[]
 
   @@index([centerId])
   @@map("center_operators")
@@ -497,4 +507,103 @@ model DropOffLine {
   @@index([dropOffId])
   @@index([material])
   @@map("drop_off_lines")
+}
+
+// ─── Transfer stations (weighbridge, Module B) ─────────────────────────────
+// Tricycle compactors collect door-to-door (residents pay PAYG at the kerb —
+// outside this system). Each tricycle carries an RFID tag and a prepaid
+// wallet; the weighbridge detects the tag, weighs the load, and auto-docks a
+// tipping fee from the wallet. Ebute-Ero model.
+
+enum WeighEventStatus {
+  SETTLED
+  FLAGGED_NEGATIVE
+  VOID
+}
+
+enum TricycleTxnType {
+  TOPUP
+  TIPPING_FEE
+  ADJUSTMENT
+}
+
+model Tricycle {
+  id                String   @id @default(uuid())
+  rfidTag           String   @unique @map("rfid_tag")
+  plateNumber       String   @map("plate_number")
+  operatorName      String   @map("operator_name")
+  zone              String   @map("zone")
+  // Prepaid balance in kobo. May go negative: a loaded tricycle at the bridge
+  // is never turned away — the event settles, gets flagged, and the debt shows
+  // until the next top-up. Every movement has a matching ledger row.
+  walletBalanceKobo Int      @default(0) @map("wallet_balance_kobo")
+  isActive          Boolean  @default(true) @map("is_active")
+  createdAt         DateTime @default(now()) @map("created_at")
+
+  weighEvents        WeighEvent[]
+  walletTransactions TricycleWalletTransaction[]
+
+  @@index([zone])
+  @@map("tricycles")
+}
+
+// Tipping fee in kobo per kg. In the DB, not code, so LAWMA can reprice
+// without a redeploy — same contract as MaterialRate.
+model TippingRate {
+  id        String   @id @default(uuid())
+  koboPerKg Int      @map("kobo_per_kg")
+  isActive  Boolean  @default(true) @map("is_active")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("tipping_rates")
+}
+
+// One pass over the bridge. Immutable financial record: the rate in force is
+// copied onto the event so a later reprice never rewrites what was charged.
+model WeighEvent {
+  id               String           @id @default(uuid())
+  tricycleId       String           @map("tricycle_id")
+  tricycle         Tricycle         @relation(fields: [tricycleId], references: [id], onDelete: Restrict)
+  stationId        String           @map("station_id")
+  station          CollectionCenter @relation(fields: [stationId], references: [id], onDelete: Restrict)
+  operatorId       String           @map("operator_id")
+  operator         CenterOperator   @relation(fields: [operatorId], references: [id], onDelete: Restrict)
+
+  grossWeightGrams Int              @map("gross_weight_grams")
+  rateKoboPerKg    Int              @map("rate_kobo_per_kg")
+  feeKobo          Int              @map("fee_kobo")
+  balanceAfterKobo Int              @map("balance_after_kobo")
+
+  status           WeighEventStatus @default(SETTLED) @map("status")
+  flagReason       String?          @map("flag_reason")
+  receiptCode      String           @unique @map("receipt_code")
+  createdAt        DateTime         @default(now()) @map("created_at")
+
+  walletTransaction TricycleWalletTransaction?
+
+  @@index([tricycleId, createdAt])
+  @@index([stationId, createdAt])
+  @@index([status])
+  @@map("weigh_events")
+}
+
+// Signed movement on a tricycle wallet: TOPUP positive, TIPPING_FEE negative.
+// balanceAfterKobo is the wallet's value the instant this row was written, so
+// the ledger replays to the current balance without trusting the denormalised
+// field on Tricycle.
+model TricycleWalletTransaction {
+  id               String          @id @default(uuid())
+  tricycleId       String          @map("tricycle_id")
+  tricycle         Tricycle        @relation(fields: [tricycleId], references: [id], onDelete: Restrict)
+  type             TricycleTxnType @map("type")
+  amountKobo       Int             @map("amount_kobo")
+  balanceAfterKobo Int             @map("balance_after_kobo")
+  weighEventId     String?         @unique @map("weigh_event_id")
+  weighEvent       WeighEvent?     @relation(fields: [weighEventId], references: [id], onDelete: Restrict)
+  operatorId       String?         @map("operator_id")
+  note             String?         @map("note")
+  createdAt        DateTime        @default(now()) @map("created_at")
+
+  @@index([tricycleId, createdAt])
+  @@map("tricycle_wallet_transactions")
 }
