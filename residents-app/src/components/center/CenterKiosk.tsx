@@ -329,13 +329,33 @@ export function CenterKiosk({ operatorName, centerName, initialToday }: Props) {
           {step === 'weigh' && resident && (
             <div className={styles.card}>
               <div className={`${styles.resident} ${overCap ? styles.capWarn : ''}`}>
-                <div>
+                <span className={styles.avatar} aria-hidden="true">
+                  {(resident.name?.trim().charAt(0) || 'R').toUpperCase()}
+                </span>
+                <div className={styles.residentInfo}>
                   <div className={styles.residentName}>{resident.name ?? 'Resident'}</div>
                   <div className={styles.residentMeta}>{phone}</div>
                 </div>
                 {residentToday && (
-                  <div className={styles.residentMeta}>
-                    {kg(residentToday.weightGrams)} / {kg(residentToday.capGrams)} today
+                  <div className={styles.capMeter}>
+                    <span className={styles.capText}>
+                      {kg(residentToday.weightGrams)} / {kg(residentToday.capGrams)} today
+                    </span>
+                    <span
+                      className={styles.capTrack}
+                      role="meter"
+                      aria-label="Daily drop-off limit used"
+                      aria-valuemin={0}
+                      aria-valuemax={residentToday.capGrams}
+                      aria-valuenow={Math.min(residentToday.weightGrams, residentToday.capGrams)}
+                    >
+                      <span
+                        className={`${styles.capFill} ${overCap ? styles.capFillMax : ''}`}
+                        style={{
+                          width: `${Math.min(100, (residentToday.weightGrams / residentToday.capGrams) * 100)}%`,
+                        }}
+                      />
+                    </span>
                   </div>
                 )}
               </div>

@@ -69,14 +69,22 @@
 
 .shiftStats {
   display: flex;
-  gap: 20px;
+  gap: 12px;
 }
 
+/* Each shift stat sits in its own quiet card so the numbers read as a row of
+   gauges rather than a cramped text cluster. */
 .stat {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  line-height: 1.15;
+  gap: 12px;
+  min-width: 76px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--color-outline-variant);
+  background: var(--color-surface-container-low);
+  line-height: 1;
 }
 
 .statValue {
@@ -87,9 +95,9 @@
 }
 
 .statLabel {
-  font-size: 11px;
+  font-size: 10px;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
   white-space: nowrap;
   color: var(--color-on-surface-variant);
 }
@@ -100,7 +108,7 @@
   flex: 1;
   display: flex;
   justify-content: center;
-  padding: 16px 20px 24px;
+  padding: 14px 20px 12px;
 }
 
 .panel {
@@ -112,7 +120,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .stepDot {
@@ -144,9 +152,15 @@
   color: var(--color-on-surface);
 }
 
+/* Instructional copy sits in a whisper-quiet container — one step off the card
+   background — so guidance reads as a distinct layer without shouting. */
 .subtitle {
-  margin-top: 6px;
+  margin-top: 10px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: var(--color-surface-container-low);
   font-size: 14px;
+  line-height: 1.5;
   color: var(--color-on-surface-variant);
 }
 
@@ -176,15 +190,34 @@
 
 /* ── resident banner ──────────────────────────────────────────────────── */
 
+/* Green at half strength — the banner identifies, it shouldn't dominate. */
 .resident {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 10px 14px;
+  gap: 12px;
+  padding: 12px 14px;
   border-radius: 12px;
-  background: var(--color-secondary-container);
+  background: color-mix(in srgb, var(--color-secondary-container) 50%, var(--color-surface));
   color: var(--color-on-secondary-container);
+}
+
+.avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--color-secondary);
+  color: var(--color-on-secondary);
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.residentInfo {
+  flex: 1;
+  min-width: 0;
 }
 
 .residentName {
@@ -198,9 +231,47 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* Daily-cap meter: one glance tells the operator how much headroom is left.
+   Warm gradient from the brand's own oranges; flips to error red at the cap. */
+.capMeter {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.capText {
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.9;
+}
+
+.capTrack {
+  display: block;
+  width: 132px;
+  height: 6px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--color-on-secondary-container) 14%, transparent);
+}
+
+.capFill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, hsl(35, 95%, 58%), var(--color-primary));
+  transition: width 0.25s ease;
+}
+
+.capFillMax {
+  background: var(--color-error);
+}
+
 .capWarn {
   color: var(--color-on-status-warning-container);
-  background: var(--color-status-warning-container);
+  background: color-mix(in srgb, var(--color-status-warning-container) 60%, var(--color-surface));
 }
 
 /* ── material grid ────────────────────────────────────────────────────── */
@@ -244,16 +315,17 @@
   gap: 12px;
   padding: 7px 12px;
   border-radius: 10px;
-  border: 2px solid var(--color-outline-variant);
+  border: 1px solid var(--color-outline-variant);
   background: var(--color-surface);
   transition: border-color 0.12s ease, background 0.12s ease;
 }
 
 /* A row lights up once it has weight on it, so the basket is readable at a
-   glance before the operator commits real money. */
+   glance before the operator commits real money. Half-strength orange — the
+   highlight marks the row without swallowing it. */
 .materialActive {
-  border-color: var(--color-primary);
-  background: var(--color-primary-container);
+  border-color: color-mix(in srgb, var(--color-primary) 55%, var(--color-outline-variant));
+  background: color-mix(in srgb, var(--color-primary-container) 50%, var(--color-surface));
 }
 
 /* Name and rate on one line — reads like a rate card, and keeps the row height

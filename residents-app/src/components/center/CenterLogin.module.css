@@ -34,9 +34,14 @@
   color: var(--color-on-surface);
 }
 
+/* Same whisper-quiet container treatment as the kiosk's instructional copy. */
 .subtitle {
-  margin-top: 4px;
+  margin-top: 10px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: var(--color-surface-container-low);
   font-size: 14px;
+  line-height: 1.5;
   color: var(--color-on-surface-variant);
 }
 
