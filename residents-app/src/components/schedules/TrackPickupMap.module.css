@@ -24,7 +24,7 @@
 }
 
 .toggle:hover {
-  background: hsla(24, 98%, 50%, 0.06);
+  background: hsla(var(--color-primary-hsl), 0.06);
 }
 
 .collapse {

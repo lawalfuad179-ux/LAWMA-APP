@@ -33,7 +33,7 @@
 
 .locateBtn:hover:not(:disabled) {
   border-color: var(--color-primary);
-  background: hsla(24, 98%, 50%, 0.06);
+  background: hsla(var(--color-primary-hsl), 0.06);
 }
 
 .locateBtn:disabled {
@@ -88,5 +88,5 @@
 }
 
 .suggestionItem:hover {
-  background: hsla(24, 98%, 50%, 0.06);
+  background: hsla(var(--color-primary-hsl), 0.06);
 }

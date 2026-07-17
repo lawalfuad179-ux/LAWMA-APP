@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { redirect } from 'next/navigation';
 
 import { getCenterSession } from '@/lib/center-auth';
 import { db } from '@/lib/db';
@@ -16,6 +17,8 @@ export const dynamic = 'force-dynamic';
 export default async function CenterPage() {
   const session = await getCenterSession();
   if (!session) return <CenterLogin />;
+  // A station attendant who lands here belongs at the weighbridge console.
+  if (session.centerKind !== 'BUYBACK') redirect('/station');
 
   const startOfDay = new Date();
   startOfDay.setHours(0, 0, 0, 0);

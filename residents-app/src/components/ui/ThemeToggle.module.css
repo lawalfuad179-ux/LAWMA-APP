@@ -18,7 +18,7 @@
   height: 32px;
   border-radius: 999px;
   background: var(--color-surface);
-  box-shadow: 0 4px 14px hsla(220, 20%, 10%, 0.12);
+  box-shadow: 0 4px 14px hsla(var(--color-ink-hsl), 0.12);
   transform: translateY(-50%) translateX(0);
   transition: transform 0.22s ease, background 0.22s ease, box-shadow 0.22s ease;
   z-index: 1;

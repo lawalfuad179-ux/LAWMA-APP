@@ -9,11 +9,8 @@ import { Reveal } from '@/components/ui/Reveal';
 import { ProfileEditForm } from '@/components/profile/ProfileEditForm';
 import { AvatarUpload } from '@/components/profile/AvatarUpload';
 import { PasswordQuickAccess } from '@/components/profile/PasswordQuickAccess';
+import { Badge } from '@/components/ui/Badge';
 import styles from './page.module.css';
-
-function Badge({ label, variant }: { label: string; variant: 'green' | 'orange' | 'blue' }) {
-  return <span className={`${styles.badge} ${styles[`badge_${variant}`]}`}>{label}</span>;
-}
 
 function StatCard({ value, label, icon }: { value: string | number; label: string; icon: React.ReactNode }) {
   return (
@@ -82,8 +79,8 @@ export default async function ProfilePage() {
           </h1>
           <span className={styles.heroPhone}>{resident.phoneNumber}</span>
           <div className={styles.heroBadges}>
-            {resident.lga && <Badge label={resident.lga} variant="blue" />}
-            <Badge label={`Member since ${memberSince}`} variant="green" />
+            {resident.lga && <Badge label={resident.lga} variant="info" />}
+            <Badge label={`Member since ${memberSince}`} variant="success" />
           </div>
         </div>
       </Reveal>
@@ -101,6 +98,23 @@ export default async function ProfilePage() {
           icon={<CreditCard size={18} strokeWidth={1.5} />}
         />
       </Reveal>
+
+      {/* ── Personal Info ── */}
+      <div className={styles.section}>
+        <div className={styles.sectionHeader}>
+          <FileText size={15} strokeWidth={1.5} />
+          <span className={styles.sectionTitle}>Personal Information</span>
+        </div>
+        <Card className={styles.card}>
+          <ProfileEditForm
+            initialName={resident.name || ''}
+            initialAddress={resident.address || ''}
+            initialLga={resident.lga || ''}
+            initialEmail={resident.email || ''}
+            initialPhone={resident.phoneNumber || ''}
+          />
+        </Card>
+      </div>
 
       {/* ── Quick Links ── */}
       <div className={styles.section}>
@@ -140,23 +154,6 @@ export default async function ProfilePage() {
             description="Your next pickup time and PSP info"
           />
           <PasswordQuickAccess hasPassword={!!resident.passwordHash} />
-        </Card>
-      </div>
-
-      {/* ── Personal Info ── */}
-      <div className={styles.section}>
-        <div className={styles.sectionHeader}>
-          <FileText size={15} strokeWidth={1.5} />
-          <span className={styles.sectionTitle}>Personal Information</span>
-        </div>
-        <Card className={styles.card}>
-          <ProfileEditForm
-            initialName={resident.name || ''}
-            initialAddress={resident.address || ''}
-            initialLga={resident.lga || ''}
-            initialEmail={resident.email || ''}
-            initialPhone={resident.phoneNumber || ''}
-          />
         </Card>
       </div>
 

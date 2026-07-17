@@ -351,3 +351,84 @@
   --color-status-error: hsl(0, 68%, 50%);
   --color-status-info: hsl(210, 100%, 50%);
 }
+
+/* ── Shape & elevation scale ──────────────────────────────────────────────
+   The only radius/shadow values NEW css should reach for.
+   radius-sm: inputs, chips-in-rows · radius-md: inner containers, tiles,
+   banners · radius-lg: cards, sheets · radius-pill: fully-rounded chips,
+   meters, avatars. Shadows: 1 = resting, 2 = raised, 3 = overlay. */
+:root {
+  --radius-sm: 9px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-pill: 999px;
+
+  --shadow-1: 0 1px 2px hsla(0, 0%, 0%, 0.08);
+  --shadow-2: 0 4px 12px hsla(0, 0%, 0%, 0.10);
+  --shadow-3: 0 12px 32px hsla(0, 0%, 0%, 0.16);
+}
+
+[data-theme="dark"] {
+  --shadow-1: 0 1px 2px hsla(0, 0%, 0%, 0.35);
+  --shadow-2: 0 4px 12px hsla(0, 0%, 0%, 0.45);
+  --shadow-3: 0 12px 32px hsla(0, 0%, 0%, 0.60);
+}
+
+/* ── Color-component triplets ─────────────────────────────────────────────
+   For tinted shadows, focus rings and low-alpha washes that need the brand
+   hue at arbitrary opacity: hsla(var(--color-primary-hsl), 0.2). This is how
+   a color literal earns an alpha without being hardcoded. */
+:root {
+  --color-primary-hsl: 24, 98%, 50%;
+  --color-error-hsl: 0, 54%, 41%;
+  --color-success-hsl: 142, 60%, 40%;
+  --color-ink-hsl: 220, 20%, 10%;
+  --color-white-hsl: 0, 0%, 100%;
+
+  /* The three focus rings — identical geometry, semantic color. */
+  --focus-ring-primary: 0 0 0 3px hsla(var(--color-primary-hsl), 0.12);
+  --focus-ring-error: 0 0 0 3px hsla(var(--color-error-hsl), 0.12);
+  --focus-ring-success: 0 0 0 3px hsla(var(--color-success-hsl), 0.12);
+
+  /* Brand-tinted elevation for primary CTAs (resting / hover). */
+  --shadow-brand-1: 0 2px 6px hsla(var(--color-primary-hsl), 0.2);
+  --shadow-brand-2: 0 4px 14px hsla(var(--color-primary-hsl), 0.4);
+}
+
+/* ── Theme-invariant media colors ─────────────────────────────────────────
+   Camera stages, photo lightboxes and scrims sit on real imagery, not on a
+   themed surface — white stays white in dark mode ON PURPOSE. Using these
+   tokens (instead of literals) marks that intent. */
+:root {
+  --color-white: #ffffff;
+  --color-black: #000000;
+  --color-ink: hsl(220, 20%, 10%);
+  --color-media-scrim: hsl(0, 0%, 10%);
+  --color-media-flash: #ffd700;
+  --color-media-flash-bg: rgba(255, 200, 0, 0.35);
+}
+
+/* ── Semantic one-offs promoted to tokens ─────────────────────────────── */
+:root {
+  /* Whisper-quiet brand tint (recycling guide callout etc.) */
+  --color-primary-tint: hsl(24, 98%, 96%);
+  /* Pressed/hover state of a solid-primary control */
+  --color-primary-pressed: hsl(24, 98%, 44%);
+  /* Borders for status surfaces that need more edge than outline-variant */
+  --color-status-info-border: hsl(207, 70%, 76%);
+  --color-status-success-border: hsl(142, 40%, 82%);
+  --color-status-success-tint: hsl(142, 60%, 82%);
+  /* Warm amber stop for the daily-cap meter gradient */
+  --color-meter-amber: hsl(35, 95%, 58%);
+  /* Micro label tier below label-small (stat captions, nav labels) */
+  --label-tiny-font-size: 10px;
+  --label-tiny-letter-spacing: 0.06em;
+}
+
+[data-theme="dark"] {
+  --color-primary-tint: hsl(24, 60%, 13%);
+  --color-primary-pressed: hsl(24, 98%, 56%);
+  --color-status-info-border: hsl(207, 50%, 32%);
+  --color-status-success-border: hsl(142, 40%, 28%);
+  --color-status-success-tint: hsl(142, 40%, 24%);
+}

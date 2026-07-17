@@ -6,6 +6,7 @@ import { getSession } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { DashboardActivity } from '@/components/dashboard/DashboardActivity';
 import { ProfileCompletionCard } from '@/components/dashboard/ProfileCompletionCard';
+import { RewardsWalletCard } from '@/components/rewards/RewardsWalletCard';
 import { Reveal } from '@/components/ui/Reveal';
 import type { ActivityItem } from '@/components/activity/types';
 import { COMPLAINT_STATUS_LABELS, PAYMENT_STATUS_LABELS, RECYCLING_TIPS, DAYS_OF_WEEK, COLLECTION_STATUS_LABELS } from '@/constants';
@@ -62,6 +63,8 @@ export default async function DashboardPage() {
     recentPayments,
     recentBinOrders,
     unreadCount,
+    rewardAccount,
+    lastCredit,
   ] = await Promise.all([
     resident.lga ? getNextSchedule(resident.lga) : null,
     db.complaint.count({
@@ -88,6 +91,15 @@ export default async function DashboardPage() {
     }),
     db.notification.count({
       where: { residentId: session.residentId, isRead: false },
+    }),
+    db.rewardAccount.findUnique({
+      where: { residentId: session.residentId },
+      select: { balance: true },
+    }),
+    db.pointTransaction.findFirst({
+      where: { residentId: session.residentId, amount: { gt: 0 } },
+      orderBy: { createdAt: 'desc' },
+      select: { amount: true, description: true, createdAt: true },
     }),
   ]);
 
@@ -154,15 +166,8 @@ export default async function DashboardPage() {
   return (
     <div className={styles.dashboardPage}>
       <div className={styles.dashboardContent}>
-        <ProfileCompletionCard
-          name={resident.name}
-          lga={resident.lga}
-          address={resident.address}
-          email={resident.email}
-          phoneNumber={resident.phoneNumber}
-        />
-
-        {/* User greeting row — visible on all screen sizes */}
+        {/* User greeting row — the app greets the person before it talks
+            about itself, so this leads and the completion prompt follows. */}
         <Link href="/profile" className={styles.mobileUserRow}>
           <div className={styles.mobileUserAvatar}>
             {resident.avatarUrl
@@ -175,6 +180,32 @@ export default async function DashboardPage() {
             {resident.lga && <p className={styles.mobileLocation}>{resident.lga} · Lagos</p>}
           </div>
         </Link>
+
+        {/* Reward wallet — the "waste pays your bill" loop, on the home screen. */}
+        <Reveal delay={0.02} immediate>
+          <RewardsWalletCard
+            balancePoints={rewardAccount?.balance ?? 0}
+            lastCredit={
+              lastCredit
+                ? {
+                    amountPoints: lastCredit.amount,
+                    description: lastCredit.description,
+                    createdAt: lastCredit.createdAt,
+                  }
+                : null
+            }
+            compact
+          />
+        </Reveal>
+
+        <ProfileCompletionCard
+          name={resident.name}
+          lga={resident.lga}
+          address={resident.address}
+          email={resident.email}
+          phoneNumber={resident.phoneNumber}
+        />
+
         {/* Collection Schedule */}
         <Reveal className={styles.dashboardSection} delay={0.04} immediate>
           <div className={styles.sectionHeader}>

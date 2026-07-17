@@ -1,36 +1,27 @@
+/* StatusBadge delegates entirely to the Badge primitive — one chip system.
+   (Kept as a separate module only so existing imports don't churn; add new
+   variants in Badge.module.css, not here.) */
+
 .root {
-  display: inline-flex;
-  align-items: center;
-  padding: 4px 12px;
-  border-radius: 4px;
-  font-size: var(--label-medium-font-size);
-  font-weight: 600;
-  line-height: var(--label-medium-line-height);
-  letter-spacing: var(--label-medium-letter-spacing);
-  white-space: nowrap;
+  composes: root from './Badge.module.css';
 }
 
 .info {
-  background-color: var(--color-tertiary-container);
-  color: var(--color-on-tertiary-container);
+  composes: info from './Badge.module.css';
 }
 
 .success {
-  background-color: var(--color-secondary-container);
-  color: var(--color-on-secondary-container);
+  composes: success from './Badge.module.css';
 }
 
 .warning {
-  background-color: var(--color-primary-container);
-  color: var(--color-on-primary-container);
+  composes: warning from './Badge.module.css';
 }
 
 .error {
-  background-color: var(--color-error-container);
-  color: var(--color-on-error-container);
+  composes: error from './Badge.module.css';
 }
 
 .neutral {
-  background-color: var(--color-surface-variant);
-  color: var(--color-on-surface-variant);
+  composes: neutral from './Badge.module.css';
 }

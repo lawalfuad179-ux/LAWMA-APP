@@ -83,13 +83,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 12px hsla(24, 98%, 50%, 0.3);
+  box-shadow: 0 4px 12px hsla(var(--color-primary-hsl), 0.3);
   text-decoration: none;
   transition: transform 0.15s, box-shadow 0.15s;
 }
 
 .emptyCardBadge:hover {
-  box-shadow: 0 6px 16px hsla(24, 98%, 50%, 0.45);
+  box-shadow: 0 6px 16px hsla(var(--color-primary-hsl), 0.45);
 }
 
 .emptyCardBadge:active {
@@ -127,12 +127,12 @@
   text-decoration: none;
   width: 100%;
   max-width: 320px;
-  box-shadow: 0 2px 6px hsla(24, 98%, 50%, 0.2);
+  box-shadow: var(--shadow-brand-1);
   transition: transform 0.15s, box-shadow 0.15s;
 }
 
 .emptyAction:hover {
-  box-shadow: 0 4px 14px hsla(24, 98%, 50%, 0.4);
+  box-shadow: var(--shadow-brand-2);
   transform: translateY(-1px);
 }
 

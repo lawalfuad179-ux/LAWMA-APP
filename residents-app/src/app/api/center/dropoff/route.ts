@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { getCenterSession } from '@/lib/center-auth';
 import { buildReceiptCode, computeAmountKobo, evaluateDropOff } from '@/lib/dropoff-guard';
 import { koboToPoints } from '@/lib/rewards';
+import { notifyDropOff } from '@/lib/notify-center';
 import { db } from '@/lib/db';
 import { logger } from '@/lib/logger';
 
@@ -51,6 +52,13 @@ export async function POST(req: NextRequest) {
         { status: 401 },
       );
     }
+    // Buy-back money can only move from a buy-back counter.
+    if (session.centerKind !== 'BUYBACK') {
+      return NextResponse.json<Failure>(
+        { ok: false, error: { code: 'wrong_console', message: 'This operator belongs at the weighbridge console.' } },
+        { status: 403 },
+      );
+    }
 
     const body = await req.json().catch(() => null);
     const parsed = schema.safeParse(body);
@@ -69,7 +77,10 @@ export async function POST(req: NextRequest) {
     const { residentId, payoutMethod, lines } = parsed.data;
 
     const [resident, rates] = await Promise.all([
-      db.resident.findUnique({ where: { id: residentId }, select: { id: true, name: true } }),
+      db.resident.findUnique({
+        where: { id: residentId },
+        select: { id: true, name: true, phoneNumber: true, email: true },
+      }),
       db.materialRate.findMany({
         where: { material: { in: lines.map((l) => l.material) }, isActive: true },
       }),
@@ -105,6 +116,10 @@ export async function POST(req: NextRequest) {
 
     const totalWeightGrams = priced.reduce((s, l) => s + l.weightGrams, 0);
     const totalAmountKobo = priced.reduce((s, l) => s + l.amountKobo, 0);
+    // One human-readable line for the ledger, the notification and the SMS.
+    const summary = priced
+      .map((l) => `${(l.weightGrams / 1000).toFixed(1)}kg ${l.material.toLowerCase()}`)
+      .join(', ');
     // Cash leaves the till, not the wallet — a cash visit earns no points, it
     // just gets recorded so the shift's cash reconciles to receipts.
     const pointsAwarded = payoutMethod === 'CREDIT' ? koboToPoints(totalAmountKobo) : 0;
@@ -153,9 +168,6 @@ export async function POST(req: NextRequest) {
 
         // One ledger line per VISIT, not per material — the resident made one
         // trip and should see one entry.
-        const summary = priced
-          .map((l) => `${(l.weightGrams / 1000).toFixed(1)}kg ${l.material.toLowerCase()}`)
-          .join(', ');
         await tx.pointTransaction.create({
           data: {
             residentId,
@@ -186,6 +198,18 @@ export async function POST(req: NextRequest) {
       totalAmountKobo,
       payoutMethod,
       flagged: verdict.flagged,
+    });
+
+    // After the commit, never before — and notify-center never throws, so a
+    // dead SMS gateway can't turn a credited resident into a 500.
+    await notifyDropOff({
+      resident,
+      payoutMethod,
+      totalAmountKobo,
+      newBalancePoints: result.newBalance,
+      summary,
+      centerName: session.centerName,
+      receiptCode: result.dropOff.receiptCode,
     });
 
     return NextResponse.json({

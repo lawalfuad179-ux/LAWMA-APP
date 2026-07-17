@@ -99,7 +99,7 @@
   width: 44px;
   height: 44px;
   border-radius: 12px;
-  background: hsl(24, 98%, 96%);
+  background: var(--color-primary-tint);
   color: var(--color-primary);
   flex-shrink: 0;
 }

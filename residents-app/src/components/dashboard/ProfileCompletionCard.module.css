@@ -109,3 +109,24 @@
   font-weight: 500;
   color: var(--color-on-surface);
 }
+
+/* Dismiss control — the nudge should never be a permanent squatter. */
+.dismiss {
+  align-self: flex-start;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--color-on-surface-variant);
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+
+.dismiss:hover {
+  background: var(--color-surface-container-high);
+}

@@ -61,10 +61,16 @@ export function AppHeader() {
         <h1 className={styles.title}>{title}</h1>
       </div>
       <div className={styles.actions}>
-        <Link href="/notifications" className={styles.bellButton} aria-label="Notifications">
+        <Link
+          href="/notifications"
+          className={styles.bellButton}
+          aria-label={unreadCount > 0 ? `Notifications, ${unreadCount} unread` : 'Notifications'}
+        >
           <FilledBellIcon ref={bellRef} size={20} />
           {unreadCount > 0 && (
-            <span className={styles.badge}>{unreadCount > 9 ? '9+' : unreadCount}</span>
+            <span className={styles.badge} aria-live="polite">
+              {unreadCount > 9 ? '9+' : unreadCount}
+            </span>
           )}
         </Link>
         <ThemeToggle />

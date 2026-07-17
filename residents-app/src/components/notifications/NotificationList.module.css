@@ -221,7 +221,7 @@
   height: 144px;
   background: var(--color-surface);
   border-radius: 16px;
-  box-shadow: 0 8px 32px hsla(0,0%,0%,0.14), 0 2px 8px hsla(0,0%,0%,0.06);
+  box-shadow: var(--shadow-3);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -249,4 +249,15 @@
   line-height: var(--body-medium-line-height);
   max-width: 260px;
   margin: 0;
+}
+
+/* New rows ease in rather than popping — the same fadeUp the kiosks use.
+   The global prefers-reduced-motion reset neutralises this automatically. */
+.item {
+  animation: itemIn 0.25s ease both;
+}
+
+@keyframes itemIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
 }

@@ -4,8 +4,23 @@
 .shell {
   min-height: 100dvh;
   display: flex;
-  flex-direction: column;
+  /* Nav rail on the left; header + body stack in .main. Below 720px the
+     rail becomes a bottom bar (its own media query) and the shell stacks. */
+  flex-direction: row;
   background: var(--color-surface-container-low);
+}
+
+.main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (max-width: 720px) {
+  .shell {
+    flex-direction: column;
+  }
 }
 
 /* ── header (mirrors CenterKiosk) ─────────────────────────────────────── */
@@ -532,7 +547,7 @@
 .kgInput:focus {
   outline: none;
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px hsla(24, 98%, 50%, 0.12);
+  box-shadow: var(--focus-ring-primary);
 }
 
 /* ── fee preview (mirrors the centre's payout box) ────────────────────── */
@@ -840,4 +855,20 @@
   .card { padding: 18px; }
   .receiptAmount { font-size: 34px; }
   .tagForm { flex-direction: column; align-items: stretch; }
+}
+
+/* Flagged receipts carry an extra warning banner; the top block tightens so
+   the primary action never slips below a 720px fold. */
+.receiptTopCompact {
+  padding: 0;
+  gap: 6px;
+}
+
+.receiptTopCompact .tick {
+  width: 40px;
+  height: 40px;
+}
+
+.receiptTopCompact .receiptAmount {
+  font-size: 30px;
 }

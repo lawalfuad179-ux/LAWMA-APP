@@ -79,7 +79,6 @@ export default function RecyclingPage() {
   return (
     <div className={styles.page}>
       <div className={styles.header}>
-        <h1 className={styles.title}>Recycling</h1>
       </div>
 
       <RecycleTabs guideContent={<GuideContent />} />

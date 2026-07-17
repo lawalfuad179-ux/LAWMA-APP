@@ -7,7 +7,7 @@
   background: var(--color-primary-container);
   border: 1px solid var(--color-outline-variant) !important;
   border-radius: 18px !important;
-  box-shadow: 0 4px 20px hsla(24, 98%, 50%, 0.14);
+  box-shadow: 0 4px 20px hsla(var(--color-primary-hsl), 0.14);
 }
 
 .label {

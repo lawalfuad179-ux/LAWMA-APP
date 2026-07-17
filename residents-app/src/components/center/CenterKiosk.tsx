@@ -6,7 +6,6 @@ import {
   Banknote,
   Check,
   History,
-  LogOut,
   Recycle,
   Search,
   Wallet,
@@ -14,6 +13,7 @@ import {
 
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { KioskNav } from '@/components/kiosk/KioskNav';
 import styles from './CenterKiosk.module.css';
 
 type Material = 'PLASTIC' | 'PAPER' | 'CARDBOARD' | 'METAL' | 'GLASS';
@@ -249,11 +249,34 @@ export function CenterKiosk({ operatorName, centerName, initialToday }: Props) {
 
   return (
     <div className={styles.shell}>
+      <KioskNav
+        brandIcon={<Recycle size={20} strokeWidth={2} />}
+        operatorName={operatorName}
+        onSignOut={async () => {
+          await fetch('/api/center/session', { method: 'DELETE' });
+          window.location.reload();
+        }}
+        items={[
+          {
+            id: 'counter',
+            label: 'Counter',
+            icon: <Recycle size={19} strokeWidth={1.8} />,
+            active: step !== 'history',
+            onClick: reset,
+          },
+          {
+            id: 'log',
+            label: 'Shift log',
+            icon: <History size={19} strokeWidth={1.8} />,
+            active: step === 'history',
+            onClick: openHistory,
+          },
+        ]}
+      />
+
+      <div className={styles.main}>
       <header className={styles.header}>
         <div className={styles.brand}>
-          <span className={styles.brandMark}>
-            <Recycle size={18} strokeWidth={2} />
-          </span>
           <span className={styles.brandText}>
             <span className={styles.brandTitle}>{centerName} Collection Centre</span>
             <span className={styles.brandSub}>Buy-back counter · {operatorName}</span>
@@ -274,35 +297,6 @@ export function CenterKiosk({ operatorName, centerName, initialToday }: Props) {
               <span className={styles.statValue}>{naira(today.amountKobo)}</span>
               <span className={styles.statLabel}>Paid out</span>
             </div>
-          </div>
-          <span className={styles.headerDivider} aria-hidden="true" />
-
-          <div className={styles.headerActions}>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={() => (step === 'history' ? reset() : openHistory())}
-            >
-              <span className={styles.btnWithIcon}>
-                <History size={15} strokeWidth={1.8} />
-                History
-              </span>
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={async () => {
-                await fetch('/api/center/session', { method: 'DELETE' });
-                window.location.reload();
-              }}
-            >
-              <span className={styles.btnWithIcon}>
-                <LogOut size={15} strokeWidth={1.8} />
-                Sign out
-              </span>
-            </Button>
           </div>
         </div>
       </header>
@@ -544,7 +538,7 @@ export function CenterKiosk({ operatorName, centerName, initialToday }: Props) {
           {/* ── Step 3: receipt ───────────────────────────────────────── */}
           {step === 'receipt' && receipt && (
             <div className={styles.card}>
-              <div className={styles.receiptTop}>
+              <div className={`${styles.receiptTop} ${receipt.flagged ? styles.receiptTopCompact : ''}`}>
                 <span className={styles.tick}>
                   <Check size={26} strokeWidth={2.5} />
                 </span>
@@ -667,6 +661,7 @@ export function CenterKiosk({ operatorName, centerName, initialToday }: Props) {
           )}
         </div>
       </main>
+      </div>
     </div>
   );
 }

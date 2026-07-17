@@ -194,7 +194,7 @@
   align-items: center;
   justify-content: center;
   text-decoration: none;
-  box-shadow: 0 4px 18px hsla(24, 98%, 50%, 0.50), 0 2px 6px rgba(0,0,0,0.12);
+  box-shadow: 0 4px 18px hsla(var(--color-primary-hsl), 0.50), 0 2px 6px rgba(0,0,0,0.12);
   transition: transform 0.15s, box-shadow 0.15s;
   flex-shrink: 0;
   z-index: 10;
@@ -202,12 +202,12 @@
 
 .mobileCenterBtn:active {
   transform: translate(-50%, calc(-50% - 28px)) scale(0.92);
-  box-shadow: 0 2px 8px hsla(24, 98%, 50%, 0.35);
+  box-shadow: 0 2px 8px hsla(var(--color-primary-hsl), 0.35);
 }
 
 .mobileCenterBtnActive {
-  background: hsl(24, 98%, 44%);
-  box-shadow: 0 6px 22px hsla(24, 98%, 50%, 0.65), 0 2px 6px rgba(0,0,0,0.18);
+  background: var(--color-primary-pressed);
+  box-shadow: 0 6px 22px hsla(var(--color-primary-hsl), 0.65), 0 2px 6px rgba(0,0,0,0.18);
 }
 
 /* ═══════════════════════════════════════════
@@ -394,7 +394,7 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 4px 12px hsla(220, 20%, 10%, 0.08);
+  box-shadow: 0 4px 12px hsla(var(--color-ink-hsl), 0.08);
   transition: color 0.15s;
 }
 

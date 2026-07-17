@@ -1,6 +1,27 @@
+'use client';
+
+import { useSyncExternalStore } from 'react';
 import Link from 'next/link';
-import { Phone, User, MapPin, Home, Mail } from 'lucide-react';
+import { Phone, User, MapPin, Home, Mail, X } from 'lucide-react';
 import styles from './ProfileCompletionCard.module.css';
+
+// Remembers the score at dismissal, so the nudge stays away until something
+// actually changes (progress made, or a field cleared) — not forever.
+const DISMISS_KEY = 'lawma-profile-nudge-dismissed-at-score';
+
+// Tiny external store over localStorage so dismissal re-renders without
+// setState-in-effect, and the server snapshot keeps SSR hydration clean.
+const dismissListeners = new Set<() => void>();
+
+function subscribeDismiss(cb: () => void) {
+  dismissListeners.add(cb);
+  return () => dismissListeners.delete(cb);
+}
+
+function dismissAtScore(score: number) {
+  localStorage.setItem(DISMISS_KEY, String(score));
+  dismissListeners.forEach((l) => l());
+}
 
 interface Props {
   name: string | null;
@@ -20,7 +41,13 @@ export function ProfileCompletionCard({ name, lga, address, email, phoneNumber }
   ];
 
   const score = steps.filter((s) => s.done).length;
-  if (score === 5) return null;
+  const dismissed = useSyncExternalStore(
+    subscribeDismiss,
+    () => localStorage.getItem(DISMISS_KEY) === String(score),
+    () => true, // hidden during SSR; appears after hydration if not dismissed
+  );
+
+  if (score === 5 || dismissed) return null;
 
   const incomplete = steps.filter((s) => !s.done);
   const radius = 26;
@@ -64,6 +91,19 @@ export function ProfileCompletionCard({ name, lga, address, email, phoneNumber }
           ))}
         </ul>
       </div>
+
+      <button
+        type="button"
+        className={styles.dismiss}
+        aria-label="Dismiss profile reminder"
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dismissAtScore(score);
+        }}
+      >
+        <X size={15} strokeWidth={2} />
+      </button>
     </Link>
   );
 }

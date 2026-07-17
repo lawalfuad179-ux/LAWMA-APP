@@ -40,7 +40,7 @@
 .input:focus {
   outline: none;
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px hsla(24, 98%, 50%, 0.12);
+  box-shadow: var(--focus-ring-primary);
 }
 
 .iconWrap {
@@ -68,7 +68,7 @@
 }
 
 .inputError:focus {
-  box-shadow: 0 0 0 3px hsla(0, 54%, 41%, 0.12);
+  box-shadow: var(--focus-ring-error);
 }
 
 .inputSuccess {
@@ -77,7 +77,7 @@
 
 .inputSuccess:focus {
   border-color: var(--color-status-success);
-  box-shadow: 0 0 0 3px hsla(142, 60%, 40%, 0.12);
+  box-shadow: var(--focus-ring-success);
 }
 
 .prefixWrap {

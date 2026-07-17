@@ -8,11 +8,14 @@ export function ThemeToggle({ className }: { className?: string }) {
   const [dark, setDark] = useState(false);
 
   useEffect(() => {
+    // No stored choice means the OS preference decides (the inline script in
+    // the root layout already applied it before paint — this syncs the switch).
     const stored = localStorage.getItem('lawma-theme');
-    if (stored === 'dark') {
-      setDark(true);
-      document.documentElement.setAttribute('data-theme', 'dark');
-    }
+    const isDark = stored
+      ? stored === 'dark'
+      : window.matchMedia('(prefers-color-scheme: dark)').matches;
+    setDark(isDark);
+    document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
   }, []);
 
   function toggle() {

@@ -34,7 +34,7 @@
 .primary {
   background: var(--color-primary);
   color: var(--color-on-primary);
-  box-shadow: 0 2px 6px hsla(24, 98%, 50%, 0.2);
+  box-shadow: var(--shadow-brand-1);
 }
 
 /* vibe-component: light sheen that sweeps across on hover */
@@ -45,7 +45,7 @@
   background: linear-gradient(
     100deg,
     transparent 20%,
-    hsla(0, 0%, 100%, 0.18) 50%,
+    hsla(var(--color-white-hsl), 0.18) 50%,
     transparent 80%
   );
   transform: translateX(-120%);
@@ -58,13 +58,13 @@
 }
 
 .primary:hover:not(:disabled) {
-  box-shadow: 0 4px 14px hsla(24, 98%, 50%, 0.4);
+  box-shadow: var(--shadow-brand-2);
   transform: translateY(-1px);
 }
 
 .primary:active:not(:disabled) {
   transform: translateY(0) scale(0.97);
-  box-shadow: 0 1px 4px hsla(24, 98%, 50%, 0.3);
+  box-shadow: 0 1px 4px hsla(var(--color-primary-hsl), 0.3);
 }
 
 .secondary {
@@ -90,11 +90,11 @@
 .danger {
   background: var(--color-error);
   color: var(--color-on-error);
-  box-shadow: 0 2px 6px hsla(0, 54%, 41%, 0.2);
+  box-shadow: 0 2px 6px hsla(var(--color-error-hsl), 0.2);
 }
 
 .danger:hover:not(:disabled) {
-  box-shadow: 0 4px 14px hsla(0, 54%, 41%, 0.4);
+  box-shadow: 0 4px 14px hsla(var(--color-error-hsl), 0.4);
   transform: translateY(-1px);
 }
 

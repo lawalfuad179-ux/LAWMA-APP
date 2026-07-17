@@ -41,7 +41,7 @@
 
 .box:focus {
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px hsla(24, 98%, 50%, 0.12);
+  box-shadow: var(--focus-ring-primary);
 }
 
 .boxError {

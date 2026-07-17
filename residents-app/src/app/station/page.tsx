@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { redirect } from 'next/navigation';
 
 import { getCenterSession } from '@/lib/center-auth';
 import { db } from '@/lib/db';
@@ -23,9 +24,13 @@ export default async function StationPage() {
         cta="Arm the bridge"
         redirectTo="/station"
         placeholderCode="EBT01"
+        portal="bridge"
+        portalLabel="Weighbridge console · staff only"
       />
     );
   }
+  // A buy-back operator who lands here belongs at the counter console.
+  if (session.centerKind !== 'TRANSFER_STATION') redirect('/center');
 
   const startOfDay = new Date();
   startOfDay.setHours(0, 0, 0, 0);

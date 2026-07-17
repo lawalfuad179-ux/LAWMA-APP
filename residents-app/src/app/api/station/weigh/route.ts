@@ -3,6 +3,7 @@ import { z } from 'zod';
 
 import { getCenterSession } from '@/lib/center-auth';
 import { buildStationReceiptCode, computeTippingFeeKobo, evaluateWeigh } from '@/lib/weighbridge';
+import { notifyWeighEvent } from '@/lib/notify-center';
 import { db } from '@/lib/db';
 import { logger } from '@/lib/logger';
 
@@ -32,6 +33,13 @@ export async function POST(req: NextRequest) {
         { status: 401 },
       );
     }
+    // Tipping fees can only be docked from a weighbridge console.
+    if (session.centerKind !== 'TRANSFER_STATION') {
+      return NextResponse.json<Failure>(
+        { ok: false, error: { code: 'wrong_console', message: 'This operator belongs at the buy-back counter.' } },
+        { status: 403 },
+      );
+    }
 
     const body = await req.json().catch(() => null);
     const parsed = schema.safeParse(body);
@@ -46,7 +54,7 @@ export async function POST(req: NextRequest) {
     const [tricycle, rate] = await Promise.all([
       db.tricycle.findFirst({
         where: { id: tricycleId, isActive: true },
-        select: { id: true, rfidTag: true, plateNumber: true, operatorName: true, walletBalanceKobo: true },
+        select: { id: true, rfidTag: true, plateNumber: true, operatorName: true, contactPhone: true, walletBalanceKobo: true },
       }),
       db.tippingRate.findFirst({ where: { isActive: true } }),
     ]);
@@ -119,6 +127,18 @@ export async function POST(req: NextRequest) {
       feeKobo,
       negative: verdict.negative,
       flagged: verdict.flagged,
+    });
+
+    // After the commit; never throws. Fleet operators live on SMS.
+    await notifyWeighEvent({
+      contactPhone: tricycle.contactPhone,
+      operatorName: tricycle.operatorName,
+      rfidTag: tricycle.rfidTag,
+      grossWeightGrams: weightGrams,
+      feeKobo,
+      balanceAfterKobo: result.balanceAfterKobo,
+      stationName: session.centerName,
+      receiptCode: result.event.receiptCode,
     });
 
     return NextResponse.json({

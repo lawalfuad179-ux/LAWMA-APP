@@ -11,6 +11,7 @@ import { paymentConfirmationEmail } from '@/lib/email/templates/payment-confirma
 import { collectionReminderEmail } from '@/lib/email/templates/collection-reminder';
 import { delayedPickupEmail } from '@/lib/email/templates/delayed-pickup';
 import { announcementEmail } from '@/lib/email/templates/announcement';
+import { recyclingRewardEmail } from '@/lib/email/templates/recycling-reward';
 
 const MAX_ATTEMPTS = 3;
 const BATCH_SIZE = 10;
@@ -24,6 +25,15 @@ const renderers: Record<string, (payload: Record<string, unknown>) => { subject:
   'collection-reminder': (p) => collectionReminderEmail(p.dayOfWeek as string, p.windowStart as string, p.windowEnd as string),
   'delayed-pickup': (p) => delayedPickupEmail(p.area as string, (p.reason as string | null) || null),
   'announcement': (p) => announcementEmail(p.title as string, p.body as string),
+  'recycling-reward': (p) =>
+    recyclingRewardEmail(
+      p.amountKobo as number,
+      p.summary as string,
+      p.centerName as string,
+      p.receiptCode as string,
+      p.payoutMethod as 'CREDIT' | 'CASH',
+      p.newBalancePoints as number,
+    ),
 };
 
 export async function POST(req: Request) {

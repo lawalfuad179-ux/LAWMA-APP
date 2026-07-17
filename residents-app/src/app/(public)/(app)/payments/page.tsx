@@ -1,5 +1,4 @@
 import { redirect } from 'next/navigation';
-import { Star } from 'lucide-react';
 
 import { getSession } from '@/lib/auth';
 import { db } from '@/lib/db';
@@ -7,15 +6,17 @@ import { BalanceCard } from './BalanceCard';
 import { EmptyBillsState } from './EmptyBillsState';
 import { PaymentVerifySheet } from './PaymentVerifySheet';
 import { BillHistoryList } from './BillHistoryList';
+import { RewardsWalletCard } from '@/components/rewards/RewardsWalletCard';
+import { RewardHistoryList } from '@/components/rewards/RewardHistoryList';
 import { Reveal } from '@/components/ui/Reveal';
-import { pointsToKobo, projectCascadingDiscountKobo } from '@/lib/rewards';
+import { projectCascadingDiscountKobo } from '@/lib/rewards';
 import styles from './page.module.css';
 
 export default async function PaymentsPage() {
   const session = await getSession();
   if (!session) redirect('/login');
 
-  const [bills, rewardAccount] = await Promise.all([
+  const [bills, rewardAccount, ledger] = await Promise.all([
     db.bill.findMany({
       where: { residentId: session.residentId },
       orderBy: { dueDate: 'asc' },
@@ -24,10 +25,16 @@ export default async function PaymentsPage() {
       where: { residentId: session.residentId },
       select: { balance: true },
     }),
+    db.pointTransaction.findMany({
+      where: { residentId: session.residentId },
+      orderBy: { createdAt: 'desc' },
+      take: 8,
+      select: { id: true, amount: true, description: true, createdAt: true },
+    }),
   ]);
 
   const rewardBalance = rewardAccount?.balance ?? 0;
-  const rewardCreditKobo = pointsToKobo(rewardBalance);
+  const lastCredit = ledger.find((t) => t.amount > 0) ?? null;
 
   // Outstanding = amount the resident actually owes after any discount
   // already applied to a bill, minus the reward credit that would be
@@ -43,7 +50,6 @@ export default async function PaymentsPage() {
   return (
     <div className={styles.page}>
       <PaymentVerifySheet />
-      <h1 className={styles.title}>Payments</h1>
 
       <Reveal delay={0.04} immediate>
         <BalanceCard
@@ -53,23 +59,20 @@ export default async function PaymentsPage() {
         />
       </Reveal>
 
-      <div className={styles.rewardBanner}>
-        <Star size={16} strokeWidth={1.8} className={styles.rewardBannerIcon} />
-        <p className={styles.rewardBannerText}>
-          {rewardBalance > 0 ? (
-            <>
-              <strong>You have {rewardBalance} reward {rewardBalance === 1 ? 'point' : 'points'} (₦{(rewardCreditKobo / 100).toLocaleString('en-NG')}) in credit.</strong>{' '}
-              It will be applied automatically to your next bill payment.
-            </>
-          ) : (
-            <>
-              <strong>Earn credit two ways</strong> — 5 points every time you pay a bill in the
-              app, plus ₦ for every kilo of sorted recyclables you drop at a LAWMA collection
-              centre. It comes off your next bill automatically.
-            </>
-          )}
-        </p>
-      </div>
+      <Reveal delay={0.07} immediate>
+        <RewardsWalletCard
+          balancePoints={rewardBalance}
+          lastCredit={
+            lastCredit
+              ? {
+                  amountPoints: lastCredit.amount,
+                  description: lastCredit.description,
+                  createdAt: lastCredit.createdAt,
+                }
+              : null
+          }
+        />
+      </Reveal>
 
       {bills.length > 0 ? (
         <Reveal className={styles.section} delay={0.1}>
@@ -78,6 +81,17 @@ export default async function PaymentsPage() {
       ) : (
         <EmptyBillsState />
       )}
+
+      <Reveal delay={0.13} immediate>
+        <RewardHistoryList
+          rows={ledger.map((t) => ({
+            id: t.id,
+            amount: t.amount,
+            description: t.description,
+            createdAt: t.createdAt.toISOString(),
+          }))}
+        />
+      </Reveal>
     </div>
   );
 }

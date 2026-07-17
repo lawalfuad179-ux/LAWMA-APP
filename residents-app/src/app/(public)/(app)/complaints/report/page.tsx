@@ -32,6 +32,11 @@ export default function ReportComplaintPage() {
   const [previews, setPreviews] = useState<Preview[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState<{
+    issueType?: string;
+    area?: string;
+    address?: string;
+  }>({});
   const [duplicateWarning, setDuplicateWarning] = useState('');
   const [descTouched, setDescTouched] = useState(false);
   const [descError, setDescError] = useState('');
@@ -102,10 +107,13 @@ export default function ReportComplaintPage() {
     setError('');
     setDuplicateWarning('');
 
-    if (!issueType || !area || !address) {
-      setError('Please fill in all required fields.');
-      return;
-    }
+    // Per-field, not a generic banner — each gap is named where it is.
+    const fe: typeof fieldErrors = {};
+    if (!issueType) fe.issueType = 'Select the type of issue.';
+    if (!area.trim()) fe.area = 'Enter the area or neighbourhood.';
+    if (!address.trim()) fe.address = 'Enter the street address or a landmark.';
+    setFieldErrors(fe);
+    if (Object.keys(fe).length > 0) return;
 
     setLoading(true);
 
@@ -115,18 +123,32 @@ export default function ReportComplaintPage() {
     const lat = coords?.lat;
     const lng = coords?.lng;
 
-    // Upload photos first
+    // Upload photos first. A failed upload STOPS the submit — silently filing
+    // the report without the evidence photo is worse than asking to retry.
     const imageUrls: string[] = [];
+    const failed: string[] = [];
     for (const preview of previews) {
       const fd = new FormData();
       fd.append('file', preview.file);
       try {
         const res = await fetch('/api/upload', { method: 'POST', body: fd });
         const data = await res.json();
-        if (data.ok) imageUrls.push(data.url);
+        if (data.ok) {
+          imageUrls.push(data.url);
+        } else {
+          failed.push(preview.file.name);
+        }
       } catch {
-        // Photo upload failed — continue without this photo
+        failed.push(preview.file.name);
       }
+    }
+    if (failed.length > 0) {
+      setError(
+        `${failed.length === 1 ? 'A photo' : `${failed.length} photos`} failed to upload (${failed.join(', ')}). ` +
+          'Check your connection and submit again, or remove the photo to file without it.',
+      );
+      setLoading(false);
+      return;
     }
 
     try {
@@ -182,21 +204,33 @@ export default function ReportComplaintPage() {
           options={issueOptions}
           placeholder="Select issue type"
           value={issueType}
-          onChange={(e) => setIssueType(e.target.value)}
+          error={fieldErrors.issueType}
+          onChange={(e) => {
+            setIssueType(e.target.value);
+            setFieldErrors((f) => ({ ...f, issueType: undefined }));
+          }}
         />
 
         <Input
           label="Area / Neighbourhood"
           placeholder="e.g. Surulere"
           value={area}
-          onChange={(e) => setArea(e.target.value)}
+          error={fieldErrors.area}
+          onChange={(e) => {
+            setArea(e.target.value);
+            setFieldErrors((f) => ({ ...f, area: undefined }));
+          }}
         />
 
         <AddressInput
           label="Address"
           placeholder="Street address or landmark"
           value={address}
-          onChange={setAddress}
+          error={fieldErrors.address}
+          onChange={(v) => {
+            setAddress(v);
+            setFieldErrors((f) => ({ ...f, address: undefined }));
+          }}
           onLocationSelect={setCoords}
         />
 

@@ -19,6 +19,9 @@ export type CenterSessionData = {
   operatorName: string;
   centerId: string;
   centerName: string;
+  // Which console this operator belongs at: /center for BUYBACK, /station for
+  // TRANSFER_STATION. Pages redirect to the right one instead of erroring.
+  centerKind: 'BUYBACK' | 'TRANSFER_STATION';
   sessionId: string;
 };
 
@@ -51,6 +54,7 @@ export async function getCenterSession(): Promise<CenterSessionData | null> {
     operatorName: session.operator.name,
     centerId: session.operator.center.id,
     centerName: session.operator.center.name,
+    centerKind: session.operator.center.kind,
     sessionId: session.id,
   };
 }
@@ -95,6 +99,7 @@ export async function loginOperator(
     operatorName: operator.name,
     centerId: operator.center.id,
     centerName: operator.center.name,
+    centerKind: operator.center.kind,
     sessionId: session.id,
   };
 }

@@ -9,14 +9,18 @@ function toInternational(phoneNumber: string): string {
   return phoneNumber.startsWith('+') ? phoneNumber : '+' + phoneNumber;
 }
 
-export async function sendOtpSms(phoneNumber: string, code: string): Promise<boolean> {
+/**
+ * Send a transactional SMS via Brevo. Never throws — a failed text must never
+ * take down the flow that triggered it (money moves first, messages follow).
+ * Without an API key it logs a mock send so local flows stay demonstrable.
+ */
+export async function sendSms(phoneNumber: string, content: string, kind = 'generic'): Promise<boolean> {
   const apiKey = process.env.BREVO_SMS_API_KEY;
 
   if (!apiKey) {
-    logger.info('sms.otp.mock_sent', {
+    logger.info(`sms.${kind}.mock_sent`, {
       phoneNumber,
-      code,
-      message: `[MOCK] OTP for ${phoneNumber}: ${code}`,
+      message: `[MOCK] SMS to ${phoneNumber}: ${content}`,
     });
     return true;
   }
@@ -32,12 +36,7 @@ export async function sendOtpSms(phoneNumber: string, code: string): Promise<boo
         'Content-Type': 'application/json',
         Accept: 'application/json',
       },
-      body: JSON.stringify({
-        sender,
-        recipient,
-        content: `Your LAWMA OTP is ${code}. Valid for 5 minutes.`,
-        type: 'transactional',
-      }),
+      body: JSON.stringify({ sender, recipient, content, type: 'transactional' }),
     });
 
     const text = await res.text();
@@ -45,22 +44,26 @@ export async function sendOtpSms(phoneNumber: string, code: string): Promise<boo
     try {
       data = JSON.parse(text);
     } catch {
-      logger.error('sms.otp.error', { phoneNumber, error: `Non-JSON response from Brevo: ${text.slice(0, 200)}` });
+      logger.error(`sms.${kind}.error`, { phoneNumber, error: `Non-JSON response from Brevo: ${text.slice(0, 200)}` });
       return false;
     }
 
     if (res.ok) {
       const d = data as { messageId?: string };
-      logger.info('sms.otp.sent', { phoneNumber: recipient, messageId: d.messageId });
+      logger.info(`sms.${kind}.sent`, { phoneNumber: recipient, messageId: d.messageId });
       return true;
     }
 
-    logger.error('sms.otp.failed', { phoneNumber, status: res.status, response: data });
+    logger.error(`sms.${kind}.failed`, { phoneNumber, status: res.status, response: data });
     return false;
   } catch (error) {
-    logger.error('sms.otp.error', { phoneNumber, error: String(error) });
+    logger.error(`sms.${kind}.error`, { phoneNumber, error: String(error) });
     return false;
   }
+}
+
+export async function sendOtpSms(phoneNumber: string, code: string): Promise<boolean> {
+  return sendSms(phoneNumber, `Your LAWMA OTP is ${code}. Valid for 5 minutes.`, 'otp');
 }
 
 export function generateOtpCode(): string {

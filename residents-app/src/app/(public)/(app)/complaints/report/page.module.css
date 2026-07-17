@@ -96,7 +96,7 @@
 .textarea:focus {
   outline: none;
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px hsla(24, 98%, 50%, 0.12);
+  box-shadow: var(--focus-ring-primary);
 }
 
 .textareaError {
@@ -104,7 +104,7 @@
 }
 
 .textareaError:focus {
-  box-shadow: 0 0 0 3px hsla(0, 54%, 41%, 0.12);
+  box-shadow: var(--focus-ring-error);
 }
 
 .textareaBottom {
@@ -171,7 +171,7 @@
   background: hsla(0, 0%, 0%, 0.55);
   border: none;
   border-radius: 50%;
-  color: #fff;
+  color: var(--color-white);
   cursor: pointer;
   transition: background 0.15s;
 }
@@ -215,8 +215,8 @@
 
 .duplicateWarning {
   font-size: var(--body-medium-font-size);
-  color: hsl(28, 80%, 26%);
-  background: hsl(39, 100%, 90%);
+  color: var(--color-on-status-warning-container);
+  background: var(--color-status-warning-container);
   padding: 12px;
   border-radius: 8px;
 }

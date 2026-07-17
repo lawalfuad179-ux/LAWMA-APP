@@ -69,7 +69,6 @@ export default async function SchedulesPage() {
   return (
     <div className={styles.page}>
       <div>
-        <h1 className={styles.title}>Schedule</h1>
         {resident.lga && <p className={styles.subtitle}>{resident.lga} · Lagos</p>}
       </div>
 

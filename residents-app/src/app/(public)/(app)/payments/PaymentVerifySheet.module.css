@@ -136,3 +136,33 @@
   from { opacity: 0; transform: scale(0.88) translateY(4px); }
   to   { opacity: 1; transform: scale(1)    translateY(0);   }
 }
+
+/* Static outcome marks — shown instead of the Lottie celebration when the
+   user asked the OS for reduced motion. */
+.staticMark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  margin: 36px 0;
+}
+
+.staticMarkSuccess {
+  background: var(--color-status-success-container);
+  color: var(--color-on-status-success-container);
+}
+
+.staticMarkFailed {
+  background: var(--color-status-error-container);
+  color: var(--color-on-status-error-container);
+}
+
+.supportLink {
+  margin-top: 12px;
+  font-size: 13px;
+  color: var(--color-on-surface-variant);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}

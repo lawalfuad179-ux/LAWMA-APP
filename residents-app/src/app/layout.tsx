@@ -30,9 +30,16 @@ export const viewport: Viewport = {
   ],
 };
 
+// Runs before first paint: honour a stored choice, else the OS preference.
+// Without this, dark-mode phones get a white flash and A4 stays broken.
+const themeInit = `(function(){try{var s=localStorage.getItem('lawma-theme');var d=s?s==='dark':matchMedia('(prefers-color-scheme: dark)').matches;if(d)document.documentElement.setAttribute('data-theme','dark');}catch(e){}})();`;
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={inter.className}>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeInit }} />
+      </head>
       <body>
         <ToastProvider>
           {children}

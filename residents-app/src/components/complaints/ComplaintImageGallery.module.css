@@ -55,10 +55,10 @@
   right: 16px;
   width: 40px;
   height: 40px;
-  background: hsla(0, 0%, 100%, 0.12);
+  background: hsla(var(--color-white-hsl), 0.12);
   border: none;
   border-radius: 50%;
-  color: #fff;
+  color: var(--color-white);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -68,7 +68,7 @@
 }
 
 .closeBtn:hover {
-  background: hsla(0, 0%, 100%, 0.22);
+  background: hsla(var(--color-white-hsl), 0.22);
 }
 
 .lightboxImg {
@@ -91,10 +91,10 @@
   transform: translateY(-50%);
   width: 44px;
   height: 44px;
-  background: hsla(0, 0%, 100%, 0.12);
+  background: hsla(var(--color-white-hsl), 0.12);
   border: none;
   border-radius: 50%;
-  color: #fff;
+  color: var(--color-white);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -104,7 +104,7 @@
 }
 
 .navBtn:hover {
-  background: hsla(0, 0%, 100%, 0.22);
+  background: hsla(var(--color-white-hsl), 0.22);
 }
 
 .navBtnPrev {
@@ -128,11 +128,11 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: hsla(0, 0%, 100%, 0.35);
+  background: hsla(var(--color-white-hsl), 0.35);
   transition: background 0.2s, transform 0.2s;
 }
 
 .dotActive {
-  background: #fff;
+  background: var(--color-white);
   transform: scale(1.3);
 }

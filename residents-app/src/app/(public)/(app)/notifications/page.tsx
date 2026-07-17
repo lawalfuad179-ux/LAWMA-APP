@@ -21,7 +21,6 @@ export default async function NotificationsPage() {
       <div className={styles.header}>
         <div className={styles.headerLeft}>
           <BackButton className={styles.back} />
-          <h1 className={styles.title}>Notifications</h1>
         </div>
       </div>
       <NotificationList initialNotifications={notifications} />

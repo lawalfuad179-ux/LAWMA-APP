@@ -158,11 +158,11 @@
 .cardNext {
   background: color-mix(in srgb, var(--color-primary) 4%, var(--color-surface));
   border-color: color-mix(in srgb, var(--color-primary) 30%, var(--color-outline-variant));
-  box-shadow: 0 2px 10px hsla(24, 98%, 50%, 0.10);
+  box-shadow: 0 2px 10px hsla(var(--color-primary-hsl), 0.10);
 }
 
 .cardNext:hover {
-  box-shadow: 0 6px 18px hsla(24, 98%, 50%, 0.18);
+  box-shadow: 0 6px 18px hsla(var(--color-primary-hsl), 0.18);
 }
 
 .cardRow {

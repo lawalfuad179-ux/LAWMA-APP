@@ -55,7 +55,7 @@
 }
 
 .step.current .marker {
-  box-shadow: 0 0 0 4px hsla(24, 98%, 50%, 0.15);
+  box-shadow: 0 0 0 4px hsla(var(--color-primary-hsl), 0.15);
 }
 
 .check {

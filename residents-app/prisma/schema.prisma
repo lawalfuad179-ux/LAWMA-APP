@@ -532,6 +532,9 @@ model Tricycle {
   rfidTag           String   @unique @map("rfid_tag")
   plateNumber       String   @map("plate_number")
   operatorName      String   @map("operator_name")
+  // Fleet operators have no app account; SMS to this number is their
+  // channel for fee, arrears and top-up notices.
+  contactPhone      String?  @map("contact_phone")
   zone              String   @map("zone")
   // Prepaid balance in kobo. May go negative: a loaded tricycle at the bridge
   // is never turned away — the event settles, gets flagged, and the debt shows

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Recycle } from 'lucide-react';
+import { Recycle, ScanLine } from 'lucide-react';
 
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -15,6 +15,10 @@ type Props = {
   cta?: string;
   redirectTo?: string;
   placeholderCode?: string;
+  // Both portals wear the same LAWMA mark; this chip is what tells staff
+  // which console the login opens before they type a thing.
+  portal?: 'counter' | 'bridge';
+  portalLabel?: string;
 };
 
 export function CenterLogin({
@@ -23,6 +27,8 @@ export function CenterLogin({
   cta = 'Open counter',
   redirectTo = '/center',
   placeholderCode = 'SIM01',
+  portal = 'counter',
+  portalLabel = 'Buy-back counter · staff only',
 }: Props) {
   const [staffCode, setStaffCode] = useState('');
   const [passcode, setPasscode] = useState('');
@@ -56,11 +62,21 @@ export function CenterLogin({
   return (
     <div className={styles.shell}>
       <div className={styles.card}>
-        <span className={styles.mark}>
-          <Recycle size={22} strokeWidth={2} />
-        </span>
-        <h1 className={styles.title}>{title}</h1>
-        <p className={styles.subtitle}>{subtitle}</p>
+        <div className={styles.head}>
+          <span className={styles.logoCircle}>
+            {/* Same mark as the resident sign-in — one brand, every door. */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/favicon.png" alt="LAWMA" className={styles.logoFavicon} />
+          </span>
+          <h1 className={styles.title}>{title}</h1>
+          <span className={styles.portalChip}>
+            {portal === 'bridge'
+              ? <ScanLine size={13} strokeWidth={2} />
+              : <Recycle size={13} strokeWidth={2} />}
+            {portalLabel}
+          </span>
+          <p className={styles.subtitle}>{subtitle}</p>
+        </div>
 
         <form className={styles.form} onSubmit={handleSubmit}>
           <Input

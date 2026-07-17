@@ -6,7 +6,6 @@ import {
   Banknote,
   Check,
   History,
-  LogOut,
   Radio,
   ScanLine,
   Truck,
@@ -14,6 +13,7 @@ import {
 
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { KioskNav } from '@/components/kiosk/KioskNav';
 import styles from './StationKiosk.module.css';
 
 type Tricycle = {
@@ -317,11 +317,34 @@ export function StationKiosk({
 
   return (
     <div className={styles.shell}>
+      <KioskNav
+        brandIcon={<ScanLine size={20} strokeWidth={2} />}
+        operatorName={operatorName}
+        onSignOut={async () => {
+          await fetch('/api/center/session', { method: 'DELETE' });
+          window.location.reload();
+        }}
+        items={[
+          {
+            id: 'bridge',
+            label: 'Bridge',
+            icon: <Radio size={19} strokeWidth={1.8} />,
+            active: step !== 'history',
+            onClick: reset,
+          },
+          {
+            id: 'log',
+            label: 'Bridge log',
+            icon: <History size={19} strokeWidth={1.8} />,
+            active: step === 'history',
+            onClick: openHistory,
+          },
+        ]}
+      />
+
+      <div className={styles.main}>
       <header className={styles.header}>
         <div className={styles.brand}>
-          <span className={styles.brandMark}>
-            <ScanLine size={18} strokeWidth={2} />
-          </span>
           <span className={styles.brandText}>
             <span className={styles.brandTitle}>{stationName}</span>
             <span className={styles.brandSub}>Weighbridge console · {operatorName}</span>
@@ -342,35 +365,6 @@ export function StationKiosk({
               <span className={styles.statValue}>{naira(today.feesKobo)}</span>
               <span className={styles.statLabel}>Fees docked</span>
             </div>
-          </div>
-          <span className={styles.headerDivider} aria-hidden="true" />
-
-          <div className={styles.headerActions}>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={() => (step === 'history' ? reset() : openHistory())}
-            >
-              <span className={styles.btnWithIcon}>
-                <History size={15} strokeWidth={1.8} />
-                Bridge log
-              </span>
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={async () => {
-                await fetch('/api/center/session', { method: 'DELETE' });
-                window.location.reload();
-              }}
-            >
-              <span className={styles.btnWithIcon}>
-                <LogOut size={15} strokeWidth={1.8} />
-                Sign out
-              </span>
-            </Button>
           </div>
         </div>
       </header>
@@ -548,7 +542,7 @@ export function StationKiosk({
           {/* ── Step 3: docked — the receipt ──────────────────────────── */}
           {step === 'receipt' && receipt && (
             <div className={styles.card}>
-              <div className={styles.receiptTop}>
+              <div className={`${styles.receiptTop} ${receipt.flagged ? styles.receiptTopCompact : ''}`}>
                 <span className={`${styles.tick} ${receipt.flagged ? styles.tickWarn : ''}`}>
                   {receipt.flagged
                     ? <AlertTriangle size={24} strokeWidth={2.2} />
@@ -740,6 +734,7 @@ export function StationKiosk({
           )}
         </div>
       </main>
+      </div>
     </div>
   );
 }

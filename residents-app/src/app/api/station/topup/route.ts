@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
 import { getCenterSession } from '@/lib/center-auth';
+import { notifyTopup } from '@/lib/notify-center';
 import { db } from '@/lib/db';
 import { logger } from '@/lib/logger';
 
@@ -23,6 +24,13 @@ export async function POST(req: NextRequest) {
         { status: 401 },
       );
     }
+    // Wallet top-ups are recorded against a station till, not a counter.
+    if (session.centerKind !== 'TRANSFER_STATION') {
+      return NextResponse.json<Failure>(
+        { ok: false, error: { code: 'wrong_console', message: 'This operator belongs at the buy-back counter.' } },
+        { status: 403 },
+      );
+    }
 
     const body = await req.json().catch(() => null);
     const parsed = schema.safeParse(body);
@@ -38,7 +46,7 @@ export async function POST(req: NextRequest) {
       const updated = await tx.tricycle.update({
         where: { id: tricycleId },
         data: { walletBalanceKobo: { increment: amountKobo } },
-        select: { walletBalanceKobo: true, operatorName: true, rfidTag: true },
+        select: { walletBalanceKobo: true, operatorName: true, rfidTag: true, contactPhone: true },
       });
 
       await tx.tricycleWalletTransaction.create({
@@ -60,6 +68,15 @@ export async function POST(req: NextRequest) {
       operatorId: session.operatorId,
       tricycleId,
       amountKobo,
+    });
+
+    // After the commit; never throws.
+    await notifyTopup({
+      contactPhone: result.contactPhone,
+      rfidTag: result.rfidTag,
+      amountKobo,
+      balanceAfterKobo: result.walletBalanceKobo,
+      stationName: session.centerName,
     });
 
     return NextResponse.json({
