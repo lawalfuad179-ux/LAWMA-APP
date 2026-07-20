@@ -1,8 +1,9 @@
 /**
  * Revoke the collection-centre demo access.
  *
- * Run this once the MD demo is over. It deactivates the seeded kiosk operators
- * and clears the demo resident's password, so neither can be signed into any
+ * Run this once the MD demo is over. It deactivates the seeded kiosk and
+ * station operators (including the Ebute-Ero weighbridge, EBT01) and clears
+ * the demo resident's password, so none of them can be signed into any
  * more. It deliberately does NOT delete drop-offs, centres, rates, or the
  * resident record — those are real rows now, and a demo being finished is not a
  * reason to destroy the ledger.
@@ -23,10 +24,10 @@ const prisma = new PrismaClient({ adapter: new PrismaPg({ connectionString }) })
 
 async function main() {
   const operators = await prisma.centerOperator.updateMany({
-    where: { staffCode: { in: ['SIM01', 'OCE01'] } },
+    where: { staffCode: { in: ['SIM01', 'OCE01', 'EBT01'] } },
     data: { isActive: false },
   });
-  console.log(`Deactivated ${operators.count} kiosk operator(s).`);
+  console.log(`Deactivated ${operators.count} kiosk/station operator(s).`);
 
   const resident = await prisma.resident.updateMany({
     where: { phoneNumber: '+2348000000001' },
@@ -34,11 +35,11 @@ async function main() {
   });
   console.log(`Cleared password on ${resident.count} demo resident(s).`);
 
-  // Existing kiosk sessions would otherwise stay valid for their remaining TTL.
+  // Existing kiosk/station sessions would otherwise stay valid for their remaining TTL.
   const sessions = await prisma.centerSession.deleteMany({
-    where: { operator: { staffCode: { in: ['SIM01', 'OCE01'] } } },
+    where: { operator: { staffCode: { in: ['SIM01', 'OCE01', 'EBT01'] } } },
   });
-  console.log(`Revoked ${sessions.count} open kiosk session(s).`);
+  console.log(`Revoked ${sessions.count} open kiosk/station session(s).`);
 
   // The throwaway resident used to verify the money path against production.
   // Deleting it cascades its drop-offs and point transactions. This is the one
