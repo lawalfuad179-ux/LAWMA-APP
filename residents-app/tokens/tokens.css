@@ -36,17 +36,24 @@
   --color-surface-container-high: hsl(0, 0%, 92%);
   --color-surface-container-highest: hsl(0, 0%, 90%);
 
-  /* Status colors — semantic tokens for complaint, payment, collection states */
-  --color-status-info: hsl(207, 70%, 50%);
+  /* Status colors: semantic tokens for complaint, payment, collection states.
+     CANONICAL, single source (Third Seat 2026-08-12). The base values below are the M3 vivid
+     set that used to be re-declared in a second :root block lower in this file (now deleted);
+     folding them here changed nothing that renders. `-container` is the light tint fill,
+     `-on-*-container` is dark ink on that tint, `-on-status-*` is dark ink used directly. */
+  --color-status-info: hsl(210, 100%, 50%);
   --color-status-info-container: hsl(207, 80%, 94%);
   --color-on-status-info-container: hsl(207, 80%, 28%);
-  --color-status-success: hsl(142, 60%, 38%);
+  --color-on-status-info: hsl(207, 80%, 28%);
+  --color-status-success: hsl(122, 39%, 49%);
   --color-status-success-container: hsl(142, 60%, 92%);
   --color-on-status-success-container: hsl(142, 70%, 22%);
-  --color-status-warning: hsl(28, 80%, 46%);
+  --color-on-status-success: hsl(142, 70%, 22%);
+  --color-status-warning: hsl(35, 100%, 50%);
   --color-status-warning-container: hsl(28, 80%, 92%);
   --color-on-status-warning-container: hsl(28, 90%, 26%);
-  --color-status-error: hsl(0, 54%, 41%);
+  --color-on-status-warning: hsl(28, 80%, 26%);
+  --color-status-error: hsl(0, 68%, 50%);
   --color-status-error-container: hsl(0, 60%, 93%);
   --color-on-status-error-container: hsl(0, 60%, 28%);
 }
@@ -345,12 +352,9 @@
   --label-small-text-case: none;
 }
 
-:root {
-  --color-status-success: hsl(122, 39%, 49%);
-  --color-status-warning: hsl(35, 100%, 50%);
-  --color-status-error: hsl(0, 68%, 50%);
-  --color-status-info: hsl(210, 100%, 50%);
-}
+/* (Removed 2026-08-12: duplicate status-base :root block that re-declared the four
+   --color-status-* bases and overrode the canonical family above. Its values were folded into
+   that family, so removing it changes nothing that renders.) */
 
 /* ── Shape & elevation scale ──────────────────────────────────────────────
    The only radius/shadow values NEW css should reach for.
@@ -359,6 +363,7 @@
    meters, avatars. Shadows: 1 = resting, 2 = raised, 3 = overlay. */
 :root {
   --radius-sm: 9px;
+  --radius-input: 10px; /* canonical control radius (Input/Select/buttons); most-used value, now tokenised (Third Seat 2026-08-12) */
   --radius-md: 12px;
   --radius-lg: 16px;
   --radius-pill: 999px;

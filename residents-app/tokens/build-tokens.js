@@ -93,5 +93,16 @@ for (const [_category, styles] of Object.entries(typography)) {
 }
 css += '}\n';
 
-fs.writeFileSync(path.join(__dirname, 'tokens.css'), css);
-console.log('Generated tokens.css');
+// NON-DESTRUCTIVE (Third Seat, 2026-08-12). tokens.css is HAND-MAINTAINED and is the source of
+// truth: it carries ~202 lines (status colors, radius/shadow scale, focus rings, media colors,
+// semantic one-offs) that do not exist in the JSON sources. This script only resolves the
+// role + typography tokens from JSON, so writing over tokens.css would delete those hand blocks
+// (verified: 202 deletions). It now writes a separate diff artifact instead; a human merges any
+// genuine role/type changes into tokens.css by hand after diffing.
+const outPath = path.join(__dirname, 'tokens.generated.css');
+const header =
+  '/* Auto-generated from JSON sources. DIFF ARTIFACT ONLY, not imported.\n' +
+  '   tokens.css is the hand-maintained source of truth (see build-tokens.js).\n' +
+  '   Diff this against tokens.css to fold in role/type changes by hand. */\n';
+fs.writeFileSync(outPath, header + css);
+console.log('Generated tokens.generated.css (diff artifact). tokens.css was NOT touched.');
