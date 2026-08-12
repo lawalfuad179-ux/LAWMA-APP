@@ -167,7 +167,7 @@
 .cardImg {
   width: 68px;
   height: 68px;
-  border-radius: 10px;
+  border-radius: var(--radius-input);
   object-fit: cover;
   flex-shrink: 0;
   background: var(--color-surface-container);

@@ -129,7 +129,7 @@
   background: var(--color-primary);
   color: var(--color-on-primary);
   border: none;
-  border-radius: 10px;
+  border-radius: var(--radius-input);
   font-size: var(--title-small-font-size);
   font-weight: 600;
   cursor: pointer;
@@ -156,7 +156,7 @@
   padding: 14px 32px;
   background: none;
   border: 1px solid var(--color-primary);
-  border-radius: 10px;
+  border-radius: var(--radius-input);
   color: var(--color-primary);
   font-size: var(--body-medium-font-size);
   font-weight: 500;
@@ -614,7 +614,7 @@
   background: var(--color-primary);
   color: var(--color-on-primary);
   border: none;
-  border-radius: 10px;
+  border-radius: var(--radius-input);
   font-size: var(--title-small-font-size);
   font-weight: 600;
   cursor: pointer;
@@ -634,7 +634,7 @@
   padding: 14px 32px;
   background: none;
   border: 1px solid var(--color-primary);
-  border-radius: 10px;
+  border-radius: var(--radius-input);
   color: var(--color-primary);
   font-size: var(--body-medium-font-size);
   font-weight: 500;

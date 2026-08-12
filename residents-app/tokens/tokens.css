@@ -425,6 +425,8 @@
   --color-status-success-tint: hsl(142, 60%, 82%);
   /* Warm amber stop for the daily-cap meter gradient */
   --color-meter-amber: hsl(35, 95%, 58%);
+  /* Warning-icon amber ink (notification list) */
+  --color-amber-accent: #b45309;
   /* Micro label tier below label-small (stat captions, nav labels) */
   --label-tiny-font-size: 10px;
   --label-tiny-letter-spacing: 0.06em;

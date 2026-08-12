@@ -74,7 +74,7 @@
 .iconWrap {
   width: 36px;
   height: 36px;
-  border-radius: 10px;
+  border-radius: var(--radius-input);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -83,7 +83,7 @@
 }
 
 .icon_info    { background: var(--color-tertiary-container); color: var(--color-on-tertiary-container); }
-.icon_warning { background: color-mix(in srgb, orange 15%, var(--color-surface-container)); color: #b45309; }
+.icon_warning { background: color-mix(in srgb, orange 15%, var(--color-surface-container)); color: var(--color-amber-accent); }
 .icon_success { background: var(--color-status-success-container); color: var(--color-on-status-success-container); }
 .icon_neutral { background: var(--color-surface-container); color: var(--color-on-surface-variant); }
 

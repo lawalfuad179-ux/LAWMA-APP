@@ -116,7 +116,7 @@
   gap: 12px;
   min-width: 76px;
   padding: 8px 14px;
-  border-radius: 10px;
+  border-radius: var(--radius-input);
   border: 1px solid var(--color-outline-variant);
   background: var(--color-surface-container-low);
   line-height: 1;
@@ -192,7 +192,7 @@
 .subtitle {
   margin-top: 10px;
   padding: 12px 14px;
-  border-radius: 10px;
+  border-radius: var(--radius-input);
   background: var(--color-surface-container-low);
   font-size: 14px;
   line-height: 1.5;
@@ -355,7 +355,7 @@
   align-items: center;
   gap: 12px;
   padding: 7px 12px;
-  border-radius: 10px;
+  border-radius: var(--radius-input);
   border: 1px solid var(--color-outline-variant);
   background: var(--color-surface);
   transition: border-color 0.12s ease, background 0.12s ease;
@@ -612,7 +612,7 @@
   display: flex;
   gap: 10px;
   padding: 12px 14px;
-  border-radius: 10px;
+  border-radius: var(--radius-input);
   background: var(--color-status-warning-container);
   color: var(--color-on-status-warning-container);
   font-size: 13px;
@@ -631,7 +631,7 @@
 .error {
   margin-top: 14px;
   padding: 11px 14px;
-  border-radius: 10px;
+  border-radius: var(--radius-input);
   background: var(--color-status-error-container);
   color: var(--color-on-status-error-container);
   font-size: 13px;

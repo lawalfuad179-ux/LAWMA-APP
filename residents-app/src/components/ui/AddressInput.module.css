@@ -25,7 +25,7 @@
   align-items: center;
   justify-content: center;
   border: 1.5px solid var(--color-outline-variant);
-  border-radius: 10px;
+  border-radius: var(--radius-input);
   background: var(--color-surface);
   color: var(--color-primary);
   transition: border-color 0.2s, background 0.2s;
@@ -63,7 +63,7 @@
   margin-top: 4px;
   background: var(--color-surface);
   border: 1.5px solid var(--color-outline-variant);
-  border-radius: 10px;
+  border-radius: var(--radius-input);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
   list-style: none;
   z-index: 20;

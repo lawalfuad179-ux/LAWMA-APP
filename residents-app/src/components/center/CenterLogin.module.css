@@ -84,7 +84,7 @@
 .error {
   margin-top: 14px;
   padding: 11px 14px;
-  border-radius: 10px;
+  border-radius: var(--radius-input);
   background: var(--color-status-error-container);
   color: var(--color-on-status-error-container);
   font-size: 13px;

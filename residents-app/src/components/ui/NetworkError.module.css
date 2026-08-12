@@ -5,7 +5,7 @@
   padding: 12px 14px;
   background: color-mix(in srgb, var(--color-error) 6%, var(--color-surface));
   border: 1px solid color-mix(in srgb, var(--color-error) 20%, transparent);
-  border-radius: 10px;
+  border-radius: var(--radius-input);
   animation: slideIn 0.2s ease;
 }
 

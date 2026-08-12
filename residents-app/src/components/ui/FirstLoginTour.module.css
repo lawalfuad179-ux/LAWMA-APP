@@ -51,7 +51,7 @@
   align-items: flex-start;
   gap: 12px;
   background: var(--color-surface-container);
-  border-radius: 10px;
+  border-radius: var(--radius-input);
   padding: 10px 12px;
 }
 
@@ -90,7 +90,7 @@
   width: 100%;
   min-height: 48px;
   border: none;
-  border-radius: 10px;
+  border-radius: var(--radius-input);
   background: var(--color-primary);
   color: var(--color-on-primary);
   font-size: var(--body-large-font-size);

@@ -39,7 +39,7 @@
   background: var(--color-primary);
   color: var(--color-on-primary);
   border: none;
-  border-radius: 10px;
+  border-radius: var(--radius-input);
   font-size: var(--body-medium-font-size);
   font-weight: 600;
   cursor: pointer;

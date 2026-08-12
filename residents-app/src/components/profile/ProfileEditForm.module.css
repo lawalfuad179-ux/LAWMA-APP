@@ -28,7 +28,7 @@
   gap: 6px;
   background: none;
   border: 1px solid var(--color-outline-variant);
-  border-radius: 10px;
+  border-radius: var(--radius-input);
   color: var(--color-on-surface);
   font-size: var(--body-medium-font-size);
   font-weight: 500;
@@ -50,7 +50,7 @@
   padding: 10px 14px;
   background: var(--color-status-success-container);
   color: var(--color-on-status-success-container);
-  border-radius: 10px;
+  border-radius: var(--radius-input);
   font-size: var(--body-medium-font-size);
   font-weight: 500;
 }

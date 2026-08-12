@@ -359,7 +359,7 @@
   padding: 14px 16px;
   background: var(--color-surface-container-low);
   border: 1px solid var(--color-outline-variant);
-  border-radius: 10px;
+  border-radius: var(--radius-input);
 }
 
 .totalLabel {
@@ -381,7 +381,7 @@
   padding: 12px 14px;
   background: var(--color-error-container, hsl(0, 100%, 95%));
   color: var(--color-error);
-  border-radius: 10px;
+  border-radius: var(--radius-input);
   font-size: var(--body-small-font-size);
   font-weight: 500;
 }

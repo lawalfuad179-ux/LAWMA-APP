@@ -5,7 +5,7 @@
   padding: 14px 44px 48px 16px;
   background: color-mix(in srgb, var(--color-primary) 2%, var(--color-surface));
   border: 1px solid color-mix(in srgb, var(--color-primary) 30%, transparent);
-  border-radius: 10px;
+  border-radius: var(--radius-input);
   width: 100%;
 }
 
